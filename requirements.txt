@@ -1,0 +1,5 @@
+beautifulsoup4==4.11.1
+colorama==0.4.6
+discord.py==2.1.0
+pip==22.3.1
+requests==2.28.1
