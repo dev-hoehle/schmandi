@@ -83,9 +83,19 @@ async def on_ready():
 async def bg_task():
     try:
         await bot.wait_until_ready()
-        await bot.change_presence(status=discord.Status.dnd, activity=discord.Activavity(type=discord.ActivityType.watching, name="github.com/anditv21"),)
+        await bot.change_presence(
+            status=discord.Status.dnd,
+            activity=discord.Activity(
+                type=discord.ActivityType.watching, name="github.com/anditv21"
+            ),
+        )
         await asyncio.sleep(5)
-        await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType.watching, name="anditv.it"),)
+        await bot.change_presence(
+            status=discord.Status.dnd,
+            activity=discord.Activity(
+                type=discord.ActivityType.watching, name="anditv.it"
+            ),
+        )
         await asyncio.sleep(5)
 
     except Exception as e:

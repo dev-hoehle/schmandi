@@ -164,43 +164,25 @@ class moderationCog(commands.Cog):
 
     @app_commands.command(name="say", description="Let the bot say something (Use '\\\\' as linebrake)")
     @app_commands.describe(message="The text you want the bot to say")
-    async def say(self, interaction: discord.Interaction, message: str, channel: discord.TextChannel = None,):
-        if interaction.user.guild_permissions.manage_messages:
-            if "\\" in message:
-                message = message.replace("\\", "\n")
+    async def say(self, interaction: discord.Interaction, message: str, channel: discord.TextChannel = None):
+        if "\\" in message:
+            message = message.replace("\\", "\n")
 
-            old_channel = interaction.channel
-            old_channel = discord.utils.get(
-                interaction.guild.channels, name=old_channel.name
+        if not interaction.user.guild_permissions.manage_messages:
+            embed = discord.Embed(
+                title="Error",
+                description=f"<@{interaction.user.id}> you don`t have enough permissions to do that.",
+                color=discord.Color.dark_red(),
+                timestamp=datetime.now(),
             )
-            if channel is None:
-                channel = interaction.channel
-                channel = discord.utils.get(
-                    interaction.guild.channels, name=channel.name
-                )
-                embed = discord.Embed(title=message, color=0x00D9FF)
-                await interaction.response.send_message(
-                    "Sent message to " + f"<#{channel.id}>", ephemeral=True
-                )
-                await channel.send(embed=embed)
-            else:
-                embed = discord.Embed(title=message, color=0x00D9FF)
-                await channel.send(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
 
-                await interaction.response.send_message(
-                    "Sent message to " + f"<#{channel.id}>", ephemeral=True
-                )
-        else:
-            sayembed = discord.Embed(
-                title="Error", color=discord.Color.dark_red(), timestamp=datetime.now()
-            )
-            sayembed.add_field(
-                name="Something wrent wrong",
-                value=f"<@{interaction.user.id}> you don`t have enough permissions to do that.",
-            )
+        if channel is None:
+            channel = interaction.channel
+        await channel.send(message)
+        await interaction.response.send_message(f"Sent message to {channel.mention}", ephemeral=True)
 
-            await interaction.response.send_message(embed=sayembed, ephemeral=True)
-            sayembed.clear_fields()
 
 
 async def setup(bot):
