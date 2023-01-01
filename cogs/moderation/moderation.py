@@ -11,9 +11,7 @@ class moderationCog(commands.Cog):
 
     @app_commands.command(name="resetnickname", description="Reset nickname")
     @app_commands.describe(member="The user whose nickname should be resetted")
-    async def resetnickname(
-        self, interaction: discord.Interaction, member: discord.Member
-    ):
+    async def resetnickname(self, interaction: discord.Interaction, member: discord.Member):
         if interaction.user.guild_permissions.manage_nicknames:
             await member.edit(nick=member.name)
             await interaction.response.send_message(
@@ -34,26 +32,15 @@ class moderationCog(commands.Cog):
             )
             resetnickembed.clear_fields()
 
-    @app_commands.command(
-        name="clear", description="Deletes a certain number of message"
-    )
+    @app_commands.command(name="clear", description="Deletes a certain number of message")
     @app_commands.describe(amount="The amount of messages to clear")
-    async def clear(
-        self, interaction: discord.Interaction, amount: app_commands.Range[int, 1, 100]
-    ):
+    async def clear(self, interaction: discord.Interaction, amount: app_commands.Range[int, 1, 100]):
         if interaction.user.guild_permissions.manage_channels:
-            await interaction.response.send_message(
-                "Deleted " + str(amount) + " messages", ephemeral=True
-            )
+            await interaction.response.send_message("Deleted " + str(amount) + " messages", ephemeral=True)
             await interaction.channel.purge(limit=amount)
         else:
-            clearembed = discord.Embed(
-                title="Error", color=discord.Color.dark_red(), timestamp=datetime.now()
-            )
-            clearembed.add_field(
-                name="Something wrent wrong",
-                value=f"<@{interaction.user.id}> you don`t have enough permissions to do that.",
-            )
+            clearembed = discord.Embed(title="Error", color=discord.Color.dark_red(), timestamp=datetime.now())
+            clearembed.add_field(name="Something wrent wrong", value=f"<@{interaction.user.id}> you don`t have enough permissions to do that.",)
 
             await interaction.response.send_message(embed=clearembed, ephemeral=True)
             clearembed.clear_fields()
@@ -95,9 +82,7 @@ class moderationCog(commands.Cog):
     @app_commands.command(name="setnickname", description="Changes a user's nickname")
     @app_commands.describe(nickname="The nickname you want a user to have")
     @app_commands.describe(member="The member you want to give the nickname to")
-    async def setnickname(
-        self, interaction: discord.Interaction, nickname: str, member: discord.Member
-    ):
+    async def setnickname(self, interaction: discord.Interaction, nickname: str, member: discord.Member):
         if interaction.user.guild_permissions.manage_nicknames:
             if member == self.bot.user:
                 embed = discord.Embed(
@@ -127,13 +112,8 @@ class moderationCog(commands.Cog):
                 embed.add_field(name="Changed to ", value=nickname)
                 await interaction.response.send_message(embed=embed)
         else:
-            nickembed = discord.Embed(
-                title="Error", color=discord.Color.dark_red(), timestamp=datetime.now()
-            )
-            nickembed.add_field(
-                name="Something wrent wrong",
-                value=f"<@{interaction.user.id}> you don`t have enough permissions to do that.",
-            )
+            nickembed = discord.Embed(title="Error", color=discord.Color.dark_red(), timestamp=datetime.now())
+            nickembed.add_field(name="Something wrent wrong", value=f"<@{interaction.user.id}> you don`t have enough permissions to do that.",)
 
             await interaction.response.send_message(embed=nickembed, ephemeral=True)
             nickembed.clear_fields()

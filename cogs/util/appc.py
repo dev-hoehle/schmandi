@@ -14,46 +14,26 @@ configfile.close()
 class appsCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.get_messageid_menu = app_commands.ContextMenu(
-            name="Get Message ID",
-            callback=self.get_message_id,
-        )
+        self.get_messageid_menu = app_commands.ContextMenu(name="Get Message ID", callback=self.get_message_id,)
         self.bot.tree.add_command(self.get_messageid_menu)
-
-        self.nukechannel_menu = app_commands.ContextMenu(
-            name="Nuke Channel",
-            callback=self.nuke_channel,
-        )
+        self.nukechannel_menu = app_commands.ContextMenu(name="Nuke Channel", callback=self.nuke_channel,)
         self.bot.tree.add_command(self.nukechannel_menu)
-
-        self.getavatar_menu = app_commands.ContextMenu(
-            name="Get avatar",
-            callback=self.getavatar,
-        )
+        self.getavatar_menu = app_commands.ContextMenu(name="Get avatar",callback=self.getavatar,)
         self.bot.tree.add_command(self.getavatar_menu)
-
-        self.userinfo_menu = app_commands.ContextMenu(
-            name="User Info",
-            callback=self.userinfo,
-        )
+        self.userinfo_menu = app_commands.ContextMenu(name="User Info",callback=self.userinfo,)
         self.bot.tree.add_command(self.userinfo_menu)
-
-        self.get_mock_menu = app_commands.ContextMenu(
-            name="Mock text in message",
-            callback=self.mock,
-        )
+        self.get_mock_menu = app_commands.ContextMenu(name="Mock text in message",callback=self.mock,)
         self.bot.tree.add_command(self.get_mock_menu)
 
+
     async def get_message_id(
-        self, interaction: discord.Interaction, message: discord.Message
-    ) -> None:
+        self, interaction: discord.Interaction, message: discord.Message) -> None:
         await interaction.response.send_message(message.id, ephemeral=True)
 
     async def mock(self, interaction: discord.Interaction, message: discord.Message):
         try:
             content = message.content
-            getinformation = requests.get(
-                url=f"https://anditv.it/api/?api_key={apikey}&function=mock&text={content}")
+            getinformation = requests.get(url=f"https://anditv.it/api/?api_key={apikey}&function=mock&text={content}")
             if getinformation.status_code != 200:
                 errorres = discord.Embed(
                     title='API Error',
@@ -74,8 +54,7 @@ class appsCog(commands.Cog):
             print(e)
 
     async def getavatar(
-        self, interaction: discord.Interaction, member: discord.Member
-    ) -> None:
+        self, interaction: discord.Interaction, member: discord.Member) -> None:
         if member is None:
             member = interaction.user
         embed = discord.Embed(
@@ -92,8 +71,7 @@ class appsCog(commands.Cog):
         await interaction.response.send_message(embed=embed)
 
     async def userinfo(
-        self, interaction: discord.Interaction, user: discord.Member
-    ) -> None:
+        self, interaction: discord.Interaction, user: discord.Member) -> None:
 
         date_format = "%a, %d %b %Y %I:%M %p"
         embed = discord.Embed(title=f"{user.name}'s Info", color=0x00CCFF)
@@ -125,8 +103,7 @@ class appsCog(commands.Cog):
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
     async def nuke_channel(
-        self, interaction: discord.Interaction, message: discord.Message
-    ) -> None:
+        self, interaction: discord.Interaction, message: discord.Message) -> None:
         if interaction.user.guild_permissions.manage_channels:
             if channel is None:
                 channel = interaction.channel

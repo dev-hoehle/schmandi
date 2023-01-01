@@ -12,13 +12,8 @@ class admin(commands.Cog):
 
     @app_commands.command(name="ban", description="Ban someone")
     @app_commands.describe(member="The member you want to ban")
-    async def ban(
-        self,
-        interaction: discord.Interaction,
-        member: discord.Member,
-        *,
-        reason: str = None,
-    ):
+    @app_commands.describe(reason="Why do you want to ban this member?")
+    async def ban(self, interaction: discord.Interaction, member: discord.Member, *, reason: str = None,):
         if interaction.user.guild_permissions.ban_members:
             if reason is not None:
                 embed = discord.Embed(
@@ -65,13 +60,8 @@ class admin(commands.Cog):
 
     @app_commands.command(name="kick", description="Kick someone")
     @app_commands.describe(member="The member you want to kick")
-    async def kick(
-        self,
-        interaction: discord.Interaction,
-        member: discord.Member,
-        *,
-        reason: str = None,
-    ):
+    @app_commands.describe(reason="Why do you want to kick this member?")
+    async def kick(self, interaction: discord.Interaction, member: discord.Member, *, reason: str = None,):
         if interaction.user.guild_permissions.kick_members:
             if reason is not None:
                 embed = discord.Embed(
@@ -118,9 +108,7 @@ class admin(commands.Cog):
 
     @app_commands.command(name="lock", description="Locks a channel channel")
     @app_commands.describe(channel="The channel you want to lock")
-    async def lock(
-        self, interaction: discord.Interaction, channel: discord.TextChannel = None
-    ):
+    async def lock(self, interaction: discord.Interaction, channel: discord.TextChannel = None):
         if interaction.user.guild_permissions.manage_channels:
             channel = channel or interaction.channel
             overwrite = channel.overwrites_for(interaction.guild.default_role)
@@ -155,9 +143,7 @@ class admin(commands.Cog):
 
     @app_commands.command(name="unlock", description="Unlocks a channel")
     @app_commands.describe(channel="The channel you want to unlock")
-    async def unlock(
-        self, interaction: discord.Interaction, channel: discord.TextChannel = None
-    ):
+    async def unlock(self, interaction: discord.Interaction, channel: discord.TextChannel = None):
         if interaction.user.guild_permissions.manage_channels:
             channel = channel or interaction.channel
             overwrite = channel.overwrites_for(interaction.guild.default_role)
@@ -192,9 +178,7 @@ class admin(commands.Cog):
 
     @app_commands.command(name="nuke", description="Clears a whole channel")
     @app_commands.describe(channel="The channel you want to nuke")
-    async def nuke(
-        self, interaction: discord.Interaction, channel: discord.TextChannel = None
-    ):
+    async def nuke(self, interaction: discord.Interaction, channel: discord.TextChannel = None):
         if interaction.user.guild_permissions.manage_channels:
             if channel is None:
                 channel = interaction.channel
@@ -225,14 +209,10 @@ class admin(commands.Cog):
             nukeembed.clear_fields()
 
     # Original from https://github.com/Ghostboy00/
-    @app_commands.command(
-        name="fakemessage", description="Fake a message from another member"
-    )
+    @app_commands.command(name="fakemessage", description="Fake a message from another member")
     @app_commands.describe(member="The member you want to say something")
     @app_commands.describe(message="The text you want a to say")
-    async def fakemessage(
-        self, interaction: discord.Interaction, member: discord.Member, message: str
-    ):
+    async def fakemessage(self, interaction: discord.Interaction, member: discord.Member, message: str):
 
         if interaction.user.guild_permissions.administrator:
 
