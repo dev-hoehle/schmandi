@@ -7,6 +7,7 @@ from discord.ext import commands, tasks
 from colorama import Fore
 import requests
 
+
 with open("config.json", "r", encoding="UTF-8") as configfile:
     config = json.load(configfile)
     token = config["Token"]

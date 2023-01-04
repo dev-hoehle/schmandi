@@ -9,6 +9,10 @@ from discord.ext import commands
 import requests
 import json
 from typing import Literal
+import platform
+import sys
+import psutil
+import cpuinfo
 
 
 with open("config.json", "r", encoding="UTF-8") as configfile:
@@ -410,6 +414,22 @@ class Util(commands.Cog):
         except Exception as e:
             print(e)
 
+
+    @app_commands.command(name="botinfo", description="Shows information about the bot.")
+    async def botinfo(self, interaction: discord.Interaction):
+        name = self.bot.user
+        id = self.bot.user.id
+        python_version = platform.python_version()
+        os_version = platform.system()
+        cpu_name = cpuinfo.get_cpu_info()['brand_raw']
+        ram_usage = psutil.virtual_memory().percent
+        
+        info = f"Bot-Name: {name} ({id}) \nPython: {python_version}\nOS: {os_version}\nCPU: {cpu_name}\nRAM: {ram_usage} %"
+        
+        embed=discord.Embed(color=0x00D9FF)
+        embed.add_field(name="Bot Info", value=f"```{info}```", inline=False)
+        embed.set_footer(text=interaction.user.name, icon_url=interaction.user.avatar)
+        await interaction.response.send_message(embed=embed)
 
 async def setup(bot):
     await bot.add_cog(Util(bot))
