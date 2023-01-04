@@ -394,7 +394,7 @@ class Util(commands.Cog):
         try:
 
             getinformation = requests.get(
-                url=f"https://anditv.it/api/?api_key={apikey}&function=mock&text={text}")
+                url=f"https://api.anditv.it/?api_key={apikey}&function=mock&text={text}")
             if getinformation.status_code != 200:
                 errorres = discord.Embed(
                     title='API Error',
