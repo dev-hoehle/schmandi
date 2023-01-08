@@ -8,7 +8,7 @@
    <br>
    Create a file called "config.json" with the following content:
    <br>
-   <code>{"Token": "", "apikey": "IiCCiHwDqgKXgzxrzlg1cOVtu"}</code>
+   <code>{"Token": "", "apikey": "8shNvXFmt25GZUfFZeih1PJPJ"}</code>
         <br>
    Insert your Token
      <br>
