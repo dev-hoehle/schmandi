@@ -4,6 +4,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 import requests
+import base64
 
 with open("config.json", "r", encoding="UTF-8") as configfile:
     config = json.load(configfile)
@@ -24,10 +25,13 @@ class appsCog(commands.Cog):
         self.bot.tree.add_command(self.userinfo_menu)
         self.get_mock_menu = app_commands.ContextMenu(name="Mock text in message",callback=self.mock,)
         self.bot.tree.add_command(self.get_mock_menu)
+        self.get_base64encode_menu = app_commands.ContextMenu(name="Encode base64",callback=self.base64encode,)
+        self.bot.tree.add_command(self.get_base64encode_menu)
+        self.get_base64decode_menu = app_commands.ContextMenu(name="Decode base64",callback=self.base64decode,)
+        self.bot.tree.add_command(self.get_base64decode_menu)
 
 
-    async def get_message_id(
-        self, interaction: discord.Interaction, message: discord.Message) -> None:
+    async def get_message_id(self, interaction: discord.Interaction, message: discord.Message) -> None:
         await interaction.response.send_message(message.id, ephemeral=True)
 
     async def mock(self, interaction: discord.Interaction, message: discord.Message):
@@ -133,6 +137,26 @@ class appsCog(commands.Cog):
             await interaction.response.send_message(embed=nukeembed, ephemeral=True)
             nukeembed.clear_fields()
 
+
+
+    async def base64decode(self, interaction: discord.Interaction, message: discord.Message) -> None:
+        try:
+            text = message.content
+            decoded = base64.b64decode(text).decode("utf-8", "ignore")
+            await interaction.response.send_message(f"Your decoded text:\n || {str(decoded)} ||", ephemeral=False)
+        except Exception as e:
+            await interaction.response.send_message(f"Error: {e}", ephemeral=True)
+
+    async def base64encode(self, interaction: discord.Interaction, message: discord.Message) -> None:
+        try:
+            text = message.content
+            string_bytes = text.encode("ascii")
+
+            base64_bytes = base64.b64encode(string_bytes)
+            base64_string = base64_bytes.decode("ascii")
+            await interaction.response.send_message(f"Your encoded text:\n || {str(base64_string)} ||", ephemeral=False)
+        except Exception as e:
+            await interaction.response.send_message(f"Error: {e}", ephemeral=True)
 
 async def setup(bot):
     await bot.add_cog(appsCog(bot))
