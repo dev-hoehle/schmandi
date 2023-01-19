@@ -1,5 +1,5 @@
 import base64
-import datetime
+from datetime import datetime
 import requests
 import discord
 import pip._vendor.requests
@@ -260,16 +260,14 @@ class Util(commands.Cog):
         except Exception as e:
             print(e)
 
-
-
     @app_commands.command(name="short", description="Short a url")
     @app_commands.describe(shortner="Which shortner service do you want to use?")
     async def short(self, interaction: discord.Interaction, url: str, shortner: Literal["anditv.it", "tinyurl", "is.gd", "urlz (only ascii)"] = "tinyurl",):
         shortener_urls = {
-        "anditv.it": "https://anditv.it/short/api/",
-        "tinyurl": "http://tinyurl.com/api-create.php",
-        "is.gd": "http://is.gd/api.php",
-        "urlz": "https://urlz.fr/api_new.php",
+            "anditv.it": "https://anditv.it/short/api/",
+            "tinyurl": "http://tinyurl.com/api-create.php",
+            "is.gd": "http://is.gd/api.php",
+            "urlz": "https://urlz.fr/api_new.php",
         }
         try:
             shortener_url = shortener_urls[shortner]
@@ -414,7 +412,6 @@ class Util(commands.Cog):
         except Exception as e:
             print(e)
 
-
     @app_commands.command(name="botinfo", description="Shows information about the bot.")
     async def botinfo(self, interaction: discord.Interaction):
         name = self.bot.user
@@ -423,13 +420,47 @@ class Util(commands.Cog):
         os_version = platform.system()
         cpu_name = cpuinfo.get_cpu_info()['brand_raw']
         ram_usage = psutil.virtual_memory().percent
-        
+
         info = f"Bot-Name: {name} ({id}) \nPython: {python_version}\nOS: {os_version}\nCPU: {cpu_name}\nRAM: {ram_usage} %"
-        
-        embed=discord.Embed(color=0x00D9FF)
+
+        embed = discord.Embed(color=0x00D9FF)
         embed.add_field(name="Bot Info", value=f"```{info}```", inline=False)
-        embed.set_footer(text=interaction.user.name, icon_url=interaction.user.avatar)
+        embed.set_footer(text=interaction.user.name,
+                         icon_url=interaction.user.avatar)
         await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name='discordstatus', description="Shows you the discord server status")
+    async def discordstatus(self, interaction: discord.Interaction):
+        try:
+            response = requests.get(
+                "https://discordstatus.com/api/v2/summary.json")
+            data = json.loads(response.text)
+            if response.status_code != 200:
+                raise ValueError(
+                    f"Unexpected HTTP status code: {response.status_code}")
+            components = [{'name': component["name"], 'value': component["status"].capitalize(
+            ), 'inline': True} for component in data["components"]]
+
+            embed = discord.Embed(title=data["status"]["description"],
+                                  description=f"[Discord Status](https://discordstatus.com/)\n **Current Incident:**\n {data['status']['indicator']}",
+                                  color=0x00D9FF,
+                                  timestamp=datetime.now())
+            embed.set_thumbnail(
+                url="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png")
+            for component in components:
+                embed.add_field(
+                    name=component["name"], value=component["value"], inline=component["inline"])
+            await interaction.response.send_message(embed=embed)
+        except ValueError as e:
+            embed = discord.Embed(
+                title="Error while retrieving discord status",
+                description=str(e),
+                color=discord.Color.dark_red(),
+            )
+            await interaction.response.send_message(embed=embed)
+        except Exception as e:
+            await interaction.response.send_message("Error: " + str(e))
+
 
 async def setup(bot):
     await bot.add_cog(Util(bot))
