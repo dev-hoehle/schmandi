@@ -23,8 +23,6 @@ class appsCog(commands.Cog):
         self.bot.tree.add_command(self.getavatar_menu)
         self.userinfo_menu = app_commands.ContextMenu(name="User Info",callback=self.userinfo,)
         self.bot.tree.add_command(self.userinfo_menu)
-        self.get_mock_menu = app_commands.ContextMenu(name="Mock text in message",callback=self.mock,)
-        self.bot.tree.add_command(self.get_mock_menu)
         self.get_base64encode_menu = app_commands.ContextMenu(name="Encode base64",callback=self.base64encode,)
         self.bot.tree.add_command(self.get_base64encode_menu)
         self.get_base64decode_menu = app_commands.ContextMenu(name="Decode base64",callback=self.base64decode,)
@@ -33,29 +31,6 @@ class appsCog(commands.Cog):
 
     async def get_message_id(self, interaction: discord.Interaction, message: discord.Message) -> None:
         await interaction.response.send_message(message.id, ephemeral=True)
-
-    async def mock(self, interaction: discord.Interaction, message: discord.Message):
-        try:
-            content = message.content
-            getinformation = requests.get(url=f"https://anditv.it/api/?api_key={apikey}&function=mock&text={content}")
-            if getinformation.status_code != 200:
-                errorres = discord.Embed(
-                    title='API Error',
-                    color=discord.Color.dark_red()
-                ).clear_fields(
-                ).add_field(
-                    name='Something wrent wrong',
-                    value='Connection to api failed'
-                ).set_footer(
-                    text=interaction.user.name,
-                    icon_url=interaction.user.avatar,
-                )
-                return await interaction.response.send_message(embed=errorres, ephemeral=True)
-
-            result = getinformation.json()['text']
-            await interaction.response.send_message(result, ephemeral=True)
-        except Exception as e:
-            print(e)
 
     async def getavatar(
         self, interaction: discord.Interaction, member: discord.Member) -> None:

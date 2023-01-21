@@ -61,18 +61,7 @@ async def on_ready():
 
     time = datetime.now().strftime('%d.%m.%Y %H:%M:%S')
     print(f'[{time}] [{Fore.LIGHTCYAN_EX}BOT{Fore.RESET}] Loaded [{loaded}/{allcogs}] cogs')
-
-    try:
-        getmainapires =  requests.get(url='http://api.ghostboy.dev', timeout=5)
-        if getmainapires.status_code != 200:
-            print(f'[{time}] [{Fore.RED}API{Fore.RESET}] Failed to get api')
-        else:
-            endpoints = len(getmainapires.json()['endpoints'])
-            print(f'[{time}] [{Fore.LIGHTYELLOW_EX}API{Fore.RESET}] Api loaded with {endpoints} endpoints')
-    except:
-        print(f'[{time}] [{Fore.RED}API{Fore.RESET}] Failed to get api')
-
-
+    
     await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType.watching, name="anditv.it"),)
     print(f'\n[{time}] [{Fore.LIGHTCYAN_EX}BOT{Fore.RESET}] has connected as {bot.user} with the api version {discord.__version__}')
 
@@ -103,4 +92,4 @@ async def bg_task():
         print(e)
 
 
-bot.run(token=token, log_level=40)
+bot.run(token=token)
