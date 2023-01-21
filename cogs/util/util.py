@@ -13,29 +13,23 @@ import platform
 import sys
 import psutil
 import cpuinfo
-
-
-with open("config.json", "r", encoding="UTF-8") as configfile:
-    config = json.load(configfile)
-    apikey = config["apikey"]
-configfile.close()
-
+from urllib.parse import urlparse
 
 class Util(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @app_commands.command(name="avatar", description="Shows the avatar of a user")
-    @app_commands.describe(member="Who you want to see the avatar of?")
+    @app_commands.describe(member="The member whose avatar you want to view")
     async def avatar(self, interaction: discord.Interaction, member: discord.Member = None):
         if member is None:
             member = interaction.user
-        embed = discord.Embed(title="Download Avatar",
-                              url=member.avatar, color=0x00EFDB,)
-        embed.set_author(name=member.name + "`s avatar",
-                         url="https://discord.com/users/" + str(member.id), icon_url=member.avatar,)
+
+        embed = discord.Embed(title=f"{member.name}'s avatar", color=0x00EFDB)
         embed.set_image(url=member.avatar)
+        embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
         await interaction.response.send_message(embed=embed)
+
 
     @app_commands.command(name="base64decode", description="Decodes a Base64 string")
     @app_commands.describe(text="What is your encoded text?")
@@ -61,26 +55,24 @@ class Util(commands.Cog):
     @app_commands.command(name="yt", description="Direct-Download for your YT video")
     @app_commands.describe(url="Which YT video do you want to download?")
     async def yt(self, interaction: discord.Interaction, url: str):
-        if "https://youtu.be/" in url:
-            url.replace("https://youtu.be/",
-                        "https://www.youtube.com/watch?v=")
+        parsed_url = urlparse(url)
+        if parsed_url.scheme and parsed_url.netloc:
+            if "https://youtu.be/" in url:
+                url.replace("https://youtu.be/", "https://www.youtube.com/watch?v=")
 
-        vgm_url = "https://8downloader.com/download?v=" + url
-        html_text = pip._vendor.requests.get(vgm_url).text
-        soup = BeautifulSoup(html_text, "html.parser")
-        download = soup.find("a", href=True, text="Download")["href"]
+            vgm_url = "https://8downloader.com/download?v=" + url
+            html_text = requests.get(vgm_url).text
+            soup = BeautifulSoup(html_text, "html.parser")
+            download = soup.find("a", href=True, text="Download")["href"]
 
-        link = "http://tinyurl.com/api-create.php?url=" + str(download)
-        from urllib.request import urlopen
+            link = "http://tinyurl.com/api-create.php?url=" + str(download)
+            short_url = requests.get(link).text
 
-        with urlopen(link) as webpage:
-            f = webpage.read().decode()
-
-        embed = discord.Embed(
-            title="Click here to download your Video", url=f, color=0xFF0000
-        )
-        embed.set_author(name="Your download link is ready")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+            embed = discord.Embed(title="Click here to download your Video", url=short_url, color=0xFF0000)
+            embed.set_author(name="Your download link is ready")
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+        else:
+            await interaction.response.send_message("Invalid URL detected")
 
     @app_commands.command(name="userinfo", description="Shows information about a user")
     @app_commands.describe(member="About which member do you want to get infos?")
@@ -93,19 +85,13 @@ class Util(commands.Cog):
         embed.set_thumbnail(url=member.avatar)
         embed.add_field(name="Name", value=member.name, inline=True)
         embed.add_field(name="ID", value=member.id, inline=True)
-        embed.add_field(name="Joined", value=member.joined_at.strftime(
-            date_format), inline=True)
+        embed.add_field(name="Joined", value=member.joined_at.strftime(date_format), inline=True)
         members = sorted(interaction.guild.members, key=lambda m: m.joined_at)
-        embed.add_field(name="Join position",
-                        value=str(members.index(member) + 1))
-        embed.add_field(name="Account created", value=member.created_at.strftime(
-            date_format), inline=True,)
+        embed.add_field(name="Join position", value=str(members.index(member) + 1))
+        embed.add_field(name="Account created", value=member.created_at.strftime(date_format), inline=True)
         embed.add_field(name="🤖 Bot", value=member.bot, inline=True)
         embed.add_field(name="Nickname", value=member.nick, inline=True)
-        # embed.add_field(name='Status', value=member.raw_status, inline=True)
-
-        embed.add_field(name="Highest role",
-                        value=member.top_role.mention, inline=True)
+        embed.add_field(name="Highest role", value=member.top_role.mention, inline=True)
         rolelist = [r.mention for r in member.roles]
         roles = ", ".join(rolelist)
         embed.add_field(name="Roles", value=roles, inline=True)
@@ -114,10 +100,10 @@ class Util(commands.Cog):
 
     @app_commands.command(name="ping", description="Pong")
     async def ping(self, interaction: discord.Interaction):
+        
         # Calculate the ping in milliseconds
         ping_ms = round(self.bot.latency * 1000)
 
-        # Choose the appropriate color for the embed based on the ping
         if ping_ms <= 50:
             color = 0x44FF44
         elif ping_ms <= 100:
@@ -127,16 +113,14 @@ class Util(commands.Cog):
         else:
             color = 0x990000
 
-        # Create the Discord embed
-        embed = discord.Embed(
-            title="PING", description=f"Pong! The ping is **{ping_ms}** milliseconds!", color=color,)
+        embed = discord.Embed(title="PING", description=f"Pong! The ping is **{ping_ms}** milliseconds!", color=color,)
 
-        # Send the embed to Discord
         await interaction.response.send_message(embed=embed)
+        
 
     @app_commands.command(name="fact", description="Shows you a useless fact")
     @app_commands.describe(language="In which language should your useless fact be shown?")
-    async def fact(self, interaction: discord.Interaction, language: Literal["English", "German"] = "English",):
+    async def fact(self, interaction: discord.Interaction, language: Literal["English", "German"] = "English"):
         try:
             language_codes = {"English": "en", "German": "de"}
             code = language_codes.get(language)
@@ -145,29 +129,28 @@ class Util(commands.Cog):
                 return
 
             url = f"https://uselessfacts.jsph.pl/random.json?language={code}"
-            factembed = discord.Embed(timestamp=datetime.now(), color=discord.Color.dark_red(
-            )).set_footer(text=interaction.guild.name, icon_url=interaction.guild.icon.url)
+            factembed = discord.Embed(timestamp=datetime.now(), color=discord.Color.dark_red()).set_footer(text=interaction.guild.name, icon_url=interaction.guild.icon.url)
 
             try:
                 response = requests.get(url)
                 if response.status_code != 200:
-                    factembed.add_field(name="Error Code:",
-                                        value=response.status_code)
+                    factembed.add_field(name="Error Code:", value=response.status_code)
                     await interaction.response.send_message(embed=factembed, ephemeral=True)
                     return
 
                 data = response.json()
                 fact = data["text"]
-                await interaction.response.send_message(fact, ephemeral=True)
+                factembed.add_field(name="Useless Fact:", value=fact)
+                await interaction.response.send_message(embed=factembed, ephemeral=True)
             except requests.exceptions.RequestException as e:
                 factembed.add_field(name="Error:", value=str(e))
                 await interaction.response.send_message(embed=factembed, ephemeral=True)
             except ValueError:
-                factembed.add_field(
-                    name="Error:", value="Failed to parse response as JSON.")
+                factembed.add_field(name="Error:", value="Failed to parse response as JSON.")
                 await interaction.response.send_message(embed=factembed, ephemeral=True)
         except Exception as e:
             print(e)
+        
 
     @app_commands.command(name="short", description="Short a url")
     @app_commands.describe(shortner="Which shortner service do you want to use?")
@@ -178,6 +161,12 @@ class Util(commands.Cog):
             "is.gd": "http://is.gd/api.php",
             "urlz": "https://urlz.fr/api_new.php",
         }
+
+        parsed_url = urlparse(url)
+        if not parsed_url.scheme or not parsed_url.netloc:
+            await interaction.response.send_message("Invalid URL detected. Please enter a valid URL.")
+            return
+        
         try:
             shortener_url = shortener_urls[shortner]
             payload = {"url": url}
@@ -190,35 +179,12 @@ class Util(commands.Cog):
             elif response.status_code != 200:
                 raise ValueError(
                     f"Unexpected HTTP status code: {response.status_code}")
-        except ValueError as e:
-            embed = discord.Embed(
-                title="Error while shortening URL",
-                description=str(e),
-                timestamp=datetime.now(),
-                color=discord.Color.dark_red(),
-            )
-            embed.set_footer(text=interaction.guild.name,
-                             icon_url=interaction.guild.icon.url)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
-        except Exception as e:
-            print("Error while shortening URL: %s", e)
-            embed = discord.Embed(
-                title="An unexpected error occurred",
-                timestamp=datetime.now(),
-                color=discord.Color.dark_red(),
-            )
-            embed.set_footer(text=interaction.guild.name,
-                             icon_url=interaction.guild.icon.url)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
 
-        short_url = str(response.content, "utf-8")
-        embed = discord.Embed(
-            title="✅ Successfully shorted your URL", color=0xFFFFFF
-        ).add_field(name="Short-Service:", value=shortner.capitalize(), inline=False)
-        embed.add_field(name="Short URL:", value=short_url, inline=True)
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        except Exception as e:
+                print("Error while shortening URL: %s", e)
+                embed = discord.Embed(title="An unexpected error occurred", imestamp=datetime.now(), color=discord.Color.dark_red(),)
+                embed.set_footer(text=interaction.guild.name, icon_url=interaction.guild.icon.url)
+                await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
     @app_commands.command(name="botinfo", description="Shows information about the bot.")
@@ -234,8 +200,7 @@ class Util(commands.Cog):
 
         embed = discord.Embed(color=0x00D9FF)
         embed.add_field(name="Bot Info", value=f"```{info}```", inline=False)
-        embed.set_footer(text=interaction.user.name,
-                         icon_url=interaction.user.avatar)
+        embed.set_footer(text=interaction.user.name, icon_url=interaction.user.avatar)
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name='discordstatus', description="Shows you the discord server status")

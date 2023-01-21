@@ -6,6 +6,7 @@ import discord
 from discord.ext import commands, tasks
 from colorama import Fore
 import requests
+import platform
 
 
 with open("config.json", "r", encoding="UTF-8") as configfile:
@@ -14,11 +15,14 @@ with open("config.json", "r", encoding="UTF-8") as configfile:
 configfile.close()
 
 
-def clearConsole():
-    command = "clear"
-    if os.name in ("nt", "dos"):  # If Machine is running on Windows, use cls
-        command = "cls"
-    os.system(command)
+def clear_console():
+    try:
+        if platform.system() == "Windows":
+            os.system("cls")
+        else:
+            os.system("clear")
+    except Exception as e:
+        print(f"Error: {e}")
 
 
 
@@ -73,23 +77,12 @@ async def on_ready():
 async def bg_task():
     try:
         await bot.wait_until_ready()
-        await bot.change_presence(
-            status=discord.Status.dnd,
-            activity=discord.Activity(
-                type=discord.ActivityType.watching, name="github.com/anditv21"
-            ),
-        )
-        await asyncio.sleep(5)
-        await bot.change_presence(
-            status=discord.Status.dnd,
-            activity=discord.Activity(
-                type=discord.ActivityType.watching, name="anditv.it"
-            ),
-        )
-        await asyncio.sleep(5)
-
+        status_list = [(discord.Status.dnd, discord.Activity(type=discord.ActivityType.watching, name="github.com/anditv21")),
+                       (discord.Status.dnd, discord.Activity(type=discord.ActivityType.watching, name="anditv.it"))]
+        for status, activity in status_list:
+            await bot.change_presence(status=status, activity=activity)
+            await asyncio.sleep(5)
     except Exception as e:
         print(e)
-
 
 bot.run(token=token)
