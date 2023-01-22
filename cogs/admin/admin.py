@@ -53,7 +53,7 @@ class Admin(commands.Cog):
         await member.kick(reason=f"{reason} | Kicked by: {interaction.user}")
 
 
-    @commands.command(name="lock_or_unlock", description="Locks or unlocks a channel")
+    @app_commands.command(name="lock_or_unlock", description="Locks or unlocks a channel")
     @discord.app_commands.describe(channel="The channel you want to lock or unlock")
     @discord.app_commands.describe(action="'lock' or 'unlock'")
     async def lock_or_unlock(self, interaction: discord.Interaction, channel: discord.TextChannel = None, action: Literal["lock", "unlock"] = "lock",):
@@ -62,21 +62,13 @@ class Admin(commands.Cog):
             return
 
         channel = channel or interaction.channel
-        overwrite = channel.overwrites_for(interaction.guild.default_role)
-        if action == "lock":
-            overwrite.send_messages = False
-            message = "Locked"
-        elif action == "unlock":
-            overwrite.send_messages = None
-            message = "Unlocked"
-        else:
-            await interaction.response.send_message("Invalid action. Please specify 'lock' or 'unlock'.", ephemeral=True)
-            return
-
-        await channel.set_permissions(interaction.guild.default_role, overwrite=overwrite)
-        lockembed = discord.Embed(title=f"{message} channel", color=discord.Color.green(), timestamp=datetime.now())
-        lockembed.add_field(name=f"The following channel has been {message}:", value=f"<#{channel.id}>")
+        default_role = interaction.guild.default_role
+        overwrite = discord.PermissionOverwrite(send_messages=None) if action=="unlock" else discord.PermissionOverwrite(send_messages=False)
+        await channel.set_permissions(default_role, overwrite=overwrite)
+        lockembed = discord.Embed(title=f"{action} channel", color=discord.Color.green(), timestamp=datetime.now())
+        lockembed.add_field(name=f"The following channel has been {action}:", value=f"<#{channel.id}>")
         await interaction.response.send_message(embed=lockembed)
+
 
     @app_commands.command(name="nuke", description="Clears a whole channel")
     @discord.app_commands.describe(channel="The channel you want to nuke")
