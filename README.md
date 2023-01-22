@@ -6,11 +6,8 @@
 <summary>Setup</summary>
 <ul>
    <br>
-   Create a file called "config.json" with the following content:
+   Insert your BOT token in the file called "example.config.json" and rename it to "config.json"
    <br>
-   <code>{"Token": ""}</code>
-        <br>
-   Insert your Token
      <br>
   Run pip install -r requirements.txt
   <br>

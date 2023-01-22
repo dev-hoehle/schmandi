@@ -12,7 +12,8 @@ import platform
 with open("config.json", "r", encoding="UTF-8") as configfile:
     config = json.load(configfile)
     token = config["Token"]
-configfile.close()
+    greet = config.get("greetmembers", True)
+
 
 
 def clear_console():
@@ -71,6 +72,12 @@ async def on_ready():
 
     bg_task.start()
 
+@bot.event
+async def on_member_join(member):
+    if greet:
+        await member.create_dm()
+        await member.dm_channel.send(f'Welcome **{member.name}** to **{member.guild.name}**!')
+    
 
 # loop for changing rpc
 @tasks.loop(seconds=5)
