@@ -28,21 +28,18 @@ class moderationCog(commands.Cog):
         else:
             await interaction.response.send_message("You don't have the permission to change nicknames.")
 
-            
-            
+
     @app_commands.command(name="clear", description="Deletes a certain number of message")
-    @app_commands.describe(amount="The amount of messages to clear (1-100)")
+    @app_commands.describe(amount="The amount of messages to clear")
     async def clear(self, interaction: discord.Interaction, amount: app_commands.Range[int, 1, 100]):
-        if interaction.user.guild_permissions.manage_messages:
-            deleted = await interaction.channel.purge(limit=amount)
-            message = f"Deleted {len(deleted)} messages."
-            embed = discord.Embed(title="Cleared messages", description=message, color=discord.Color.green())
-            embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
-            await interaction.response.send_message(embed=embed)
+        if interaction.user.guild_permissions.manage_channels:
+            await interaction.response.send_message("Deleted " + str(amount) + " messages", ephemeral=True)
+            await interaction.channel.purge(limit=amount)
         else:
-            embed = discord.Embed(title="Error", color=discord.Color.dark_red(), timestamp=datetime.now())
-            embed.add_field(name="Permission Error", value=f"<@{interaction.user.id}> you don't have permission to manage messages.")
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            clearembed = discord.Embed(title="Error", color=discord.Color.dark_red(), timestamp=datetime.now())
+            clearembed.add_field(name="Something wrent wrong", value=f"<@{interaction.user.id}> you don`t have enough permissions to do that.",)
+
+            await interaction.response.send_message(embed=clearembed, ephemeral=True)
 
 
     @app_commands.command(name="poll", description="Creates a simple poll")
@@ -69,7 +66,7 @@ class moderationCog(commands.Cog):
     async def say(self, interaction: discord.Interaction, message: str, channel: discord.TextChannel = None):
         if "\\" in message:
             message = message.replace("\\", "\n")
-        
+
         if not interaction.user.guild_permissions.manage_messages:
             embed = discord.Embed(
                 title="Error",
@@ -88,7 +85,7 @@ class moderationCog(commands.Cog):
 
 
 
-        
+
 
 async def setup(bot):
     await bot.add_cog(moderationCog(bot))
