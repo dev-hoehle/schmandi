@@ -85,4 +85,4 @@ async def bg_task():
     except Exception as e:
         print(e)
 
-bot.run(token=token)
+bot.run(token=token, log_level=40)
