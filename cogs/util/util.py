@@ -79,24 +79,22 @@ class Util(commands.Cog):
     async def userinfo(self, interaction: discord.Interaction, member: discord.Member = None):
         if member is None:
             member = interaction.user
-        date_format = "%a, %d %b %Y %I:%M %p"
-        embed = discord.Embed(title=f"{member.name}'s Info", color=0x00CCFF)
-        embed.set_author(name=str(member), icon_url=member.avatar)
+            
+        user_created_at = member.created_at.strftime("%b %d, %Y %I:%M %p")
+        joined_at = member.joined_at.strftime("%b %d, %Y %I:%M %p")
+        
+        embed = discord.Embed(color=member.color)
         embed.set_thumbnail(url=member.avatar)
-        embed.add_field(name="Name", value=member.name, inline=True)
-        embed.add_field(name="ID", value=member.id, inline=True)
-        embed.add_field(name="Joined", value=member.joined_at.strftime(date_format), inline=True)
-        members = sorted(interaction.guild.members, key=lambda m: m.joined_at)
-        embed.add_field(name="Join position", value=str(members.index(member) + 1))
-        embed.add_field(name="Account created", value=member.created_at.strftime(date_format), inline=True)
-        embed.add_field(name="🤖 Bot", value=member.bot, inline=True)
-        embed.add_field(name="Nickname", value=member.nick, inline=True)
-        embed.add_field(name="Highest role", value=member.top_role.mention, inline=True)
-        rolelist = [r.mention for r in member.roles]
-        roles = ", ".join(rolelist)
-        embed.add_field(name="Roles", value=roles, inline=True)
-        embed.set_thumbnail(url=member.avatar)
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        embed.set_author(name=f"{member.name}'s Info", icon_url=member.avatar)
+        embed.add_field(name="Tag", value=f"```{member.name}#{member.discriminator}```", inline=False)
+        embed.add_field(name="ID", value=f"```{member.id}```", inline=False)
+        embed.add_field(name="Creation", value=f"```{user_created_at}```", inline=False)
+        embed.add_field(name="Avatar", value=f"[Click here]({member.avatar})", inline=False)
+        embed.add_field(name="Joined", value=f"{joined_at}", inline=True)
+        embed.add_field(name="Nickname", value=f"{member.nick}", inline=True)
+        embed.add_field(name="Highest Role", value=f"{member.top_role.mention}", inline=True)
+        await interaction.response.send_message(embed=embed, ephemeral=False)
+
 
     @app_commands.command(name="ping", description="Pong")
     async def ping(self, interaction: discord.Interaction):

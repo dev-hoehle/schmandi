@@ -30,7 +30,7 @@ def clear_console():
 loaded = 0
 allcogs = 0
 
-class SBot(commands.Bot):
+class Bot(commands.Bot):
     def __init__(self, *, intents: discord.Intents):
 
         super().__init__(command_prefix=commands.when_mentioned_or("$$"), intents=intents)
@@ -57,7 +57,7 @@ class SBot(commands.Bot):
 intents = discord.Intents.all()
 intents.presences = True
 intents.members = True
-bot = SBot(intents=intents)
+bot = Bot(intents=intents)
 bot.remove_command("help")
 
 
@@ -92,5 +92,11 @@ async def bg_task():
             await asyncio.sleep(5)
     except Exception as e:
         print(e)
+
+"""
+@bot.event
+async def on_message(message):
+    print(str(message.content))
+"""
 
 bot.run(token=token, log_level=40)
