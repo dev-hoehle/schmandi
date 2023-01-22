@@ -38,6 +38,7 @@ class SBot(commands.Bot):
 
     async def setup_hook(self):
         global loaded, allcogs
+        clear_console()
         for filepath in os.listdir('cogs'):
             for filename in os.listdir(f'cogs/{filepath}'):
                 if filename.endswith('.py'):
