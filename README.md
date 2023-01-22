@@ -6,7 +6,8 @@
 <summary>Setup</summary>
 <ul>
    <br>
-   Insert your BOT token in the file called "example.config.json" and rename it to "config.json"
+   Insert your discord bot token from <a href="https://discord.dev/">developer portal</a> in the file called "example.config.json" and rename it to "config.json"
+   Insert your <a href="https://developers.giphy.com/">giphy</a> api key
    <br>
      <br>
   Run pip install -r requirements.txt
@@ -96,6 +97,23 @@
   <li>userinfo: Shows information about a user
     <ul>
       <li>member: About which member do you want to get infos?</li>
+    </ul>
+  </li>
+</ul>
+</details>
+
+
+<details>
+<summary>Fun commands</summary>
+<ul>
+  <li>roll: Rolls a virtual dice
+    <ul>
+      <li>sides: How many sides do you want?</li>
+    </ul>
+  </li>
+  <li>gifsearch: Shows you a random gif for your query
+    <ul>
+      <li>query: Search query?</li>
     </ul>
   </li>
 </ul>
