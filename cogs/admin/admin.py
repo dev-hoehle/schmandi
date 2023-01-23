@@ -100,13 +100,13 @@ class Admin(commands.Cog):
             webhook = await interaction.channel.create_webhook(name=webhook_name)
             try:
                 await webhook.send(content=message, username=member.display_name, avatar_url=member.avatar)
-                await interaction.response.send_message(f"Successfully sent fake message for {member.mention}")
+                await interaction.response.send_message(f"Successfully sent fake message for {member.mention}", ephemeral=True)
             except Exception as e:
-                await interaction.response.send_message(f"Failed to send fake message: {e}")
+                await interaction.response.send_message(f"Failed to send fake message: {e}", ephemeral=True)
             finally:
                 await webhook.delete()
         else:
-            await interaction.response.send_message("You do not have permission to use this command.")
+            await interaction.response.send_message("You do not have permission to use this command.", ephemeral=True)
 
 
 
