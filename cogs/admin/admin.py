@@ -99,7 +99,7 @@ class Admin(commands.Cog):
             webhook_name = member.display_name
             webhook = await interaction.channel.create_webhook(name=webhook_name)
             try:
-                await webhook.send(content=message, username=member.display_name, avatar=member.avatar)
+                await webhook.send(content=message, username=member.display_name, avatar_url=member.avatar)
                 await interaction.response.send_message(f"Successfully sent fake message for {member.mention}")
             except Exception as e:
                 await interaction.response.send_message(f"Failed to send fake message: {e}")
