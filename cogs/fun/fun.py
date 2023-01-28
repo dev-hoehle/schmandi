@@ -30,13 +30,12 @@ class Fun(commands.Cog):
         embed.add_field(name="Virtual dice", value=f'You rolled a {roll}!', inline=False)
         await interaction.response.send_message(embed=embed)
 
-
     @app_commands.command(name='gifsearch', description='Shows you a random gif for your query')
     @app_commands.describe(query="Search query?")
     async def gifsearch(self, interaction: discord.Interaction, *, query: str):
-        url = f"https://api.giphy.com/v1/gifs/search?api_key={api_key}&q={query}&limit=1"
+        url = f"https://api.giphy.com/v1/gifs/search?api_key={api_key}&q={query}&limit=15"
         response = requests.get(url).json()
-        gif_url = response["data"][0]["images"]["original"]["url"]
+        gif_url = random.choice(response["data"])["images"]["original"]["url"]
         embed = discord.Embed(title=f"Gif for {query}", color=0x00EFDB)
         embed.set_image(url=gif_url)
         embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
