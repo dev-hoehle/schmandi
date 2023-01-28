@@ -1,10 +1,11 @@
-from datetime import datetime
+import base64
 import json
+from datetime import datetime
+
 import discord
+import requests
 from discord import app_commands
 from discord.ext import commands
-import requests
-import base64
 
 
 class appsCog(commands.Cog):

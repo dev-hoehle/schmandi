@@ -1,5 +1,6 @@
-import os
 import argparse
+import os
+
 
 def createCog(name:str, cmdName:str, cmdDesc:str) -> str:
     exampleCog = f"""from discord import app_commands

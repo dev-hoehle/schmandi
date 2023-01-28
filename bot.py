@@ -1,13 +1,13 @@
 import asyncio
 import json
 import os
-from datetime import datetime
-import discord
-from discord.ext import commands, tasks
-from colorama import Fore
-import requests
 import platform
+from datetime import datetime
 
+import discord
+import requests
+from colorama import Fore
+from discord.ext import commands, tasks
 
 with open("config.json", "r", encoding="UTF-8") as configfile:
     config = json.load(configfile)

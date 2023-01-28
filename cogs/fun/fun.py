@@ -1,12 +1,12 @@
-import discord
-import random
-import requests
 import json
+import random
+from datetime import datetime
+
+import discord
+import requests
+from bs4 import BeautifulSoup
 from discord import app_commands
 from discord.ext import commands
-from datetime import datetime
-from bs4 import BeautifulSoup
-
 
 with open("config.json", "r", encoding="UTF-8") as configfile:
     config = json.load(configfile)
