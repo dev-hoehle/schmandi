@@ -147,19 +147,24 @@ class Admin(commands.Cog):
         try:
             time = timemap[time] 
         except KeyError:
-            return await interaction.response.send_message("Invalid timeout duration specified.", ephemeral=True)
+            embed = discord.Embed(title="Timeout failed", color=0xff0000)
+            embed.add_field(name="Error", value="Invalid timeout duration specified.", inline=True)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
         
         timeout_duration = timedelta(seconds=int(time))
         try:
             timeout_result = await member.timeout(timeout_duration)
         except Exception as e:
-            return await interaction.response.send_message(f"Something went wrong. Failed to timeout {member.mention}.", ephemeral=True)
+            embed = discord.Embed(title="Tiemout failed", color=0xff0000)
+            embed.add_field(name="Error", value=f"{e}", inline=True)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
         
         embed = discord.Embed(title="Timeout Successful", color=0x00D9FF)
         embed.add_field(name="User", value=member.mention, inline=True)
         embed.add_field(name="Duration", value=f"{time} seconds", inline=True)
         embed.add_field(name="Reason", value=f"{reason}", inline=True)
         await interaction.response.send_message(embed=embed)
+
 
 
 
