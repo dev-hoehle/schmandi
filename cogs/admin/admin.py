@@ -64,11 +64,21 @@ class Admin(commands.Cog):
 
         channel = channel or interaction.channel
         default_role = interaction.guild.default_role
-        overwrite = discord.PermissionOverwrite(send_messages=None) if action=="unlock" else discord.PermissionOverwrite(send_messages=False)
+        current_overwrite = channel.overwrites_for(default_role)
+
+        if action == "unlock" and current_overwrite.send_messages == False:
+            overwrite = discord.PermissionOverwrite(send_messages=None)
+        elif action == "lock" and current_overwrite.send_messages != False:
+            overwrite = discord.PermissionOverwrite(send_messages=False)
+        else:
+            await interaction.response.send_message(f"The channel is already {'locked' if action=='lock' else 'unlocked'}.", ephemeral=True)
+            return
+
         await channel.set_permissions(default_role, overwrite=overwrite)
         lockembed = discord.Embed(title=f"{action} channel", color=discord.Color.green(), timestamp=datetime.now())
         lockembed.add_field(name=f"The following channel has been {action}:", value=f"<#{channel.id}>")
         await interaction.response.send_message(embed=lockembed)
+
 
 
     @app_commands.command(name="nuke", description="Clears a whole channel")
