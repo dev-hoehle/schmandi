@@ -125,42 +125,6 @@ class Util(commands.Cog):
 
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="fact", description="Shows you a useless fact")
-    @app_commands.describe(language="In which language should your useless fact be shown?")
-    async def fact(self, interaction: discord.Interaction, language: Literal["English", "German"] = "English"):
-        try:
-            language_codes = {"English": "en", "German": "de"}
-            code = language_codes.get(language)
-            if not code:
-                await interaction.response.send_message("Sorry, that language is not supported.", ephemeral=True)
-                return
-
-            url = f"https://uselessfacts.jsph.pl/random.json?language={code}"
-            factembed = discord.Embed(timestamp=datetime.now(), color=discord.Color.dark_red(
-            )).set_footer(text=interaction.guild.name, icon_url=interaction.guild.icon.url)
-
-            try:
-                response = requests.get(url)
-                if response.status_code != 200:
-                    factembed.add_field(name="Error Code:",
-                                        value=response.status_code)
-                    await interaction.response.send_message(embed=factembed, ephemeral=True)
-                    return
-
-                data = response.json()
-                fact = data["text"]
-                factembed.add_field(name="Useless Fact:", value=fact)
-                await interaction.response.send_message(embed=factembed, ephemeral=True)
-            except requests.exceptions.RequestException as e:
-                factembed.add_field(name="Error:", value=str(e))
-                await interaction.response.send_message(embed=factembed, ephemeral=True)
-            except ValueError:
-                factembed.add_field(
-                    name="Error:", value="Failed to parse response as JSON.")
-                await interaction.response.send_message(embed=factembed, ephemeral=True)
-        except Exception as e:
-            print(e)
-
     @app_commands.command(name="short", description="Short a url")
     @app_commands.describe(shortner="Which shortner service do you want to use?")
     async def short(self, interaction: discord.Interaction, url: str, shortner: Literal["anditv.it", "tinyurl", "is.gd", "urlz (only ascii)"] = "tinyurl",):
