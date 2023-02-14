@@ -127,52 +127,5 @@ class Admin(commands.Cog):
         else:
             await interaction.response.send_message("You do not have permission to use this command.", ephemeral=True)
 
-
-
-    @app_commands.command(name="timeout", description="Timeout a Member.")
-    @discord.app_commands.describe(member="Who do you want to timeout?")
-    async def timeout(self, interaction: discord.Interaction, member: discord.Member, *, time: Literal["15s", "30s", "1min", "5min", "15min", "30min", "1h"], reason: str = None):
-        if interaction.user.guild_permissions.administrator:
-            timemap = {
-                "15s": 15,
-                "30s": 30,
-                "1min": 60,
-                "5min": 300,
-                "15min": 900,
-                "30min": 1800,
-                "1h": 3600,
-            }
-            if not reason:
-                reason = "None"
-
-            try:
-                oldtime = time
-                time = timemap[time] 
-            except KeyError:
-                embed = discord.Embed(title="Timeout failed", color=0xff0000)
-                embed.add_field(name="Error", value="Invalid timeout duration specified.", inline=True)
-                return await interaction.response.send_message(embed=embed, ephemeral=True)
-            
-            timeout_duration = timedelta(seconds=int(time))
-            try:
-                timeout_result = await member.timeout(timeout_duration)
-            except Exception as e:
-                embed = discord.Embed(title="Tiemout failed", color=0xff0000)
-                embed.add_field(name="Error", value=f"{e}", inline=True)
-                return await interaction.response.send_message(embed=embed, ephemeral=True)
-            
-            embed = discord.Embed(title="Timeout Successful", color=0x00D9FF)
-            embed.add_field(name="User", value=member.mention, inline=True)
-            embed.add_field(name="Duration", value=f"{oldtime}", inline=True)
-            embed.add_field(name="Reason", value=f"{reason}", inline=True)
-            await interaction.response.send_message(embed=embed)
-
-        else:
-            await interaction.response.send_message("You do not have permission to use this command.", ephemeral=True)
-
-
-
-
-
 async def setup(bot):
     await bot.add_cog(Admin(bot))
