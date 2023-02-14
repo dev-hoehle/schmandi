@@ -67,6 +67,13 @@
     </ul>
   </li>
   </ul>
+    <li>timeout: Timeout a Member
+    <ul>
+      <li>member: The member you want to timeout</li>
+      <li>time: The time you want to mute the member</li>
+    </ul>
+  </li>
+  </ul>
 
 
 </details>
@@ -114,6 +121,11 @@
   <li>gifsearch: Shows you a random gif for your query
     <ul>
       <li>query: Search query?</li>
+    </ul>
+  </li>
+    <li>fact: Shows you a random and useless fact
+    <ul>
+      <li>language: the language in which you want to see the fact</li>
     </ul>
   </li>
 </ul>
