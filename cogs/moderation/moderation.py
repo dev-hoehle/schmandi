@@ -11,9 +11,9 @@ class moderationCog(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="nickname", description="Changes the bot's or a user's nickname")
-    @app_commands.describe(nickname="The nickname you want the bot or user to have")
     @app_commands.describe(member="The member whose nickname you want to change (optional)")
-    async def nickname(self, interaction: discord.Interaction, nickname: str = None, member: discord.Member = None):
+    @app_commands.describe(nickname="The nickname you want the bot or user to have")
+    async def nickname(self, interaction: discord.Interaction, member: discord.Member = None, nickname: str = None):
         if interaction.user.guild_permissions.manage_nicknames:
             if member is None:
                 member = interaction.user
@@ -23,11 +23,15 @@ class moderationCog(commands.Cog):
                 await interaction.response.send_message("I don't have the permission to change this member's nickname.")
             else:
                 embed = discord.Embed(title="Nickname changed", color=0x00D9FF)
-                embed.add_field(name="Changed by ", value=interaction.user.mention)
-                embed.add_field(name="Changed to ", value=nickname or member.name)
+                embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.avatar.url)
+                embed.add_field(name="Member", value=member.mention, inline=False)
+                embed.add_field(name="New Nickname", value=nickname or member.name, inline=False)
                 await interaction.response.send_message(embed=embed)
         else:
             await interaction.response.send_message("You don't have the permission to change nicknames.")
+
+
+
 
 
     @app_commands.command(name="clear", description="Deletes a certain number of messages")
