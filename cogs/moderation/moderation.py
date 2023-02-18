@@ -30,17 +30,54 @@ class moderationCog(commands.Cog):
             await interaction.response.send_message("You don't have the permission to change nicknames.")
 
 
-    @app_commands.command(name="clear", description="Deletes a certain number of message")
+    @app_commands.command(name="clear", description="Deletes a certain number of messages")
     @app_commands.describe(amount="The amount of messages to clear")
     async def clear(self, interaction: discord.Interaction, amount: app_commands.Range[int, 1, 100]):
-        if interaction.user.guild_permissions.manage_channels:
-            await interaction.response.send_message("Deleted " + str(amount) + " messages", ephemeral=True)
-            await interaction.channel.purge(limit=amount)
-        else:
-            clearembed = discord.Embed(title="Error", color=discord.Color.dark_red(), timestamp=datetime.now())
-            clearembed.add_field(name="Something wrent wrong", value=f"<@{interaction.user.id}> you don`t have enough permissions to do that.",)
+        try:
+            if interaction.user.guild_permissions.manage_channels:
+                await interaction.response.send_message("Messages will be deleted shortly.", ephemeral=True)
+                deleted_messages = await interaction.channel.purge(limit=amount)
+                deleted_messages_count = len(deleted_messages)
+                embed = discord.Embed(
+                    title="Messages Deleted",
+                    description=f"**{deleted_messages_count}** messages have been successfully deleted.",
+                    color=discord.Color.green(),
+                    timestamp=datetime.now()
+                )
+                embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
+                await interaction.channel.send(embed=embed)
+            else:
+                clearembed = discord.Embed(
+                    title="Error",
+                    color=discord.Color.dark_red(),
+                    timestamp=datetime.now()
+                )
+                clearembed.add_field(
+                    name="Permission Denied",
+                    value=f"<@{interaction.user.id}> you don't have enough permissions to do that.",
+                )
+                await interaction.response.send_message(embed=clearembed, ephemeral=True)
+        except discord.Forbidden:
+            error_embed = discord.Embed(
+                title="Error",
+                description="I do not have permission to perform this action. Please make sure I have the `Manage Messages` permission.",
+                color=discord.Color.red(),
+                timestamp=datetime.now()
+            )
+            await interaction.response.send_message(embed=error_embed, ephemeral=True)
+        except discord.HTTPException as e:
+            error_embed = discord.Embed(
+                title="Error",
+                description=f"An error occurred while processing the command. Please try again later. ({e})",
+                color=discord.Color.red(),
+                timestamp=datetime.now()
+            )
+            await interaction.response.send_message(embed=error_embed, ephemeral=True)
 
-            await interaction.response.send_message(embed=clearembed, ephemeral=True)
+
+
+
+
 
 
     @app_commands.command(name="poll", description="Creates a simple poll")
@@ -105,12 +142,12 @@ class moderationCog(commands.Cog):
 
             try:
                 oldtime = time
-                time = timemap[time] 
+                time = timemap[time]
             except KeyError:
                 embed = discord.Embed(title="Timeout failed", color=0xff0000)
                 embed.add_field(name="Error", value="Invalid timeout duration specified.", inline=True)
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
-            
+
             timeout_duration = timedelta(seconds=int(time))
             try:
                 timeout_result = await member.timeout(timeout_duration)
@@ -118,7 +155,7 @@ class moderationCog(commands.Cog):
                 embed = discord.Embed(title="Tiemout failed", color=0xff0000)
                 embed.add_field(name="Error", value=f"{e}", inline=True)
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
-            
+
             embed = discord.Embed(title="Timeout Successful", color=0x00D9FF)
             embed.add_field(name="User", value=member.mention, inline=True)
             embed.add_field(name="Duration", value=f"{oldtime}", inline=True)
