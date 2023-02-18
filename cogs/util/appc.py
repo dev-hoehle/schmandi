@@ -32,13 +32,14 @@ class appsCog(commands.Cog):
         await interaction.response.send_message(message.id, ephemeral=True)
 
     async def getavatar(self, interaction: discord.Interaction, member: discord.Member = None) -> None:
-            if member is None:
-                member = interaction.user
-            avatar = member.avatar
-            embed = discord.Embed(title=f"{member.name}'s Avatar", url=avatar, color=0x00EFDB,)
-            embed.set_author(name=f"{member.name}'s avatar", url=f"https://discord.com/users/{member.id}", icon_url=avatar,)
-            embed.set_image(url=avatar)
-            await interaction.response.send_message(embed=embed)
+        if member is None:
+            member = interaction.user
+            
+        embed = discord.Embed(title="Download Avatar", url=member.avatar, color=0x00EFDB,)
+        embed.set_author(name=member.name + "`s avatar", url="https://discord.com/users/" + str(member.id), icon_url=member.avatar,)
+        embed.set_image(url=member.avatar)
+        embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
+        await interaction.response.send_message(embed=embed)
 
     async def userinfo(self, interaction: discord.Interaction, user: discord.Member = None) -> None:
         if user is None:
