@@ -89,24 +89,43 @@ class Admin(commands.Cog):
 
 
 
-    @app_commands.command(name="nuke", description="Clears a whole channel")
+    @app_commands.command(name="nuke", description="Nuke a channel")
     @discord.app_commands.describe(channel="The channel you want to nuke")
     async def nuke(self, interaction: discord.Interaction, channel: discord.TextChannel = None):
         if interaction.user.guild_permissions.manage_channels:
             channel = channel or interaction.channel
             try:
+                await interaction.response.send_message("Channel will be nuked shortly.", ephemeral=True)
                 new = await channel.clone(reason="Has been Nuked!")
+                await new.edit(position=channel.position)
                 await channel.delete()
-                await new.send("THIS CHANNEL HAS BEEN NUKED!")
+                embed = discord.Embed(
+                    title="Nuke Successful",
+                    description=f"This channel has been nuked!",
+                    color=discord.Color.red()
+                )
+                embed.set_image(url="https://media.discordapp.net/attachments/811143476522909718/819507596302090261/boom.gif")
+                embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
+                await new.send(embed=embed)
             except discord.HTTPException:
-                await interaction.response.send_message(f"An error occurred while nuking the channel {channel.name}.", ephemeral=True)
+                embed = discord.Embed(
+                    title="Error",
+                    description=f"An error occurred while nuking the channel. Please try again later.",
+                    color=discord.Color.red()
+                )
+                embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
+                await interaction.response.send_message(embed=embed, ephemeral=True)
         else:
-            nukeembed = discord.Embed(title="Error", color=discord.Color.dark_red())
-            nukeembed.add_field(
-                name="Permission Error",
-                value=f"{interaction.user.mention} you don't have enough permissions to do that."
+            embed = discord.Embed(
+                title="Permission Error",
+                description=f"{interaction.user.mention}, you don't have enough permissions to use this command.",
+                color=discord.Color.red()
             )
-            await interaction.response.send_message(embed=nukeembed)
+            embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+
+
+
 
 
 
