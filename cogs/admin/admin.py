@@ -109,7 +109,7 @@ class Admin(commands.Cog):
             await interaction.response.send_message(embed=nukeembed)
 
 
-    # Original from https://github.com/Ghostboy00/
+
     @app_commands.command(name="fakemessage", description="Fake a message from another member")
     @discord.app_commands.describe(member="The member you want to impersonate in the message.")
     @discord.app_commands.describe(message="The text you want to say")
