@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+import sys
 import platform
 from datetime import datetime
 
@@ -50,7 +51,12 @@ class Bot(commands.Bot):
                         print(f'[{time}] [{Fore.LIGHTCYAN_EX}BOT{Fore.RESET}] [\u2705] Loaded cogs.{filepath}.{filename}')
                         loaded += 1
                     except Exception as error:
-                        print(f'[{time}] [{Fore.RED}BOT{Fore.RESET}] [\u274C] Failed to load cogs.{filepath}.{filename}: {error}')
+                        exc_type, exc_value, exc_traceback = sys.exc_info()
+                        # filename = exc_traceback.tb_frame.f_code.co_filename
+                        line_number = exc_traceback.tb_lineno
+                        print(f'[{time}] [{Fore.RED}BOT{Fore.RESET}] [\u274C] Failed to load "{filename}" cog at line {line_number}: {error}')
+
+                        
         await self.tree.sync()  
         
 
@@ -69,7 +75,7 @@ async def on_ready():
     print(f'[{time}] [{Fore.LIGHTCYAN_EX}BOT{Fore.RESET}] Loaded [{loaded}/{allcogs}] cogs')
     
     await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType.watching, name="anditv.it"),)
-    print(f'\n[{time}] [{Fore.LIGHTCYAN_EX}BOT{Fore.RESET}] has connected as {bot.user} with the api version {discord.__version__}')
+    print(f'\n[{time}] [{Fore.LIGHTCYAN_EX}BOT{Fore.RESET}] has connected as {bot.user} via discord.py {discord.__version__}')
 
     bg_task.start()
 
