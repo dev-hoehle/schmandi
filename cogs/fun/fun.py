@@ -1,14 +1,13 @@
 import json
 import random
 from datetime import datetime
+from typing import Literal
 
 import discord
 import requests
 from bs4 import BeautifulSoup
 from discord import app_commands
 from discord.ext import commands
-
-from typing import Literal
 
 with open("config.json", "r", encoding="UTF-8") as configfile:
     config = json.load(configfile)
