@@ -53,30 +53,37 @@ class Util(commands.Cog):
             title="Your encoded text:\n ||" + str(base64_string) + "||", color=0x00D9FF)
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
-    # I was bored...
+
+    # i was bored
     @app_commands.command(name="yt", description="Direct-Download for your YT video")
     @app_commands.describe(url="Which YT video do you want to download?")
     async def yt(self, interaction: discord.Interaction, url: str):
+        # Parse the URL
         parsed_url = urlparse(url)
-        if parsed_url.scheme and parsed_url.netloc:
-            if "https://youtu.be/" in url:
-                url.replace("https://youtu.be/",
-                            "https://www.youtube.com/watch?v=")
 
+        # Check if the URL is valid
+        if parsed_url.scheme and parsed_url.netloc:
+            # If the URL is a shortened youtu.be link, replace it with the full link
+            if "https://youtu.be/" in url:
+                url.replace("https://youtu.be/", "https://www.youtube.com/watch?v=")
+
+            # Create the video download link and scrape the download page
             vgm_url = "https://8downloader.com/download?v=" + url
             html_text = requests.get(vgm_url).text
             soup = BeautifulSoup(html_text, "html.parser")
+            
             download = soup.find("a", href=True, text="Download")["href"]
 
+            # Shorten the download link using the TinyURL API
             link = "http://tinyurl.com/api-create.php?url=" + str(download)
             short_url = requests.get(link).text
 
-            embed = discord.Embed(
-                title="Click here to download your Video", url=short_url, color=0xFF0000)
+            embed = discord.Embed(title="Click here to download your Video", url=short_url, color=0xFF0000)
             embed.set_author(name="Your download link is ready")
             await interaction.response.send_message(embed=embed, ephemeral=True)
         else:
             await interaction.response.send_message("Invalid URL detected")
+
 
     @app_commands.command(name="userinfo", description="Shows information about a user")
     @app_commands.describe(member="About which member do you want to get infos?")
@@ -126,6 +133,7 @@ class Util(commands.Cog):
     @app_commands.command(name="short", description="Short a url")
     @app_commands.describe(shortner="Which shortner service do you want to use?")
     async def short(self, interaction: discord.Interaction, url: str, shortner: Literal["anditv.it", "tinyurl", "is.gd", "urlz (only ascii)"] = "tinyurl",):
+        # Dictionary that maps shortener names to their corresponding API endpoints
         shortener_urls = {
             "anditv.it": "https://anditv.it/short/api/",
             "tinyurl": "http://tinyurl.com/api-create.php",
@@ -133,14 +141,18 @@ class Util(commands.Cog):
             "urlz": "https://urlz.fr/api_new.php",
         }
 
+        # Parse the URL to check if it's valid
         parsed_url = urlparse(url)
         if not parsed_url.scheme or not parsed_url.netloc:
             await interaction.response.send_message("Invalid URL detected. Please enter a valid URL.")
             return
 
         try:
+            # Get the API endpoint for the selected shortener
             shortener_url = shortener_urls[shortner]
+
             payload = {"url": url}
+
             response = requests.post(shortener_url, data=payload)
 
             if response.status_code == 400:
@@ -154,15 +166,18 @@ class Util(commands.Cog):
         except Exception as e:
             print("Error while shortening URL: %s", e)
             embed = discord.Embed(title="An unexpected error occurred",
-                                  imestamp=datetime.now(), color=discord.Color.dark_red(),)
+                                imestamp=datetime.now(), color=discord.Color.dark_red(),)
             embed.set_footer(text=interaction.guild.name,
-                             icon_url=interaction.guild.icon.url)
+                            icon_url=interaction.guild.icon.url)
             await interaction.response.send_message(embed=embed, ephemeral=True)
+
 
     @app_commands.command(name="botinfo", description="Shows information about the bot.")
     async def botinfo(self, interaction: discord.Interaction):
         name = self.bot.user
         id = self.bot.user.id
+        
+        # Get information about the Python version, OS, CPU, and RAM usage
         python_version = platform.python_version()
         os_version = platform.system()
         cpu_name = cpuinfo.get_cpu_info()['brand_raw']
@@ -172,31 +187,33 @@ class Util(commands.Cog):
 
         embed = discord.Embed(color=0x00D9FF)
         embed.add_field(name="Bot Info", value=f"```{info}```", inline=False)
-        embed.set_footer(text=interaction.user.name,
-                         icon_url=interaction.user.avatar)
+        embed.set_footer(text=interaction.user.name, icon_url=interaction.user.avatar)
+        
         await interaction.response.send_message(embed=embed)
+
 
     @app_commands.command(name='discordstatus', description="Shows you the discord server status")
     async def discordstatus(self, interaction: discord.Interaction):
         try:
-            response = requests.get(
-                "https://discordstatus.com/api/v2/summary.json")
+            # Get the server status from the Discord status API
+            response = requests.get("https://discordstatus.com/api/v2/summary.json")
             data = json.loads(response.text)
-            if response.status_code != 200:
-                raise ValueError(
-                    f"Unexpected HTTP status code: {response.status_code}")
-            components = [{'name': component["name"], 'value': component["status"].capitalize(
-            ), 'inline': True} for component in data["components"]]
 
-            embed = discord.Embed(title=data["status"]["description"],
-                                  description=f"[Discord Status](https://discordstatus.com/)\n **Current Incident:**\n {data['status']['indicator']}",
-                                  color=0x00D9FF,
-                                  timestamp=datetime.now())
-            embed.set_thumbnail(
-                url="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png")
+            if response.status_code != 200:
+                raise ValueError(f"Unexpected HTTP status code: {response.status_code}")
+
+            # Extract the component information from the API response
+            components = [{'name': component["name"], 'value': component["status"].capitalize(), 'inline': True} for component in data["components"]]
+
+            embed = discord.Embed(
+                title=data["status"]["description"],
+                description=f"[Discord Status](https://discordstatus.com/)\n **Current Incident:**\n {data['status']['indicator']}",
+                color=0x00D9FF,
+                timestamp=datetime.now()
+            )
+            embed.set_thumbnail(url="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png")
             for component in components:
-                embed.add_field(
-                    name=component["name"], value=component["value"], inline=component["inline"])
+                embed.add_field(name=component["name"], value=component["value"], inline=component["inline"])
             await interaction.response.send_message(embed=embed)
         except ValueError as e:
             embed = discord.Embed(
@@ -207,6 +224,7 @@ class Util(commands.Cog):
             await interaction.response.send_message(embed=embed)
         except Exception as e:
             await interaction.response.send_message("Error: " + str(e))
+
 
 
 async def setup(bot):

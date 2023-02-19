@@ -10,13 +10,19 @@ class moderationCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+
+    # The command takes in two arguments - a `member` argument that defaults to None and a `nickname` argument that defaults to None.
+    # The `member` argument specifies the member whose nickname will be changed, and the `nickname` argument is the new nickname.
     @app_commands.command(name="nickname", description="Changes the bot's or a user's nickname")
     @app_commands.describe(member="The member whose nickname you want to change (optional)")
     @app_commands.describe(nickname="The nickname you want the bot or user to have")
     async def nickname(self, interaction: discord.Interaction, member: discord.Member = None, nickname: str = None):
+
+        # If the user has permission to manage nicknames, then check if a member was provided. If not, then set `member` to the user.
         if interaction.user.guild_permissions.manage_nicknames:
             if member is None:
                 member = interaction.user
+                
             try:
                 await member.edit(nick=nickname or member.name)
             except discord.Forbidden:
@@ -32,12 +38,11 @@ class moderationCog(commands.Cog):
 
 
 
-
-
     @app_commands.command(name="clear", description="Deletes a certain number of messages")
     @app_commands.describe(amount="The amount of messages to clear")
     async def clear(self, interaction: discord.Interaction, amount: app_commands.Range[int, 1, 100]):
         try:
+            # Check if the user has permission to manage channels
             if interaction.user.guild_permissions.manage_channels:
                 await interaction.response.send_message("Messages will be deleted shortly.", ephemeral=True)
                 deleted_messages = await interaction.channel.purge(limit=amount)
@@ -77,11 +82,6 @@ class moderationCog(commands.Cog):
                 timestamp=datetime.now()
             )
             await interaction.response.send_message(embed=error_embed, ephemeral=True)
-
-
-
-
-
 
 
     @app_commands.command(name="poll", description="Creates a simple poll")
@@ -131,7 +131,9 @@ class moderationCog(commands.Cog):
     @app_commands.command(name="timeout", description="Timeout a Member.")
     @discord.app_commands.describe(member="Who do you want to timeout?")
     async def timeout(self, interaction: discord.Interaction, member: discord.Member, *, time: Literal["15s", "30s", "1min", "5min", "15min", "30min", "1h"], reason: str = None):
+        # Check if the user has the manage_members permission to execute the command
         if interaction.user.guild_permissions.manage_members:
+            # Map the timeout durations to seconds
             timemap = {
                 "15s": 15,
                 "30s": 30,
@@ -145,6 +147,7 @@ class moderationCog(commands.Cog):
                 reason = "None"
 
             try:
+                # Save the original timeout duration before converting it to seconds
                 oldtime = time
                 time = timemap[time]
             except KeyError:
@@ -152,6 +155,7 @@ class moderationCog(commands.Cog):
                 embed.add_field(name="Error", value="Invalid timeout duration specified.", inline=True)
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
 
+            # Convert the timeout duration to a timedelta object
             timeout_duration = timedelta(seconds=int(time))
             try:
                 timeout_result = await member.timeout(timeout_duration)
@@ -159,6 +163,7 @@ class moderationCog(commands.Cog):
                 embed = discord.Embed(title="Tiemout failed", color=0xff0000)
                 embed.add_field(name="Error", value=f"{e}", inline=True)
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
+
 
             embed = discord.Embed(title="Timeout Successful", color=0x00D9FF)
             embed.add_field(name="User", value=member.mention, inline=True)
@@ -168,6 +173,7 @@ class moderationCog(commands.Cog):
 
         else:
             await interaction.response.send_message("You do not have permission to use this command.", ephemeral=True)
+
 
 async def setup(bot):
     await bot.add_cog(moderationCog(bot))

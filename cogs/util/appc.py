@@ -22,11 +22,11 @@ class appsCog(commands.Cog):
         self.create_context_menus()
 
     def create_context_menus(self):
+        # Loop over the list of commands and create a context menu for each one
         for name, callback in self.commands:
             menu = app_commands.ContextMenu(name=name, callback=callback)
+            # Add the context menu to the application command tree
             self.bot.tree.add_command(menu)
-
-
 
     async def get_message_id(self, interaction: discord.Interaction, message: discord.Message) -> None:
         await interaction.response.send_message(message.id, ephemeral=True)
