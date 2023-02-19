@@ -41,44 +41,73 @@ class appsCog(commands.Cog):
         embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
         await interaction.response.send_message(embed=embed)
 
-    async def userinfo(self, interaction: discord.Interaction, user: discord.Member = None) -> None:
-        if user is None:
-            user = interaction.user
+    async def userinfo(self, interaction: discord.Interaction, member: discord.Member = None) -> None:
+        if member is None:
+            member = interaction.user
 
-        date_format = "%a, %d %b %Y %I:%M %p"
-        embed = discord.Embed(title=f"{user.name}'s Info", color=0x00CCFF)
-        embed.set_author(name=str(user), icon_url=user.avatar)
-        embed.set_thumbnail(url=user.avatar)
-        embed.add_field(name="Name", value=user.name, inline=True)
-        embed.add_field(name="ID", value=user.id, inline=True)
-        embed.add_field(name="Join position", value=str(sorted(interaction.guild.members, key=lambda m: m.joined_at).index(user) + 1))
-        embed.add_field(name="Joined", value=user.joined_at.strftime(date_format), inline=True)
-        embed.add_field(name="Account created", value=user.created_at.strftime(date_format), inline=True)
-        embed.add_field(name="🤖 Bot", value=user.bot, inline=True)
-        embed.add_field(name="Nickname", value=user.nick, inline=True)
-        embed.add_field(name="Highest role", value=user.top_role.mention, inline=True)
-        embed.add_field(name="Roles", value=", ".join([r.mention for r in user.roles]), inline=True)
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        user_created_at = member.created_at.strftime("%b %d, %Y %I:%M %p")
+        joined_at = member.joined_at.strftime("%b %d, %Y %I:%M %p")
+
+        embed = discord.Embed(color=member.color)
+        embed.set_thumbnail(url=member.avatar)
+        embed.set_author(name=f"{member.name}'s Info", icon_url=member.avatar)
+        embed.add_field(
+            name="Tag", value=f"```{member.name}#{member.discriminator}```", inline=False)
+        embed.add_field(name="ID", value=f"```{member.id}```", inline=False)
+        embed.add_field(name="Creation",
+                        value=f"```{user_created_at}```", inline=False)
+        embed.add_field(
+            name="Avatar", value=f"[Click here]({member.avatar})", inline=False)
+        embed.add_field(name="Joined", value=f"{joined_at}", inline=True)
+        embed.add_field(name="Nickname", value=f"{member.nick}", inline=True)
+        embed.add_field(name="Highest Role",
+                        value=f"{member.top_role.mention}", inline=True)
+        await interaction.response.send_message(embed=embed, ephemeral=False)
 
     async def nuke_channel(self, interaction: discord.Interaction, message: discord.Message) -> None:
+        # Check if the user has permission to manage channels
         if interaction.user.guild_permissions.manage_channels:
-            nuke_channel = discord.utils.get(interaction.guild.channels, name=interaction.channel.name)
-
-            if nuke_channel is not None:
-                new = await nuke_channel.clone(reason="Has been Nuked!")
-                await nuke_channel.delete()
-                await new.send("THIS CHANNEL HAS BEEN NUKED!")
-            else:
-                await interaction.response.send_message(f"No channel named {interaction.channel.name} was found!", ephemeral=True)
+            channel = discord.utils.get(interaction.guild.channels, name=interaction.channel.name)
+            try:
+                await interaction.response.send_message("Channel will be nuked shortly.", ephemeral=True)
+                
+                # Clone the channel and move it to the original channel's position, then delete the original channel
+                new = await channel.clone(reason="Has been Nuked!")
+                await new.edit(position=channel.position)
+                await channel.delete()
+                
+                # Send an embed in the new channel to indicate that the nuke was successful
+                embed = discord.Embed(
+                    title="Nuke Successful",
+                    description=f"This channel has been nuked!",
+                    color=discord.Color.red()
+                )
+                embed.set_image(url="https://media.discordapp.net/attachments/811143476522909718/819507596302090261/boom.gif")
+                embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
+                await new.send(embed=embed)
+            except discord.HTTPException:
+                embed = discord.Embed(
+                    title="Error",
+                    description=f"An error occurred while nuking the channel. Please try again later.",
+                    color=discord.Color.red()
+                )
+                embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
+                await interaction.response.send_message(embed=embed, ephemeral=True)
         else:
-            await interaction.response.send_message(f"{interaction.user.mention} you don't have enough permissions to do that.",ephemeral=True)
+            embed = discord.Embed(
+                title="Permission Error",
+                description=f"{interaction.user.mention}, you don't have enough permissions to use this command.",
+                color=discord.Color.red()
+            )
+            embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
 
-
-    async def base64decode(self, interaction: discord.Interaction, message: discord.Message) -> None:
+    async def base64decode(self, interaction: discord.Interaction, text: discord.Message) -> None:
         try:
-            text = message.content
             decoded = base64.b64decode(text).decode("utf-8", "ignore")
-            await interaction.response.send_message(f"Your decoded text:\n || {str(decoded)} ||", ephemeral=False)
+            embed = discord.Embed(
+                title="Your decoded text:\n ||" + str(decoded) + "||", color=0x00D9FF)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
         except Exception as e:
             await interaction.response.send_message(f"Error: {e}", ephemeral=True)
 
