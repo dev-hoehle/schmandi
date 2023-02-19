@@ -91,13 +91,23 @@ async def on_member_join(member):
 async def bg_task():
     try:
         await bot.wait_until_ready()
-        status_list = [(discord.Status.dnd, discord.Activity(type=discord.ActivityType.watching, name="github.com/anditv21")),
-                       (discord.Status.dnd, discord.Activity(type=discord.ActivityType.watching, name="anditv.it"))]
-        for status, activity in status_list:
-            await bot.change_presence(status=status, activity=activity)
-            await asyncio.sleep(5)
+        while not bot.is_closed():
+            member_count = 0
+            for guild in bot.guilds:
+                member_count += guild.member_count
+            status_list = [
+                (discord.Status.dnd, discord.Activity(type=discord.ActivityType.watching, name="github.com/anditv21")),
+                (discord.Status.dnd, discord.Activity(type=discord.ActivityType.watching, name="anditv.it")),
+                (discord.Status.dnd, discord.Activity(type=discord.ActivityType.watching, name=f"{member_count} users")),
+                (discord.Status.dnd, discord.Activity(type=discord.ActivityType.watching, name=f"{len(bot.guilds)} servers"))
+            ]
+            for status, activity in status_list:
+                await bot.change_presence(status=status, activity=activity)
+                await asyncio.sleep(5)
     except Exception as e:
         print(e)
+
+
 
 """
 @bot.event
