@@ -26,12 +26,13 @@ class Util(commands.Cog):
     async def avatar(self, interaction: discord.Interaction, member: discord.Member = None):
         if member is None:
             member = interaction.user
-            
-        embed = discord.Embed(title="Download Avatar", url=member.avatar, color=0x00EFDB,)
-        embed.set_author(name=member.name + "`s avatar", url="https://discord.com/users/" + str(member.id), icon_url=member.avatar,)
+
+        embed = discord.Embed(title=f"Download {member.name}'s Avatar", url=member.avatar, color=0x00EFDB)
+        embed.set_author(name=f"{member.name}'s avatar", url=f"https://discord.com/users/{member.id}", icon_url=member.avatar)
         embed.set_image(url=member.avatar)
         embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
         await interaction.response.send_message(embed=embed)
+
 
     @app_commands.command(name="base64decode", description="Decodes a Base64 string")
     @app_commands.describe(text="What is your encoded text?")
