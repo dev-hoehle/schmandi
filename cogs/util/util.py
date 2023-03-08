@@ -56,8 +56,8 @@ class Util(commands.Cog):
 
 
     # i was bored
-    @app_commands.command(name="yt", description="Direct-Download for your YT video")
-    @app_commands.describe(url="Which YT video do you want to download?")
+    @app_commands.command(name="yt", description="Download a YouTube video by providing its URL")
+    @app_commands.describe(url="Enter the URL of the YouTube video you want to download")
     async def yt(self, interaction: discord.Interaction, url: str):
         # Parse the URL
         parsed_url = urlparse(url)
@@ -65,25 +65,44 @@ class Util(commands.Cog):
         # Check if the URL is valid
         if parsed_url.scheme and parsed_url.netloc:
             # If the URL is a shortened youtu.be link, replace it with the full link
-            if "https://youtu.be/" in url:
-                url.replace("https://youtu.be/", "https://www.youtube.com/watch?v=")
+            if parsed_url.netloc == "youtu.be":
+                url = "https://www.youtube.com/watch?v=" + parsed_url.path.lstrip("/")
 
             # Create the video download link and scrape the download page
-            vgm_url = "https://8downloader.com/download?v=" + url
-            html_text = requests.get(vgm_url).text
-            soup = BeautifulSoup(html_text, "html.parser")
+            vgm_url = "https://10downloader.com/download?v=" + url
+            try:
+                html_text = requests.get(vgm_url).text
+            except requests.exceptions.RequestException:
+                await interaction.response.send_message("Unable to retrieve download link", ephemeral=True)
+                return
             
-            download = soup.find("a", href=True, text="Download")["href"]
+            soup = BeautifulSoup(html_text, "html.parser")
+            download = soup.find("tbody").find("a", href=True, text="Download")
+            if not download:
+                await interaction.response.send_message("Unable to retrieve download link", ephemeral=True)
+                return
+            
+            download_url = download["href"]
+            thumbnail_url = soup.find("div", {"class": "info"}).find("img")["src"]
+            video_title = soup.find("div", {"class": "info"}).find("span", {"class": "title"}).text.strip()
 
             # Shorten the download link using the TinyURL API
-            link = "http://tinyurl.com/api-create.php?url=" + str(download)
-            short_url = requests.get(link).text
+            link = "http://tinyurl.com/api-create.php?url=" + download_url
+            try:
+                short_url = requests.get(link).text
+            except requests.exceptions.RequestException:
+                await interaction.response.send_message("Unable to shorten download link", ephemeral=True)
+                return
 
-            embed = discord.Embed(title="Click here to download your Video", url=short_url, color=0xFF0000)
-            embed.set_author(name="Your download link is ready")
+            embed = discord.Embed(title=video_title, color=0xFF0000)
+            embed.set_thumbnail(url=thumbnail_url)
+            embed.add_field(name="Download ", value=f"[Click here]({short_url})")
             await interaction.response.send_message(embed=embed, ephemeral=True)
         else:
-            await interaction.response.send_message("Invalid URL detected")
+            await interaction.response.send_message("Invalid URL detected", ephemeral=True)
+
+
+
 
 
     @app_commands.command(name="userinfo", description="Shows information about a user")
