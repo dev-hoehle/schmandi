@@ -126,8 +126,7 @@ class Util(commands.Cog):
         else:
             color = 0x990000
 
-        embed = discord.Embed(
-            title="PING", description=f"Pong! The ping is **{ping_ms}** milliseconds!", color=color,)
+        embed = discord.Embed(title="PING", description=f"Pong! The ping is **{ping_ms}** milliseconds!", color=color,)
 
         await interaction.response.send_message(embed=embed)
 
