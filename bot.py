@@ -46,10 +46,12 @@ class Bot(commands.Bot):
                     try:
                         time = datetime.now().strftime('%d.%m.%Y %H:%M:%S')
                         await bot.load_extension(f'cogs.{filepath}.{filename}')
-                        print(f'[{time}] [{Fore.LIGHTCYAN_EX}BOT{Fore.RESET}] [\u2705] Loaded cogs.{filepath}.{filename}')
+                        print(
+                            f'[{time}] [{Fore.LIGHTCYAN_EX}BOT{Fore.RESET}] [\u2705] Loaded cogs.{filepath}.{filename}')
                         loaded += 1
                     except Exception as error:
-                        print(f'[{time}] [{Fore.RED}BOT{Fore.RESET}] [\u274C] Failed to load cogs.{filepath}.{filename}: {error}')
+                        print(
+                            f'[{time}] [{Fore.RED}BOT{Fore.RESET}] [\u274C] Failed to load cogs.{filepath}.{filename}: {error}')
 
         await self.tree.sync()
 
@@ -81,39 +83,41 @@ async def on_member_join(member):
         await member.dm_channel.send(f'Welcome **{member.name}** to **{member.guild.name}**!')
 
 
-# loop for changing rpc
 @tasks.loop(seconds=5)
 async def bg_task():
-    try:
-        await bot.wait_until_ready()
-        # Use a set to store the IDs of members that have already been counted
-        counted_members = set()
-        while not bot.is_closed():
-            member_count = 0
-            for guild in bot.guilds:
-                for member in guild.members:
-                    if member.id not in counted_members:
-                        # Add the member ID to the set of counted members
-                        counted_members.add(member.id)
-                        member_count += 1
-            # Create a list of statuses and activities to cycle through
-            status_list = [
-                (discord.Status.dnd, discord.Activity(type=discord.ActivityType.watching, name="github.com/anditv21")),
-                (discord.Status.dnd, discord.Activity(type=discord.ActivityType.watching, name="anditv.it")),
-                (discord.Status.dnd, discord.Activity(type=discord.ActivityType.watching, name=f"{member_count} users")),
-                (discord.Status.dnd, discord.Activity(type=discord.ActivityType.watching, name=f"{len(bot.guilds)} servers"))
-            ]
 
-            # Keep track of the current index in the status list
-            current_index = 0
-            while current_index < len(status_list):
-                status, activity = status_list[current_index]
+    await bot.wait_until_ready()
+    counted_members = set()
+    while not bot.is_closed():
+        member_count = len(counted_members)
+        for guild in bot.guilds:
+            for member in guild.members:
+                if member.id not in counted_members:
+                    counted_members.add(member.id)
+                    member_count += 1
+
+        status_list = [
+            (discord.Status.dnd, discord.Activity(
+                type=discord.ActivityType.watching, name="github.com/anditv21")),
+            (discord.Status.dnd, discord.Activity(
+                type=discord.ActivityType.watching, name="anditv.it")),
+            (discord.Status.dnd, discord.Activity(
+                type=discord.ActivityType.watching, name=f"{member_count} users")),
+            (discord.Status.dnd, discord.Activity(
+                type=discord.ActivityType.watching, name=f"{len(bot.guilds)} servers"))
+        ]
+
+        current_index = 0
+        while current_index < len(status_list):
+            status, activity = status_list[current_index]
+            try:
                 await bot.change_presence(status=status, activity=activity)
                 await asyncio.sleep(5)
-                # Move to the next index in the status list
-                current_index += 1
-    except Exception as e:
-        print(e)
+            except discord.HTTPException as e:
+                print(f"Error occurred while changing presence: {e}")
+
+            current_index += 1
+
 
 
 """
