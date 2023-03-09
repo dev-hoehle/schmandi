@@ -36,6 +36,10 @@ class Fun(commands.Cog):
     @app_commands.command(name='gifsearch', description='Shows you a random gif for your query')
     @app_commands.describe(query="Search query?")
     async def gifsearch(self, interaction: discord.Interaction, *, query: str):
+        
+        if not api_key:
+            await interaction.response.send_message("Giphy API key is missing from config.json. Please follow the setup instructions from the README file.", ephemeral=True)
+        return
         # construct the Giphy API URL
         url = f"https://api.giphy.com/v1/gifs/search?api_key={api_key}&q={query}&limit=15"
         

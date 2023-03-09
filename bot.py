@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+import sys
 import platform
 from datetime import datetime
 
@@ -9,10 +10,24 @@ import requests
 from colorama import Fore
 from discord.ext import commands, tasks
 
+time = datetime.now().strftime('%d.%m.%Y %H:%M:%S')
+if not os.path.exists("config.json"):
+    if os.path.exists("example.config.json"):
+        print(f"[{time}] [{Fore.RED}BOT{Fore.RESET}] [\u274C] Please rename example.config.json to config.json and follow the setup instructions from the README file.")
+        sys.exit()
+    else:
+        print(f"[{time}] [{Fore.RED}BOT{Fore.RESET}] [\u274C] config.json is missing. Please follow the setup instructions from the README file.")
+        sys.exit()
+
 with open("config.json", "r", encoding="UTF-8") as configfile:
+    
     config = json.load(configfile)
-    token = config["Token"]
+    token = config.get("Token")
+    if not token:
+        print(f"[{time}] [{Fore.RED}BOT{Fore.RESET}] [\u274C] Token is missing from config.json. Please follow the setup instructions from the README file.")
+        sys.exit()
     greet = config.get("greetmembers", True)
+
 
 
 def clear_console():
