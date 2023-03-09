@@ -51,9 +51,12 @@ class moderationCog(commands.Cog):
                     await interaction.response.send_message("Messages will be deleted shortly.", ephemeral=True)
                     deleted_messages = await interaction.channel.purge(limit=amount)
                     deleted_messages_count = len(deleted_messages)
+                    success_message = f"**__{deleted_messages_count}__** messages have been successfully deleted."
+                    failure_message = f"Failed to delete **__{amount - deleted_messages_count}__** messages."
+
                     embed = discord.Embed(
                         title="Messages Deleted",
-                        description=f"**__{deleted_messages_count}__** messages have been successfully deleted.",
+                        description=f"{success_message}\n{failure_message}",
                         color=discord.Color.green(),
                         timestamp=datetime.now()
                     )
