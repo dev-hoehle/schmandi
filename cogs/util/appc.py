@@ -114,10 +114,8 @@ class appsCog(commands.Cog):
 
     async def base64decode(self, interaction: discord.Interaction, text: discord.Message) -> None:
         try:
-            decoded = base64.b64decode(text).decode("utf-8", "ignore")
-            embed = discord.Embed(
-                title="Your decoded text:\n ||" + str(decoded) + "||", color=0x00D9FF)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            decoded = base64.b64decode(text.content).decode("utf-8", "ignore")
+            await interaction.response.send_message(f"||{decoded}||", ephemeral=True)
         except Exception as e:
             await interaction.response.send_message(f"Error: {e}", ephemeral=True)
 
@@ -125,12 +123,12 @@ class appsCog(commands.Cog):
         try:
             text = message.content
             string_bytes = text.encode("ascii")
-
             base64_bytes = base64.b64encode(string_bytes)
             base64_string = base64_bytes.decode("ascii")
-            await interaction.response.send_message(f"Your encoded text:\n || {str(base64_string)} ||", ephemeral=False)
+            await interaction.response.send_message(f"||{base64_string}||", ephemeral=False)
         except Exception as e:
             await interaction.response.send_message(f"Error: {e}", ephemeral=True)
+
 
 async def setup(bot):
     await bot.add_cog(appsCog(bot))
