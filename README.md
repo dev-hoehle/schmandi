@@ -5,15 +5,14 @@
 <details>
 <summary>Setup</summary>
 <ul>
-   <br>
-   Insert your discord bot token from <a href="https://discord.dev/">developer portal</a> in the file called "example.config.json" and rename it to "config.json"
-   Insert your <a href="https://developers.giphy.com/">giphy</a> api key
-   <br>
-     <br>
-  Run pip install -r requirements.txt
-  <br>
-  Run python bot.py to start the bot.
-</ul></details>
+   <li>Insert your Discord bot token from <a href="https://discord.com/developers/applications">Discord Developer Portal</a> in the file called <code>config.example.json</code> and rename it to <code>config.json</code>.</li>
+   <li>Insert your <a href="https://developers.giphy.com/">GIPHY API key</a> in the <code>giphy_key</code> field of the <code>config.json</code> file. Otherwise the gifsearch command cannot be used.</li>
+   <li>If you want the bot to greet new members, set the <code>greetmembers</code> field to <code>true</code> in the <code>config.json</code> file.<br>
+   If you do not want the bot to greet new members, set the field to <code>false</code>.</li>
+   <li>Run <code>pip install -r requirements.txt</code> to install the required packages.</li>
+   <li>Run <code>python bot.py</code> to start the bot.</li>
+</ul>
+</details>
 
 <details>
 <summary>Admin commands</summary>
