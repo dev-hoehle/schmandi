@@ -44,19 +44,33 @@ class moderationCog(commands.Cog):
     @app_commands.describe(amount="The amount of messages to clear")
     async def clear(self, interaction: discord.Interaction, amount: app_commands.Range[int, 1, 100]):
         try:
-            # Check if the bot has permission to manage messages
-            if not interaction.guild.me.guild_permissions.manage_messages:
-                error_embed = discord.Embed(
-                    title="Error",
-                    description="I do not have permission to perform this action. Please make sure I have the `Manage Messages` permission.",
-                    color=discord.Color.red(),
-                    timestamp=datetime.now()
-                )
-                await interaction.response.send_message(embed=error_embed, ephemeral=True)
-                return
-
             # Check if the user has permission to manage channels
-            if not interaction.user.guild_permissions.manage_channels:
+            if interaction.user.guild_permissions.manage_channels:
+                bot_member = interaction.guild.get_member(self.bot.user.id)
+                if bot_member.guild_permissions.manage_messages:
+                    await interaction.response.send_message("Messages will be deleted shortly.", ephemeral=True)
+                    deleted_messages = await interaction.channel.purge(limit=amount)
+                    deleted_messages_count = len(deleted_messages)
+                    embed = discord.Embed(
+                        title="Messages Deleted",
+                        description=f"**__{deleted_messages_count}__** messages have been successfully deleted.",
+                        color=discord.Color.green(),
+                        timestamp=datetime.now()
+                    )
+                    embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
+                    await interaction.channel.send(embed=embed)
+                else:
+                    clearembed = discord.Embed(
+                        title="Error",
+                        color=discord.Color.dark_red(),
+                        timestamp=datetime.now()
+                    )
+                    clearembed.add_field(
+                        name="Permission Denied",
+                        value=f"I don't have enough permissions to do that.",
+                    )
+                    await interaction.response.send_message(embed=clearembed, ephemeral=True)
+            else:
                 clearembed = discord.Embed(
                     title="Error",
                     color=discord.Color.dark_red(),
@@ -67,21 +81,6 @@ class moderationCog(commands.Cog):
                     value=f"<@{interaction.user.id}> you don't have enough permissions to do that.",
                 )
                 await interaction.response.send_message(embed=clearembed, ephemeral=True)
-                return
-
-            # Purge the specified amount of messages and send an embed with the result
-            await interaction.response.send_message("Messages will be deleted shortly.", ephemeral=True)
-            deleted_messages = await interaction.channel.purge(limit=amount)
-            deleted_messages_count = len(deleted_messages)
-            embed = discord.Embed(
-                title="Messages Deleted",
-                description=f"**{deleted_messages_count}** messages have been successfully deleted.",
-                color=discord.Color.green(),
-                timestamp=datetime.now()
-            )
-            embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
-            await interaction.channel.send(embed=embed, ephemeral=True)
-
         except discord.Forbidden:
             error_embed = discord.Embed(
                 title="Error",
@@ -90,7 +89,6 @@ class moderationCog(commands.Cog):
                 timestamp=datetime.now()
             )
             await interaction.response.send_message(embed=error_embed, ephemeral=True)
-
         except discord.HTTPException as e:
             error_embed = discord.Embed(
                 title="Error",
@@ -99,6 +97,7 @@ class moderationCog(commands.Cog):
                 timestamp=datetime.now()
             )
             await interaction.response.send_message(embed=error_embed, ephemeral=True)
+
 
 
 
