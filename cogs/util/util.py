@@ -202,7 +202,7 @@ class Util(commands.Cog):
         cpu_name = cpuinfo.get_cpu_info()['brand_raw']
         ram_usage = psutil.virtual_memory().percent
 
-        info = f"Bot-Name: {name} ({id}) \nPython: {python_version}\nOS: {os_version}\nCPU: {cpu_name}\nRAM: {ram_usage} %"
+        info = f"Bot-Name: {name} ({id}) \nPython: {python_version}\nDiscord.py: {discord.__version__}\nOS: {os_version}\nCPU: {cpu_name}\nRAM: {ram_usage} %"
 
         embed = discord.Embed(color=0x00D9FF)
         embed.add_field(name="Bot Info", value=f"```{info}```", inline=False)
