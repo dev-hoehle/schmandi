@@ -93,9 +93,12 @@ async def on_ready():
 
 @bot.event
 async def on_member_join(member):
-    if greet:
-        await member.create_dm()
-        await member.dm_channel.send(f'Welcome **{member.name}** to **{member.guild.name}**!')
+    try:
+        if greet:
+            await member.create_dm()
+            await member.dm_channel.send(f'Welcome **{member.name}** to **{member.guild.name}**!')
+    except Exception:
+        pass
 
 
 @tasks.loop(seconds=5)
