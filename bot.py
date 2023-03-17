@@ -1,8 +1,8 @@
 import asyncio
 import json
 import os
-import sys
 import platform
+import sys
 from datetime import datetime
 
 import discord
@@ -119,7 +119,7 @@ async def bg_task():
                 type=discord.ActivityType.watching, name="github.com/anditv21")),
             (discord.Status.dnd, discord.Activity(
                 type=discord.ActivityType.watching, name="anditv.it")),
-            (discord.Status.dnd, discord.Activity(
+            (discord.Status.dnd, discord.Activity(  
                 type=discord.ActivityType.watching, name=f"{member_count} users")),
             (discord.Status.dnd, discord.Activity(
                 type=discord.ActivityType.watching, name=f"{len(bot.guilds)} servers"))

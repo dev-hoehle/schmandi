@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime, timedelta
 from typing import Literal
 
@@ -39,7 +40,6 @@ class moderationCog(commands.Cog):
 
 
 
-
     @app_commands.command(name="clear", description="Deletes a certain number of messages")
     @app_commands.describe(amount="The amount of messages to clear")
     async def clear(self, interaction: discord.Interaction, amount: app_commands.Range[int, 1, 100]):
@@ -48,20 +48,19 @@ class moderationCog(commands.Cog):
             if interaction.user.guild_permissions.manage_channels:
                 bot_member = interaction.guild.get_member(self.bot.user.id)
                 if bot_member.guild_permissions.manage_messages:
-                    await interaction.response.send_message("Messages will be deleted shortly.", ephemeral=True)
-                    deleted_messages = await interaction.channel.purge(limit=amount)
+                    await interaction.response.defer()
+                    deleted_messages = await asyncio.wait_for(interaction.channel.purge(limit=amount), timeout=30)
                     deleted_messages_count = len(deleted_messages)
-                    success_message = f"**__{deleted_messages_count}__** messages have been successfully deleted."
-                    failure_message = f"Failed to delete **__{amount - deleted_messages_count}__** messages."
+                    async with interaction.channel.typing():
+                        success_message = f"**__{deleted_messages_count}__** messages have been successfully deleted."
+                        failure_message = f"Failed to delete **__{amount - deleted_messages_count}__** messages."
 
-                    embed = discord.Embed(
-                        title="Messages Deleted",
-                        description=f"{success_message}\n{failure_message}",
-                        color=discord.Color.green(),
+                        embed = discord.Embed(title="Messages Deleted", description=f"{success_message}\n{failure_message}", color=discord.Color.green(), 
                         timestamp=datetime.now()
-                    )
-                    embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
-                    await interaction.channel.send(embed=embed)
+                        )
+                        embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
+                        
+                        await interaction.channel.send(embed=embed)
                 else:
                     clearembed = discord.Embed(
                         title="Error",
@@ -84,6 +83,14 @@ class moderationCog(commands.Cog):
                     value=f"<@{interaction.user.id}> you don't have enough permissions to do that.",
                 )
                 await interaction.response.send_message(embed=clearembed, ephemeral=True)
+        except asyncio.TimeoutError:
+            error_embed = discord.Embed(
+                title="Error",
+                description="The `purge()` method call timed out. Please try again later.",
+                color=discord.Color.red(),
+                timestamp=datetime.now()
+            )
+            await interaction.response.send_message(embed=error_embed, ephemeral=True)
         except discord.Forbidden:
             error_embed = discord.Embed(
                 title="Error",
@@ -103,47 +110,42 @@ class moderationCog(commands.Cog):
 
 
 
-
     @app_commands.command(name="poll", description="Creates a simple poll")
     @app_commands.describe(text="Your yes/no question")
     async def poll(self, interaction: discord.Interaction, text: str):
         try:
+            # Defer the interaction response
+            await interaction.response.defer()
+
             # Check if the user has permission to manage channels
             if not interaction.user.guild_permissions.manage_channels:
                 poolembed = discord.Embed(title="Error", color=discord.Color.dark_red(), timestamp=datetime.now())
                 poolembed.add_field(name="Permission Denied", value=f"<@{interaction.user.id}> you don't have enough permissions to do that.")
-                await interaction.response.send_message(embed=poolembed, ephemeral=True)
+                await interaction.followup.send(embed=poolembed, ephemeral=True)
                 return
 
             channel = interaction.channel
-            channel = discord.utils.get(interaction.guild.channels, name=channel.name)
-            embed = discord.Embed(title=text, color=0x00D9FF)
-            message = await channel.send(embed=embed)
-            await message.add_reaction("✅")
-            await message.add_reaction("❌")
-            await interaction.response.send_message("Ok", ephemeral=True)
 
-        except discord.Forbidden:
-            error_embed = discord.Embed(title="Error",
-                description="I do not have permission to perform this action. Please make sure I have the necessary permissions.",
-                color=discord.Color.red(),
-                timestamp=datetime.now()
-            )
-            await interaction.response.send_message(embed=error_embed, ephemeral=True)
+            # Show typing status while creating the poll
+            async with interaction.channel.typing():          
 
-        except discord.HTTPException as e:
-            error_embed = discord.Embed(title="Error", description=f"An error occurred while processing the command. Please try again later. ({e})",
-                color=discord.Color.red(),
-                timestamp=datetime.now()
-            )
-            await interaction.response.send_message(embed=error_embed, ephemeral=True)
+                
+                embed = discord.Embed(title=text, color=0x00D9FF)
+                message = await channel.send(embed=embed, content=None)
+                #poll_message = await message.edit(embed=embed, content=None)
+                #await poll_message.add_reaction("✅")
+                #await poll_message.add_reaction("❌")
+                await message.add_reaction("✅")
+                await message.add_reaction("❌")
+                response = await interaction.followup.send("Done")
+                await response.delete()     
+
 
         except Exception as e:
-            error_embed = discord.Embed(title="Error", description=f"An unexpected error occurred while processing the command. Please try again later. ({e})",
-                color=discord.Color.red(),
-                timestamp=datetime.now()
-            )
-            await interaction.response.send_message(embed=error_embed, ephemeral=True)
+            print(e)
+
+
+
 
 
 
