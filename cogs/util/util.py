@@ -206,7 +206,8 @@ class Util(commands.Cog):
 
         embed = discord.Embed(color=0x00D9FF)
         embed.add_field(name="Bot Info", value=f"```{info}```", inline=False)
-        embed.set_footer(text=interaction.user.name, icon_url=interaction.user.avatar)
+        embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
+
         
         await interaction.response.send_message(embed=embed)
 
