@@ -1,4 +1,4 @@
-beautifulsoup4==4.12.1
+beautifulsoup4==4.12.2
 colorama==0.4.6
 discord.py==2.2.2
 pip==23.0.1
