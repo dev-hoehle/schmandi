@@ -165,7 +165,7 @@ class Admin(commands.Cog):
         # If the channel was made invisible, turn permission syncing back on
         if visibility == "invisible":
             try:
-                await channel.edit(sync_permissions=True)
+                await channel.edit(sync_permissions=False)
             except discord.Forbidden:
                 await interaction.response.send_message(f"I do not have the permission to edit the channel <#{channel.id}>.", ephemeral=True)
                 return
