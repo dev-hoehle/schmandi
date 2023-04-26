@@ -1,7 +1,7 @@
 beautifulsoup4==4.12.2
 colorama==0.4.6
 discord.py==2.2.2
-pip==23.1.1
+pip==23.1.2
 psutil==5.9.5
 py_cpuinfo==9.0.0
 requests==2.29.0
