@@ -10,7 +10,7 @@ import requests
 from colorama import Fore
 from discord.ext import commands, tasks
 
-
+from helpers.general import print_failure_message, print_success_message
 
 time = datetime.now().strftime('%d.%m.%Y %H:%M:%S')
 if not os.path.exists("config.json"):
@@ -63,12 +63,10 @@ class Bot(commands.Bot):
                     try:
                         time = datetime.now().strftime('%d.%m.%Y %H:%M:%S')
                         await bot.load_extension(f'cogs.{filepath}.{filename}')
-                        print(
-                            f'[{time}] [{Fore.LIGHTCYAN_EX}BOT{Fore.RESET}] [\u2705] Loaded cogs.{filepath}.{filename}')
+                        print_success_message(f'[{time}] [{Fore.LIGHTCYAN_EX}BOT{Fore.RESET}] [\u2705] Loaded cogs.{filepath}.{filename}')
                         loaded += 1
                     except Exception as error:
-                        print(
-                            f'[{time}] [{Fore.RED}BOT{Fore.RESET}] [\u274C] Failed to load cogs.{filepath}.{filename}: {error}')
+                        print_failure_message(f'[{time}] [{Fore.RED}BOT{Fore.RESET}] [\u274C] Failed to load cogs.{filepath}.{filename}: {error}')
 
         await self.tree.sync()
 

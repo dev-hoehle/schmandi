@@ -1,3 +1,4 @@
+import sys
 from datetime import datetime, timedelta
 from typing import Literal, Optional, Union
 
@@ -5,7 +6,6 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-import sys
 sys.dont_write_bytecode = True
 
 class Admin(commands.Cog):

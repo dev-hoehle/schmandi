@@ -1,10 +1,11 @@
 import os
 import platform
-import discord
-from discord.ext import commands
 from datetime import datetime
 
+import discord
 from colorama import Fore
+from discord.ext import commands
+
 
 def clear_console():
     try:

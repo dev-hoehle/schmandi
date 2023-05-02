@@ -1,5 +1,6 @@
 import base64
 import json
+import sys
 from datetime import datetime
 
 import discord
@@ -7,7 +8,6 @@ import requests
 from discord import app_commands
 from discord.ext import commands
 
-import sys
 sys.dont_write_bytecode = True
 
 class mod_apps(commands.Cog):
