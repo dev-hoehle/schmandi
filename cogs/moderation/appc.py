@@ -7,6 +7,8 @@ import requests
 from discord import app_commands
 from discord.ext import commands
 
+import sys
+sys.dont_write_bytecode = True
 
 class mod_apps(commands.Cog):
     def __init__(self, bot):

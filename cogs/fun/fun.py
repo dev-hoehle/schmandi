@@ -9,9 +9,13 @@ from bs4 import BeautifulSoup
 from discord import app_commands
 from discord.ext import commands
 
+import sys
+sys.dont_write_bytecode = True
+
 with open("config.json", "r", encoding="UTF-8") as configfile:
     config = json.load(configfile)
     api_key = config["giphy_key"]
+configfile.close()
 
 class Fun(commands.Cog):
     def __init__(self, bot):

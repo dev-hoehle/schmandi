@@ -10,6 +10,8 @@ import requests
 from colorama import Fore
 from discord.ext import commands, tasks
 
+
+
 time = datetime.now().strftime('%d.%m.%Y %H:%M:%S')
 if not os.path.exists("config.json"):
     if os.path.exists("example.config.json"):
