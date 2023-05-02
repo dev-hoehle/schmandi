@@ -11,24 +11,15 @@ from colorama import Fore
 from discord.ext import commands, tasks
 
 from helpers.general import print_failure_message, print_success_message
+from helpers.config import get_config_value, check_config
+check_config()
 
-time = datetime.now().strftime('%d.%m.%Y %H:%M:%S')
-if not os.path.exists("config.json"):
-    if os.path.exists("example.config.json"):
-        print(f"[{time}] [{Fore.RED}BOT{Fore.RESET}] [\u274C] Please rename example.config.json to config.json and follow the setup instructions from the README file.")
-        sys.exit()
-    else:
-        print(f"[{time}] [{Fore.RED}BOT{Fore.RESET}] [\u274C] config.json is missing. Please follow the setup instructions from the README file.")
-        sys.exit()
 
-with open("config.json", "r", encoding="UTF-8") as configfile:
-    
-    config = json.load(configfile)
-    token = config.get("Token")
-    if not token:
-        print(f"[{time}] [{Fore.RED}BOT{Fore.RESET}] [\u274C] Token is missing from config.json. Please follow the setup instructions from the README file.")
-        sys.exit()
-    greet = config.get("greetmembers", True)
+token = get_config_value("Token")
+if not token:
+    print_failure_message("Token is missing from config.json. Please follow the setup instructions from the README file.")
+    sys.exit()
+greet = get_config_value("greetmembers")
 
 
 
@@ -80,12 +71,12 @@ bot.remove_command("help")
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(status=discord.Status.dnd)
+    await bot.change_presence(status=discord.Status.idle)
 
     time = datetime.now().strftime('%d.%m.%Y %H:%M:%S')
     print(f'[{time}] [{Fore.LIGHTCYAN_EX}BOT{Fore.RESET}] Loaded [{loaded}/{allcogs}] cogs')
 
-    await bot.change_presence(status=discord.Status.dnd, activity=discord.Activity(type=discord.ActivityType.watching, name="anditv.it"),)
+    await bot.change_presence(status=discord.Status.idle, activity=discord.Activity(type=discord.ActivityType.watching, name="anditv.it"),)
     print(f'\n[{time}] [{Fore.LIGHTCYAN_EX}BOT{Fore.RESET}] has connected as {bot.user} via discord.py {discord.__version__}')
 
     bg_task.start()
@@ -103,7 +94,6 @@ async def on_member_join(member):
 
 @tasks.loop(seconds=5)
 async def bg_task():
-
     await bot.wait_until_ready()
     counted_members = set()
     while not bot.is_closed():
@@ -119,11 +109,18 @@ async def bg_task():
                 type=discord.ActivityType.watching, name="github.com/anditv21")),
             (discord.Status.dnd, discord.Activity(
                 type=discord.ActivityType.watching, name="anditv.it")),
-            (discord.Status.dnd, discord.Activity(  
+            (discord.Status.dnd, discord.Activity(
                 type=discord.ActivityType.watching, name=f"{member_count} users")),
             (discord.Status.dnd, discord.Activity(
                 type=discord.ActivityType.watching, name=f"{len(bot.guilds)} servers"))
         ]
+
+        if platform.system() == 'Windows':
+            status_list[2] = (discord.Status.idle, discord.Activity(
+                type=discord.ActivityType.playing, name="development"))
+            await bot.change_presence(status=discord.Status.idle, activity=discord.Activity(
+                type=discord.ActivityType.playing, name="development"))
+            return False
 
         current_index = 0
         while current_index < len(status_list):
@@ -135,9 +132,6 @@ async def bg_task():
                 print(f"Error occurred while changing presence: {e}")
 
             current_index += 1
-
-
-
 """
 @bot.event
 async def on_message(message):
