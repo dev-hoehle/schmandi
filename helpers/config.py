@@ -25,5 +25,5 @@ def get_config_value(key):
         if not value:
             print_failure_message(f"[ERROR] Value for key '{key}' is missing from config.json. Please check the configuration file and try again.")
             sys.exit()
-    config.close()
+    configfile.close()
     return value
