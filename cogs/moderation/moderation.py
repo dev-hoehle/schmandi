@@ -5,6 +5,7 @@ from typing import Literal
 import discord
 from discord import app_commands
 from discord.ext import commands
+import requests
 
 
 class moderationCog(commands.Cog):
@@ -247,6 +248,58 @@ class moderationCog(commands.Cog):
             await member.send(embed=embed)
         except discord.errors.Forbidden:
             pass
+
+
+    @discord.app_commands.command(name='clone_emote', description="Clone an emote from another server to your server")
+    @discord.app_commands.describe(emoji='The emote you want to clone')
+    async def clone_emote(self, interaction: discord.Interaction, emoji: str, new_name: str = None):
+        # Check if the user has permission to manage emojis
+        if not interaction.user.guild_permissions.manage_emojis:
+            permission_error_embed = discord.Embed(
+                title='Permission denied',
+                color=0x00D9FF,
+                description='You do not have permission to use this command'
+            )
+            return await interaction.response.send_message(embed=permission_error_embed, ephemeral=True)
+
+        # Check if the bot has permission to manage channels
+        bot_member = interaction.guild.get_member(self.bot.user.id)
+        if not bot_member.guild_permissions.manage_channels:
+            await interaction.response.send_message("I do not have the permission to manage channels.", ephemeral=True)
+            return
+
+        # Check if the user has permission to manage channels
+        if not interaction.user.guild_permissions.manage_channels:
+            embed = discord.Embed(
+                title="Permission Error",
+                description=f"{interaction.user.mention}, you don't have enough permissions to use this command.",
+                color=discord.Color.red()
+            )
+            embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            return
+
+        try:
+            emoji = discord.PartialEmoji.from_str(emoji)
+            get_bytes = bytes(requests.get(emoji.url).content)
+            emoji_name = new_name if new_name else emoji.name
+            emoji = await interaction.guild.create_custom_emoji(name=emoji_name, image=get_bytes)
+
+            emoji_embed = discord.Embed(
+                title='Emote Cloned!',
+                color=0x00D9FF,
+                description=f'The emote `{emoji_name}` has been successfully cloned to this server!'
+            ).set_thumbnail(
+                url=emoji.url
+            )
+
+            await interaction.response.send_message(embed=emoji_embed)
+        except:
+            error_embed = discord.Embed(
+                title='Something went wrong',
+                color=0x00D9FF
+            )
+            await interaction.response.send_message(embed=error_embed, ephemeral=True)
 
 
 async def setup(bot):
