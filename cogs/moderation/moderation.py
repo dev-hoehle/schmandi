@@ -290,8 +290,7 @@ class moderationCog(commands.Cog):
                         description = f'> Invalid emoji',
                         color = 0xff0000
                     ).set_author(
-                        name = 'Something wrent wrong',
-                        icon_url = "https://ghostboy.dev/assets/bot/error.png"
+                        name = 'Something wrent wrong'
                     ).set_footer(
                         icon_url = interaction.guild.icon.url,
                         text = interaction.guild.name
