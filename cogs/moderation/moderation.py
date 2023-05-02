@@ -1,12 +1,14 @@
 import asyncio
 from datetime import datetime, timedelta
 from typing import Literal
-
+import aiohttp
 import discord
 from discord import app_commands
 from discord.ext import commands
-import requests
 
+
+import sys
+sys.dont_write_bytecode = True
 
 class moderationCog(commands.Cog):
     def __init__(self, bot):
@@ -281,9 +283,25 @@ class moderationCog(commands.Cog):
 
         try:
             emoji = discord.PartialEmoji.from_str(emoji)
-            get_bytes = bytes(requests.get(emoji.url).content)
+            async with aiohttp.ClientSession() as session:
+                get_bytes = await session.get(url=emoji.url)
+                if get_bytes.status != 200:
+                    invalid_embed = discord.Embed(
+                        description = f'> Invalid emoji',
+                        color = 0xff0000
+                    ).set_author(
+                        name = 'Something wrent wrong',
+                        icon_url = "https://ghostboy.dev/assets/bot/error.png"
+                    ).set_footer(
+                        icon_url = interaction.guild.icon.url,
+                        text = interaction.guild.name
+                    )
+                    return await interaction.response.send_message(embed=invalid_embed, ephemeral=True) 
+                
+                emoji_bytes = bytes(await get_bytes.read())
+
             emoji_name = new_name if new_name else emoji.name
-            emoji = await interaction.guild.create_custom_emoji(name=emoji_name, image=get_bytes)
+            emoji = await interaction.guild.create_custom_emoji(name=emoji_name, image=emoji_bytes)
 
             emoji_embed = discord.Embed(
                 title='Emote Cloned!',
