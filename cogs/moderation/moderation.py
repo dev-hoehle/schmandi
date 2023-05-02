@@ -255,23 +255,15 @@ class moderationCog(commands.Cog):
     @discord.app_commands.command(name='clone_emote', description="Clone an emote from another server to your server")
     @discord.app_commands.describe(emoji='The emote you want to clone')
     async def clone_emote(self, interaction: discord.Interaction, emoji: str, new_name: str = None):
-        # Check if the user has permission to manage emojis
-        if not interaction.user.guild_permissions.manage_emojis:
-            permission_error_embed = discord.Embed(
-                title='Permission denied',
-                color=0x00D9FF,
-                description='You do not have permission to use this command'
-            )
-            return await interaction.response.send_message(embed=permission_error_embed, ephemeral=True)
 
-        # Check if the bot has permission to manage channels
+        # Check if the bot has permission to manage emojis
         bot_member = interaction.guild.get_member(self.bot.user.id)
-        if not bot_member.guild_permissions.manage_channels:
+        if not bot_member.guild_permissions.manage_emojis:
             await interaction.response.send_message("I do not have the permission to manage channels.", ephemeral=True)
             return
 
-        # Check if the user has permission to manage channels
-        if not interaction.user.guild_permissions.manage_channels:
+        # Check if the user has permission to manage emojis
+        if not interaction.user.guild_permissions.manage_emojis:
             embed = discord.Embed(
                 title="Permission Error",
                 description=f"{interaction.user.mention}, you don't have enough permissions to use this command.",
