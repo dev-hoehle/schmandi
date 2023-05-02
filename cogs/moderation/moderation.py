@@ -118,14 +118,13 @@ class moderationCog(commands.Cog):
     async def poll(self, interaction: discord.Interaction, text: str):
         try:
             # Defer the interaction response
-            await interaction.response.defer()
+            await interaction.response.defer(ephemeral=True)
 
             # Check if the user has permission to manage channels
             if not interaction.user.guild_permissions.manage_channels:
                 poolembed = discord.Embed(title="Error", color=discord.Color.dark_red(), timestamp=datetime.now())
                 poolembed.add_field(name="Permission Denied", value=f"<@{interaction.user.id}> you don't have enough permissions to do that.")
-                await interaction.followup.send(embed=poolembed, ephemeral=True)
-                return
+                return await interaction.followup.send(embed=poolembed, ephemeral=True)
 
             channel = interaction.channel
 
