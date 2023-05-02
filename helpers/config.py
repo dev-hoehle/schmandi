@@ -7,6 +7,7 @@ from colorama import Fore
 
 from helpers.general import *
 
+sys.dont_write_bytecode = True
 time = datetime.now().strftime('%d.%m.%Y %H:%M:%S')
 
 def check_config():

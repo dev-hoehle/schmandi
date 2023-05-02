@@ -10,8 +10,9 @@ import requests
 from colorama import Fore
 from discord.ext import commands, tasks
 
+from helpers.config import check_config, get_config_value
 from helpers.general import print_failure_message, print_success_message
-from helpers.config import get_config_value, check_config
+
 check_config()
 
 

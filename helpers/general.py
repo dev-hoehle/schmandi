@@ -1,12 +1,13 @@
 import os
 import platform
+import sys
 from datetime import datetime
 
 import discord
 from colorama import Fore
 from discord.ext import commands
 
-
+sys.dont_write_bytecode = True
 def clear_console():
     try:
         if platform.system() == "Windows":
