@@ -12,7 +12,8 @@ from helpers.config import get_config_value
 
 sys.dont_write_bytecode = True
 
-api_key = get_config_value("giphy_key")
+api_key = get_config_value("tenor_key")
+api_name = get_config_value("tenor_name")
 
 class Fun(commands.Cog):
     def __init__(self, bot):
@@ -39,16 +40,16 @@ class Fun(commands.Cog):
     async def gifsearch(self, interaction: discord.Interaction, *, query: str):
         
         if not api_key:
-            await interaction.response.send_message("Giphy API key is missing from config.json. Please follow the setup instructions from the README file.", ephemeral=True)
-        return
+            await interaction.response.send_message("Tenor API key is missing from config.json. Please follow the setup instructions from the README file.", ephemeral=True)
+            return
         # construct the Giphy API URL
-        url = f"https://api.giphy.com/v1/gifs/search?api_key={api_key}&q={query}&limit=15"
+        url = f"https://tenor.googleapis.com/v2/search?q={query}&client_key={api_name}&key={api_key}&limit=15"
         
         # send a request to the Giphy API and get the response in JSON format
         response = requests.get(url).json()
         
         # choose a random gif from the list of gifs returned by the API
-        gif_url = random.choice(response["data"])["images"]["original"]["url"]
+        gif_url = random.choice(response["results"])["media_formats"]["tinygif"]["url"]
         
 
         embed = discord.Embed(title=f"Gif for {query}", color=0x00EFDB)
