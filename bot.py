@@ -1,37 +1,19 @@
 import asyncio
-import json
 import os
 import platform
-import sys
 from datetime import datetime
 
 import discord
-import requests
 from colorama import Fore
 from discord.ext import commands, tasks
 
 from helpers.config import check_config, get_config_value
-from helpers.general import print_failure_message, print_success_message
+from helpers.general import clear_console, print_failure_message, print_success_message
 
 check_config()
 
-
 token = get_config_value("Token")
-if not token:
-    print_failure_message("Token is missing from config.json. Please follow the setup instructions from the README file.")
-    sys.exit()
 greet = get_config_value("greetmembers")
-
-
-
-def clear_console():
-    try:
-        if platform.system() == "Windows":
-            os.system("cls")
-        else:
-            os.system("clear")
-    except Exception as e:
-        print(f"Error: {e}")
 
 
 loaded = 0
@@ -46,14 +28,12 @@ class Bot(commands.Bot):
     async def setup_hook(self):
         global loaded, allcogs
         clear_console()
-        print("")
         for filepath in os.listdir('cogs'):
             for filename in os.listdir(f'cogs/{filepath}'):
                 if filename.endswith('.py'):
                     filename = filename.replace('.py', '')
                     allcogs += 1
                     try:
-                        time = datetime.now().strftime('%d.%m.%Y %H:%M:%S')
                         await bot.load_extension(f'cogs.{filepath}.{filename}')
                         print_success_message(f'Loaded cogs.{filepath}.{filename}')
                         loaded += 1
@@ -74,11 +54,10 @@ bot.remove_command("help")
 async def on_ready():
     await bot.change_presence(status=discord.Status.idle)
 
-    time = datetime.now().strftime('%d.%m.%Y %H:%M:%S')
-    print(f'[{time}] [{Fore.LIGHTCYAN_EX}BOT{Fore.RESET}] Loaded [{loaded}/{allcogs}] cogs')
+    print_success_message(f'Loaded [{loaded}/{allcogs}] cogs')
 
     await bot.change_presence(status=discord.Status.idle, activity=discord.Activity(type=discord.ActivityType.watching, name="anditv.it"),)
-    print(f'\n[{time}] [{Fore.LIGHTCYAN_EX}BOT{Fore.RESET}] has connected as {bot.user} via discord.py {discord.__version__}')
+    print_success_message(f'has connected as {bot.user} via discord.py {discord.__version__}')
 
     bg_task.start()
 

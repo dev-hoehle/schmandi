@@ -3,7 +3,6 @@ import platform
 import sys
 from datetime import datetime
 
-import discord
 from colorama import Fore
 from discord.ext import commands
 
@@ -26,3 +25,13 @@ def print_failure_message(text):
     time = datetime.now().strftime('%d.%m.%Y %H:%M:%S')
     print(f"[{time}] [{Fore.RED}BOT{Fore.RESET}] [\u274C] {text}")
 
+def clear_console():
+    try:
+        if platform.system() == "Windows":
+            os.system("cls")
+            print("")
+        else:
+            os.system("clear")
+            print("")
+    except Exception as e:
+        print(f"Error: {e}")

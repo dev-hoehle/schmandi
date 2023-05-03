@@ -1,4 +1,3 @@
-import json
 import random
 import sys
 from datetime import datetime
@@ -6,7 +5,6 @@ from typing import Literal
 
 import discord
 import requests
-from bs4 import BeautifulSoup
 from discord import app_commands
 from discord.ext import commands
 

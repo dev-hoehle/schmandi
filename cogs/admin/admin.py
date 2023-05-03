@@ -1,6 +1,6 @@
 import sys
-from datetime import datetime, timedelta
-from typing import Literal, Optional, Union
+from datetime import datetime
+from typing import Literal
 
 import discord
 from discord import app_commands

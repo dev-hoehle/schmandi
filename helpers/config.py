@@ -3,8 +3,6 @@ import os
 import sys
 from datetime import datetime
 
-from colorama import Fore
-
 from helpers.general import *
 
 sys.dont_write_bytecode = True
@@ -17,6 +15,11 @@ def check_config():
             sys.exit()
         else:
             print_failure_message("config.json is missing. Please follow the setup instructions from the README file.")
+            sys.exit()
+    else:
+        token = get_config_value("Token")
+        if not token:
+            print_failure_message("Token is missing from config.json. Please follow the setup instructions from the README file.")
             sys.exit()
 
 def get_config_value(key):
