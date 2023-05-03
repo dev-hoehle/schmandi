@@ -14,7 +14,7 @@ from helpers.config import get_config_value
 
 sys.dont_write_bytecode = True
 
-api_key = get_config_value(["giphy_key"])
+api_key = get_config_value("giphy_key")
 
 class Fun(commands.Cog):
     def __init__(self, bot):
