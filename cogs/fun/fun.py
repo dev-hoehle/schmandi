@@ -42,10 +42,10 @@ class Fun(commands.Cog):
         if not api_key:
             await interaction.response.send_message("Tenor API key is missing from config.json. Please follow the setup instructions from the README file.", ephemeral=True)
             return
-        # construct the Giphy API URL
-        url = f"https://tenor.googleapis.com/v2/search?q={query}&client_key={api_name}&key={api_key}&limit=15"
+        # construct the Tenor API URL
+        url = f"https://tenor.googleapis.com/v2/search?q={query}&client_key={api_name}&key={api_key}&limit=50"
         
-        # send a request to the Giphy API and get the response in JSON format
+        # send a request to the Tenor API and get the response in JSON format
         response = requests.get(url).json()
         
         # choose a random gif from the list of gifs returned by the API
@@ -58,6 +58,28 @@ class Fun(commands.Cog):
         
         await interaction.response.send_message(embed=embed)
 
+
+    @app_commands.command(name='bombastic_side_eye', description='Bombastic side eye')
+    async def bombastic_side_eye(self, interaction: discord.Interaction):
+        
+        if not api_key:
+            await interaction.response.send_message("Tenor API key is missing from config.json. Please follow the setup instructions from the README file.", ephemeral=True)
+            return
+        # construct the Tenor API URL
+        url = f"https://tenor.googleapis.com/v2/search?q=side eye cat&client_key={api_name}&key={api_key}&limit=50"
+        
+        # send a request to the Tenor API and get the response in JSON format
+        response = requests.get(url).json()
+        
+        # choose a random gif from the list of gifs returned by the API
+        gif_url = random.choice(response["results"])["media_formats"]["tinygif"]["url"]
+        
+
+        embed = discord.Embed(title=f"Bombastic side eye", color=0x00EFDB)
+        embed.set_image(url=gif_url)
+        embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
+        
+        await interaction.response.send_message(embed=embed)
 
 
     @app_commands.command(name="fact", description="Shows you a useless fact")
