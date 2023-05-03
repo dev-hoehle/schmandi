@@ -188,8 +188,8 @@ class moderationCog(commands.Cog):
     @discord.app_commands.describe(member="Who do you want to timeout?")
     async def timeout(self, interaction: discord.Interaction, member: discord.Member, time: Literal["15s", "30s", "1min", "5min", "15min", "30min", "1h"], *, reason: str = None):
 
-        # Check if the user has the manage_roles permission to execute the command
-        if not interaction.user.guild_permissions.manage_roles:
+        # Check if the user has the moderate_members permission to execute the command
+        if not interaction.user.guild_permissions.moderate_members:
             embed = discord.Embed(title="Timeout failed", color=0xff0000)
             embed.add_field(name="Error", value="You do not have permission to use this command.", inline=True,)
             return await interaction.response.send_message( embed=embed, ephemeral=True)
