@@ -22,7 +22,7 @@ def check_config():
             print_failure_message("Token is missing from config.json. Please follow the setup instructions from the README file.")
             sys.exit()
 
-def get_config_value(key):
+def get_config_value(key: str) -> str:
     with open("config.json", "r", encoding="UTF-8") as configfile:
         config = json.load(configfile)
         value = config.get(key)

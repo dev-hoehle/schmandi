@@ -19,14 +19,26 @@ class Admin(commands.Cog):
         try:
             # Check if the bot has the permission to ban members
             if not interaction.guild.me.guild_permissions.ban_members:
-                embed = discord.Embed(title="Permission Denied", color=0xff0000)
-                embed.add_field(name="Error", value="I do not have permission to ban members.", inline=True)
+                embed = discord.Embed(
+                    title="Permission Denied",
+                    color=0xff0000
+                ).add_field(
+                    name="Error",
+                    value="I do not have permission to ban members.",
+                    inline=True
+                )
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
 
             # Check if the user has the permission to ban members
             if not interaction.user.guild_permissions.ban_members:
-                embed = discord.Embed(title="Permission Denied", color=0xff0000)
-                embed.add_field(name="Error", value="You do not have permission to use this command.", inline=True)
+                embed = discord.Embed(
+                    title="Permission Denied",
+                    color=0xff0000
+                ).add_field(
+                    name="Error",
+                    value="You do not have permission to use this command.",
+                    inline=True
+                )
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
 
             if reason is None:
@@ -34,18 +46,34 @@ class Admin(commands.Cog):
 
             # Send a DM to the banned member
             try:
-                embed = discord.Embed(title=f"You have been banned from **{interaction.guild.name}**!", color=0x00D9FF,)
-                embed.add_field(name="Banned by", value=interaction.user.mention)
-                embed.add_field(name="Reason", value=reason)
+                embed = discord.Embed(
+                    title=f"You have been banned from **{interaction.guild.name}**!",
+                    color=0x00D9FF
+                ).add_field(
+                    name="Banned by",
+                    value=interaction.user.mention
+                ).add_field(
+                    name="Reason",
+                    value=reason
+                )
                 await member.send(embed=embed)
             except Exception as e:
                 print(f"Failed to DM {member}: {e}")
 
 
-            embed = discord.Embed(title=" Member has been banned", color=0x00D9FF)
-            embed.add_field(name="Banned User", value=member.mention)
-            embed.add_field(name="Banned by", value=interaction.user.mention)
-            embed.add_field(name="Reason", value=reason)
+            embed = discord.Embed(
+                title=" Member has been banned",
+                color=0x00D9FF
+            ).add_field(
+                name="Banned User",
+                value=member.mention
+            ).add_field(
+                name="Banned by",
+                value=interaction.user.mention
+            ).add_field(
+                name="Reason",
+                value=reason
+            )
             await interaction.response.send_message(embed=embed)
 
             # Ban the member and provide the reason and the user who banned them
@@ -75,29 +103,57 @@ class Admin(commands.Cog):
                 reason = "No reason provided"
 
             # Send a direct message to the kicked member
-            embed = discord.Embed(title=f"You have been kicked from **{interaction.guild.name}**!", color=0x00D9FF,)
-            embed.add_field(name="Kicked by", value=interaction.user.mention)
-            embed.add_field(name="Reason", value=reason)
+            embed = discord.Embed(
+                title=f"You have been kicked from **{interaction.guild.name}**!",
+                color=0x00D9FF
+            ).add_field(
+                name="Kicked by",
+                value=interaction.user.mention
+            ).add_field(
+                name="Reason",
+                value=reason
+            )
             await member.send(embed=embed)
 
             # Kick the member and provide the reason
             await member.kick(reason=f"{reason} | Kicked by: {interaction.user}")
 
             # Send a success message to the user
-            embed = discord.Embed(title="Member kicked", color=0x00D9FF)
-            embed.add_field(name="Kicked User", value=member.mention)
-            embed.add_field(name="Kicked by", value=interaction.user.mention)
-            embed.add_field(name="Reason", value=reason)
+            embed = discord.Embed(
+                title="Member kicked",
+                color=0x00D9FF
+            ).add_field(
+                name="Kicked User",
+                value=member.mention
+            ).add_field(
+                name="Kicked by",
+                value=interaction.user.mention
+            ).add_field(
+                name="Reason",
+                value=reason
+            )
             await interaction.response.send_message(embed=embed, ephemeral=True)
                 
         except discord.Forbidden as e:
-            embed = discord.Embed(title="Error", color=0xff0000)
-            embed.add_field(name="Message", value=str(e), inline=True)
+            embed = discord.Embed(
+                title="Error",
+                color=0xff0000
+            ).add_field(
+                name="Message",
+                value=e.__str__(),
+                inline=True
+            )
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
         except Exception as e:
-            embed = discord.Embed(title="Error", color=0xff0000)
-            embed.add_field(name="Message", value=str(e), inline=True)
+            embed = discord.Embed(
+                title="Error",
+                color=0xff0000
+            ).add_field(
+                name="Message",
+                value=e.__str__(),
+                inline=True
+            )
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
@@ -160,8 +216,10 @@ class Admin(commands.Cog):
             title=f"{action} channel",
             color=discord.Color.green(),
             timestamp=datetime.now()
+        ).add_field(
+            name=f"The following channel has been {action}:",
+            value=f"<#{channel.id}>"
         )
-        lockembed.add_field(name=f"The following channel has been {action}:", value=f"<#{channel.id}>")
         await interaction.response.send_message(embed=lockembed)
 
         # If the channel was made invisible, turn permission syncing back on
@@ -169,10 +227,7 @@ class Admin(commands.Cog):
             try:
                 await channel.edit(sync_permissions=False)
             except discord.Forbidden:
-                await interaction.response.send_message(f"I do not have the permission to edit the channel <#{channel.id}>.", ephemeral=True)
-                return
-
-
+                return await interaction.response.send_message(f"I do not have the permission to edit the channel <#{channel.id}>.", ephemeral=True)
 
 
     @app_commands.command(name="nuke", description="Nuke a channel")
@@ -181,24 +236,34 @@ class Admin(commands.Cog):
         # Check if the bot has permission to manage channels
         bot_member = interaction.guild.get_member(self.bot.user.id)
         if not bot_member.guild_permissions.manage_channels:
-            await interaction.response.send_message("I do not have the permission to manage channels.", ephemeral=True)
-            return
+            return await interaction.response.send_message("I do not have the permission to manage channels.", ephemeral=True)
+            
         
         # Check if the user has permission to manage channels
         if not interaction.user.guild_permissions.manage_channels:
-            embed = discord.Embed(title="Permission Error", description=f"{interaction.user.mention}, you don't have enough permissions to use this command.",
-                                  color=discord.Color.red()
+            embed = discord.Embed(
+                title="Permission Error",
+                description=f"{interaction.user.mention}, you don't have enough permissions to use this command.",
+                color=discord.Color.red()
+            ).set_footer(
+                text=f"Requested by {interaction.user.name}",
+                icon_url=interaction.user.avatar
             )
-            embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+            
 
         # Check if the bot has permission to manage channels
         if not interaction.guild.me.guild_permissions.manage_channels:
-            embed = discord.Embed(title="Permission Error", description=f"I don't have enough permissions to nuke this channel.", color=discord.Color.red())
-            embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
+            embed = discord.Embed(
+                title="Permission Error",
+                description=f"I don't have enough permissions to nuke this channel.",
+                color=discord.Color.red()
+            ).set_footer(
+                text=f"Requested by {interaction.user.name}",
+                icon_url=interaction.user.avatar
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+            
 
         channel = channel or interaction.channel
         try:
@@ -210,13 +275,26 @@ class Admin(commands.Cog):
             await channel.delete()
 
             # Send an embed in the new channel to indicate that the nuke was successful
-            embed = discord.Embed(title="Nuke Successful", description=f"This channel has been nuked!", color=discord.Color.red())
-            embed.set_image(url="https://media.discordapp.net/attachments/811143476522909718/819507596302090261/boom.gif")
-            embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
+            embed = discord.Embed(
+                title="Nuke Successful",
+                description=f"This channel has been nuked!",
+                color=discord.Color.red()
+            ).set_image(
+                url="https://media.discordapp.net/attachments/811143476522909718/819507596302090261/boom.gif"
+            ).set_footer(
+                text=f"Requested by {interaction.user.name}",
+                icon_url=interaction.user.avatar
+            )
             await new.send(embed=embed)
         except discord.HTTPException:
-            embed = discord.Embed(title="Error", description=f"An error occurred while nuking the channel. Please try again later.", color=discord.Color.red())
-            embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
+            embed = discord.Embed(
+                title="Error",
+                description=f"An error occurred while nuking the channel. Please try again later.",
+                color=discord.Color.red()
+            ).set_footer(
+                text=f"Requested by {interaction.user.name}",
+                icon_url=interaction.user.avatar
+            )
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
 

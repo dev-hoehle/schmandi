@@ -26,12 +26,11 @@ class moderationCog(commands.Cog):
                 await member.edit(nick=nickname or member.name)
             except discord.Forbidden:
                 embed = discord.Embed(title="Error", description="I don't have the permission to change this member's nickname.", color=0xFF0000)
-                await interaction.response.send_message(embed=embed, ephemeral=True)
-                return
+                return await interaction.response.send_message(embed=embed, ephemeral=True)
+
             except Exception as e:
                 embed = discord.Embed(title="Error", description=f"An error occurred while changing the nickname: {e}", color=0xFF0000)
-                await interaction.response.send_message(embed=embed, ephemeral=True)
-                return
+                return await interaction.response.send_message(embed=embed, ephemeral=True)
 
             embed = discord.Embed(title="Nickname changed", color=0x00D9FF)
             embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.avatar.url)
@@ -162,9 +161,8 @@ class moderationCog(commands.Cog):
             embed = discord.Embed(title="Error", description=f"<@{interaction.user.id}> you don't have enough permissions to do that.", color=discord.Color.dark_red(),
                 timestamp=datetime.now(),
             )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
-
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+            
         if channel is None:
             channel = interaction.channel
 
@@ -258,8 +256,7 @@ class moderationCog(commands.Cog):
         # Check if the bot has permission to manage emojis
         bot_member = interaction.guild.get_member(self.bot.user.id)
         if not bot_member.guild_permissions.manage_emojis:
-            await interaction.response.send_message("I do not have the permission to manage channels.", ephemeral=True)
-            return
+            return await interaction.response.send_message("I do not have the permission to manage channels.", ephemeral=True)
 
         # Check if the user has permission to manage emojis
         if not interaction.user.guild_permissions.manage_emojis:
@@ -269,8 +266,7 @@ class moderationCog(commands.Cog):
                 color=discord.Color.red()
             )
             embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
 
         try:
             emoji = discord.PartialEmoji.from_str(emoji)
