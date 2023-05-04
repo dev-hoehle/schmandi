@@ -1,17 +1,20 @@
 import base64
 import json
 import platform
+import sys
 from datetime import datetime
 from typing import Literal
 from urllib.parse import urlparse
+
+import aiohttp
 import cpuinfo
 import discord
 import psutil
-import aiohttp
 from bs4 import BeautifulSoup
 from discord import app_commands
 from discord.ext import commands
 
+sys.dont_write_bytecode = True
 
 class Util(commands.Cog):
     def __init__(self, bot):

@@ -17,7 +17,7 @@ def check_config():
             print_failure_message("config.json is missing. Please follow the setup instructions from the README file.")
             sys.exit()
     else:
-        token = get_config_value("Token")
+        token = get_config_value("token")
         if not token:
             print_failure_message("Token is missing from config.json. Please follow the setup instructions from the README file.")
             sys.exit()

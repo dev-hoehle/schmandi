@@ -3,8 +3,8 @@ import sys
 from datetime import datetime
 from typing import Literal
 
-import discord
 import aiohttp
+import discord
 from discord import app_commands
 from discord.ext import commands
 

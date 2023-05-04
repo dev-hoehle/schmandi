@@ -1,8 +1,11 @@
 import base64
+import sys
+
 import discord
 from discord import app_commands
 from discord.ext import commands
 
+sys.dont_write_bytecode = True
 
 class util_apps(commands.Cog):
     def __init__(self, bot):

@@ -1,6 +1,7 @@
 import asyncio
 import os
 import platform
+import sys
 from datetime import datetime
 
 import discord
@@ -8,11 +9,13 @@ from colorama import Fore
 from discord.ext import commands, tasks
 
 from helpers.config import check_config, get_config_value
-from helpers.general import clear_console, print_failure_message, print_success_message
+from helpers.general import (clear_console, print_failure_message,
+                             print_success_message)
 
+sys.dont_write_bytecode = True
 check_config()
 
-token = get_config_value("Token")
+token = get_config_value("token")
 greet = get_config_value("greetmembers")
 
 
