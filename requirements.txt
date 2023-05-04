@@ -1,7 +1,7 @@
 aiohttp==3.8.4
 beautifulsoup4==4.12.2
 colorama==0.4.6
-discord.py==2.2.2
+discord.py==2.2.3
 pip==23.1.2
 pip==22.3.1
 psutil==5.9.4
