@@ -1,21 +1,19 @@
-import json
 import random
+import sys
 from datetime import datetime
 from typing import Literal
 
+import aiohttp
 import discord
-import requests
-from bs4 import BeautifulSoup
 from discord import app_commands
 from discord.ext import commands
 
-import sys
+from helpers.config import get_config_value
+
 sys.dont_write_bytecode = True
 
-with open("config.json", "r", encoding="UTF-8") as configfile:
-    config = json.load(configfile)
-    api_key = config["giphy_key"]
-configfile.close()
+api_key = get_config_value("tenor_key")
+api_name = get_config_value("tenor_name")
 
 class Fun(commands.Cog):
     def __init__(self, bot):
@@ -25,14 +23,24 @@ class Fun(commands.Cog):
     @app_commands.describe(sides="How many sides do you want?")
     async def roll(self, interaction: discord.Interaction, sides: int):
         if sides < 2:
-            embed = discord.Embed(title="The number of sides must be greater than 1!", imestamp=datetime.now(), color=discord.Color.dark_red(),)
-            embed.set_footer(text=interaction.guild.name, icon_url=interaction.guild.icon.url)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
+            embed = discord.Embed(
+                title="The number of sides must be greater than 1!",
+                imestamp=datetime.now(),
+                color=discord.Color.dark_red()
+            ).set_footer(
+                text=interaction.guild.name,
+                icon_url=interaction.guild.icon.url
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
         roll = random.randint(1, sides)
         
-        embed=discord.Embed(color=0x00fffa)
-        embed.add_field(name="Virtual dice", value=f'You rolled a {roll}!', inline=False)
+        embed=discord.Embed(
+            color=0x00fffa
+        ).add_field(
+            name="Virtual dice",
+            value=f'You rolled a {roll}!',
+            inline=False
+        )
         await interaction.response.send_message(embed=embed)
         
         
@@ -42,24 +50,59 @@ class Fun(commands.Cog):
     async def gifsearch(self, interaction: discord.Interaction, *, query: str):
         
         if not api_key:
-            await interaction.response.send_message("Giphy API key is missing from config.json. Please follow the setup instructions from the README file.", ephemeral=True)
-        return
-        # construct the Giphy API URL
-        url = f"https://api.giphy.com/v1/gifs/search?api_key={api_key}&q={query}&limit=15"
+            return await interaction.response.send_message("Tenor API key is missing from config.json. Please follow the setup instructions from the README file.", ephemeral=True)
+        # construct the Tenor API URL
+        url = f"https://tenor.googleapis.com/v2/search?q={query}&client_key={api_name}&key={api_key}&limit=50"
         
-        # send a request to the Giphy API and get the response in JSON format
-        response = requests.get(url).json()
+        # send a request to the Tenor API and get the response in JSON format
+        async with aiohttp.ClientSession() as session:
+            response = await session.get(url=url)
+            response = await response.json()
         
         # choose a random gif from the list of gifs returned by the API
-        gif_url = random.choice(response["data"])["images"]["original"]["url"]
+        gif_url = random.choice(response["results"])["media_formats"]["tinygif"]["url"]
         
 
-        embed = discord.Embed(title=f"Gif for {query}", color=0x00EFDB)
-        embed.set_image(url=gif_url)
-        embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
-        
+        embed = discord.Embed(
+            title=f"Gif for {query}",
+            color=0x00EFDB
+        ).set_image(
+            url=gif_url
+        ).set_footer(
+            text=f"Requested by {interaction.user.name}",
+            icon_url=interaction.user.avatar
+        )
         await interaction.response.send_message(embed=embed)
 
+
+    @app_commands.command(name='bombastic_side_eye', description='Bombastic side eye')
+    async def bombastic_side_eye(self, interaction: discord.Interaction):
+        
+        if not api_key:
+            await interaction.response.send_message("Tenor API key is missing from config.json. Please follow the setup instructions from the README file.", ephemeral=True)
+            return
+        # construct the Tenor API URL
+        url = f"https://tenor.googleapis.com/v2/search?q=side eye cat&client_key={api_name}&key={api_key}&limit=50"
+        
+        # send a request to the Tenor API and get the response in JSON format
+        async with aiohttp.ClientSession() as session:
+            response = await session.get(url=url)
+            response = await response.json()
+        
+        # choose a random gif from the list of gifs returned by the API
+        gif_url = random.choice(response["results"])["media_formats"]["tinygif"]["url"]
+        
+
+        embed = discord.Embed(
+            title=f"Bombastic side eye",
+            color=0x00EFDB
+        ).set_image(
+            url=gif_url
+        ).set_footer(
+            text=f"Requested by {interaction.user.name}",
+            icon_url=interaction.user.avatar
+        )
+        await interaction.response.send_message(embed=embed)
 
 
     @app_commands.command(name="fact", description="Shows you a useless fact")
@@ -77,12 +120,20 @@ class Fun(commands.Cog):
                 return
             
             url = f"https://uselessfacts.jsph.pl/random.json?language={code}"
-            factembed = discord.Embed(timestamp=datetime.now(), color=discord.Color.dark_red()).set_footer(text=interaction.guild.name, icon_url=interaction.guild.icon.url)
+            factembed = discord.Embed(
+                timestamp=datetime.now(),
+                color=discord.Color.dark_red()
+            ).set_footer(
+                text=interaction.guild.name,
+                icon_url=interaction.guild.icon.url
+            )
 
             try:
                 # Make a GET request to the API and check the response status code
-                response = requests.get(url)
-                response.raise_for_status()  # Raise an exception for non-200 status codes
+                async with aiohttp.ClientSession() as session:
+                    response = await session.get(url=url)
+                    
+                    response.raise_for_status()  # Raise an exception for non-200 status codes
                 
                 # Parse the JSON response and get the useless fact
                 data = response.json()
@@ -93,10 +144,7 @@ class Fun(commands.Cog):
                 
                 await interaction.response.send_message(embed=factembed, ephemeral=ephemeral)
         
-            except requests.exceptions.RequestException as e:
-                factembed.add_field(name="Error:", value=str(e))
-                await interaction.response.send_message(embed=factembed, ephemeral=True)
-            except ValueError:
+            except:
                 factembed.add_field(name="Error:", value="Failed to parse response as JSON.")
                 await interaction.response.send_message(embed=factembed, ephemeral=True)
         except Exception as e:

@@ -1,13 +1,13 @@
 import asyncio
+import sys
 from datetime import datetime, timedelta
 from typing import Literal
+
 import aiohttp
 import discord
 from discord import app_commands
 from discord.ext import commands
 
-
-import sys
 sys.dont_write_bytecode = True
 
 class moderationCog(commands.Cog):
@@ -26,12 +26,11 @@ class moderationCog(commands.Cog):
                 await member.edit(nick=nickname or member.name)
             except discord.Forbidden:
                 embed = discord.Embed(title="Error", description="I don't have the permission to change this member's nickname.", color=0xFF0000)
-                await interaction.response.send_message(embed=embed, ephemeral=True)
-                return
+                return await interaction.response.send_message(embed=embed, ephemeral=True)
+
             except Exception as e:
                 embed = discord.Embed(title="Error", description=f"An error occurred while changing the nickname: {e}", color=0xFF0000)
-                await interaction.response.send_message(embed=embed, ephemeral=True)
-                return
+                return await interaction.response.send_message(embed=embed, ephemeral=True)
 
             embed = discord.Embed(title="Nickname changed", color=0x00D9FF)
             embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.avatar.url)
@@ -118,14 +117,13 @@ class moderationCog(commands.Cog):
     async def poll(self, interaction: discord.Interaction, text: str):
         try:
             # Defer the interaction response
-            await interaction.response.defer()
+            await interaction.response.defer(ephemeral=True)
 
             # Check if the user has permission to manage channels
             if not interaction.user.guild_permissions.manage_channels:
                 poolembed = discord.Embed(title="Error", color=discord.Color.dark_red(), timestamp=datetime.now())
                 poolembed.add_field(name="Permission Denied", value=f"<@{interaction.user.id}> you don't have enough permissions to do that.")
-                await interaction.followup.send(embed=poolembed, ephemeral=True)
-                return
+                return await interaction.followup.send(embed=poolembed, ephemeral=True)
 
             channel = interaction.channel
 
@@ -163,9 +161,8 @@ class moderationCog(commands.Cog):
             embed = discord.Embed(title="Error", description=f"<@{interaction.user.id}> you don't have enough permissions to do that.", color=discord.Color.dark_red(),
                 timestamp=datetime.now(),
             )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
-
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+            
         if channel is None:
             channel = interaction.channel
 
@@ -191,8 +188,8 @@ class moderationCog(commands.Cog):
     @discord.app_commands.describe(member="Who do you want to timeout?")
     async def timeout(self, interaction: discord.Interaction, member: discord.Member, time: Literal["15s", "30s", "1min", "5min", "15min", "30min", "1h"], *, reason: str = None):
 
-        # Check if the user has the manage_roles permission to execute the command
-        if not interaction.user.guild_permissions.manage_roles:
+        # Check if the user has the moderate_members permission to execute the command
+        if not interaction.user.guild_permissions.moderate_members:
             embed = discord.Embed(title="Timeout failed", color=0xff0000)
             embed.add_field(name="Error", value="You do not have permission to use this command.", inline=True,)
             return await interaction.response.send_message( embed=embed, ephemeral=True)
@@ -259,8 +256,7 @@ class moderationCog(commands.Cog):
         # Check if the bot has permission to manage emojis
         bot_member = interaction.guild.get_member(self.bot.user.id)
         if not bot_member.guild_permissions.manage_emojis:
-            await interaction.response.send_message("I do not have the permission to manage channels.", ephemeral=True)
-            return
+            return await interaction.response.send_message("I do not have the permission to manage channels.", ephemeral=True)
 
         # Check if the user has permission to manage emojis
         if not interaction.user.guild_permissions.manage_emojis:
@@ -270,8 +266,7 @@ class moderationCog(commands.Cog):
                 color=discord.Color.red()
             )
             embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-            return
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
 
         try:
             emoji = discord.PartialEmoji.from_str(emoji)

@@ -1,13 +1,9 @@
-import base64
-import json
-from datetime import datetime
+import sys
 
 import discord
-import requests
 from discord import app_commands
 from discord.ext import commands
 
-import sys
 sys.dont_write_bytecode = True
 
 class mod_apps(commands.Cog):
@@ -42,8 +38,10 @@ class mod_apps(commands.Cog):
                 title="Permissions Error",
                 description=f"{interaction.user.mention}, you don't have enough permissions to use this command.",
                 color=discord.Color.red()
+            ).set_footer(
+                text=f"Requested by {interaction.user.name}",
+                icon_url=interaction.user.avatar
             )
-            embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
         channel = discord.utils.get(interaction.guild.channels, name=interaction.channel.name)
@@ -60,17 +58,22 @@ class mod_apps(commands.Cog):
                 title="Nuke Successful",
                 description=f"This channel has been nuked!",
                 color=discord.Color.red()
+            ).set_image(
+                url="https://media.discordapp.net/attachments/811143476522909718/819507596302090261/boom.gif"
+            ).set_footer(
+                text=f"Requested by {interaction.user.name}",
+                icon_url=interaction.user.avatar
             )
-            embed.set_image(url="https://media.discordapp.net/attachments/811143476522909718/819507596302090261/boom.gif")
-            embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
             await new.send(embed=embed)
         except discord.HTTPException:
             embed = discord.Embed(
                 title="Error",
                 description=f"An error occurred while nuking the channel. Please try again later.",
                 color=discord.Color.red()
+            ).set_footer(
+                text=f"Requested by {interaction.user.name}",
+                icon_url=interaction.user.avatar
             )
-            embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
