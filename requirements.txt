@@ -6,4 +6,4 @@ pip==23.1.2
 pip==23.1.2
 psutil==5.9.5
 py_cpuinfo==9.0.0
-Requests==2.30.0
+Requests==2.31.0
