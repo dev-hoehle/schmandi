@@ -160,13 +160,12 @@ class Admin(commands.Cog):
 
 
 
-    @app_commands.command(name="lock_or_unlock", description="Locks or unlocks a channel")
+    @app_commands.command(name="toggle_channel_lock", description="Locks or unlocks a channel")
     @discord.app_commands.describe(channel="The channel you want to lock or unlock")
     @discord.app_commands.describe(action="'lock' or 'unlock'")
-    @discord.app_commands.describe(visibility="Should the channel be visible or invisible?")
-    async def lock_or_unlock(self, interaction: discord.Interaction, channel: discord.TextChannel = None, action: Literal["lock", "unlock"] = "lock",
-                            visibility: Literal["visible", "invisible"] = "visible"
-    ):
+    @discord.app_commands.describe(visibility="'visible' or 'invisible'")
+    async def toggle_channel_lock(self, interaction, channel: discord.TextChannel = None, action: Literal["lock", "unlock"] = "lock",
+                            visibility: Literal["visible", "invisible"] = "visible"):
         # Check if the bot has permission to manage channels
         bot_member = interaction.guild.get_member(self.bot.user.id)
         if not bot_member.guild_permissions.manage_channels:
@@ -181,20 +180,20 @@ class Admin(commands.Cog):
         # If no channel is specified, lock or unlock the current channel
         channel = channel or interaction.channel
 
-        # Get the permissions for the default role for the channel
+        # Get the permissions for the @everyone role for the channel
         default_role = interaction.guild.default_role
         current_overwrite = channel.overwrites_for(default_role)
 
-        # Determine the new permission overwrite for the default role
+        # Determine the new permission overwrite for the @everyone role
         if action == "unlock" and current_overwrite.send_messages == False:
-            overwrite = discord.PermissionOverwrite(send_messages=None)
+            overwrite = discord.PermissionOverwrite(send_messages=None, view_channel=None)
         elif action == "lock" and current_overwrite.send_messages != False:
-            overwrite = discord.PermissionOverwrite(send_messages=False)
+            overwrite = discord.PermissionOverwrite(send_messages=False, view_channel=False)
         else:
             await interaction.response.send_message(f"The channel is already {'locked' if action=='lock' else 'unlocked'}.", ephemeral=True)
             return
 
-        # Set the new permissions for the default role
+        # Set the new permissions for the @everyone role
         try:
             await channel.set_permissions(default_role, overwrite=overwrite)
         except discord.Forbidden:
@@ -212,8 +211,18 @@ class Admin(commands.Cog):
                 await interaction.response.send_message(f"I do not have the permission to edit the channel <#{channel.id}>.", ephemeral=True)
                 return
 
+        # If the channel is being made visible, turn permission syncing back on
+        if visibility == "visible":
+            try:
+                await channel.edit(sync_permissions=True)
+            except discord.Forbidden:
+                return await interaction.response.send_message(f"I do not have the permission to edit the channel <#{channel.id}>.", ephemeral=True)
+
+        # Update the lock/unlock status in the embed title
+        action_title = "Locked" if action == "lock" else "Unlocked"
+
         lockembed = discord.Embed(
-            title=f"{action} channel",
+            title=f"{action_title} channel",
             color=discord.Color.green(),
             timestamp=datetime.now()
         ).add_field(
@@ -222,12 +231,7 @@ class Admin(commands.Cog):
         )
         await interaction.response.send_message(embed=lockembed)
 
-        # If the channel was made invisible, turn permission syncing back on
-        if visibility == "invisible":
-            try:
-                await channel.edit(sync_permissions=False)
-            except discord.Forbidden:
-                return await interaction.response.send_message(f"I do not have the permission to edit the channel <#{channel.id}>.", ephemeral=True)
+
 
 
     @app_commands.command(name="nuke", description="Nuke a channel")
