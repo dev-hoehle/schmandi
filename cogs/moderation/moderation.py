@@ -55,7 +55,7 @@ class moderationCog(commands.Cog):
                     deleted_messages_count = len(deleted_messages)
                     async with interaction.channel.typing():
                         success_message = f"**__{deleted_messages_count}__** messages have been successfully deleted."
-                        failure_message = f"Failed to delete **__{amount - deleted_messages_count}__** messages."
+                        failure_message = f"Failed to delete **__{amount - deleted_messages_count}__** of __**{amount}**__ messages."
 
                         embed = discord.Embed(title="Messages Deleted", description=f"{success_message}\n{failure_message}", color=discord.Color.green(), 
                         timestamp=datetime.now()
