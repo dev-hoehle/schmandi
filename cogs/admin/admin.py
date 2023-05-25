@@ -5,6 +5,7 @@ from typing import Literal
 import discord
 from discord import app_commands
 from discord.ext import commands
+from helpers.general import (print_failure_message)
 
 sys.dont_write_bytecode = True
 
@@ -58,7 +59,7 @@ class Admin(commands.Cog):
                 )
                 await member.send(embed=embed)
             except Exception as e:
-                print(f"Failed to DM {member}: {e}")
+                print_failure_message(f"Failed to DM {member}: {e}")
 
 
             embed = discord.Embed(
@@ -80,9 +81,9 @@ class Admin(commands.Cog):
             try:
                 await member.ban(reason=f"{reason} | Banned by: {interaction.user}")
             except Exception as e:
-                print(f"Failed to ban {member}: {e}")
+                print_failure_message(f"Failed to ban {member}: {e}")
         except Exception as e:
-            print(f"An error occurred while executing the ban command: {e}")
+            print_failure_message(f"An error occurred while executing the ban command: {e}")
 
             
     @app_commands.command(name="kick", description="Kick someone")

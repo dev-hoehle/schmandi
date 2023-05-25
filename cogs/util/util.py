@@ -13,6 +13,7 @@ import psutil
 from bs4 import BeautifulSoup
 from discord import app_commands
 from discord.ext import commands
+from helpers.general import (print_failure_message)
 
 sys.dont_write_bytecode = True
 
@@ -227,7 +228,7 @@ class Util(commands.Cog):
                         f"Unexpected HTTP status code: {response.status_code}")
 
         except Exception as e:
-            print("Error while shortening URL: %s", e)
+            print_failure_message("Error while shortening URL: %s", e)
             embed = discord.Embed(
                 title="An unexpected error occurred",
                 imestamp=datetime.now(),
