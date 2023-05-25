@@ -107,6 +107,7 @@ class Fun(commands.Cog):
 
     @app_commands.command(name="fact", description="Shows you a useless fact")
     @app_commands.describe(language="In which language should your useless fact be shown?")
+    @app_commands.describe(visibility="Do you want the fact to be visible to everyone?")
     async def fact(self, interaction: discord.Interaction, language: Literal["English", "German"] = "English", visibility: Literal["true", "false"] = "false"):
         try:
             # Mapping of languages to codes for the API
@@ -117,7 +118,7 @@ class Fun(commands.Cog):
             code = language_codes.get(language)
             if not code:
                 code = "en"
-                return
+
             
             url = f"https://uselessfacts.jsph.pl/random.json?language={code}"
             factembed = discord.Embed(
@@ -135,14 +136,14 @@ class Fun(commands.Cog):
                     
                     response.raise_for_status()  # Raise an exception for non-200 status codes
                 
-                # Parse the JSON response and get the useless fact
-                data = response.json()
-                fact = data["text"]
-                factembed.add_field(name="Useless Fact:", value=fact)
-                
-                ephemeral = visibility == False  # Set ephemeral to True only if visibility is "false"
-                
-                await interaction.response.send_message(embed=factembed, ephemeral=ephemeral)
+                    # Parse the JSON response and get the useless fact
+                    data = await response.json()
+                    fact = data["text"]
+                    factembed.add_field(name="Useless Fact:", value=fact)
+                    
+                    ephemeral = visibility == False  # Set ephemeral to True only if visibility is "false"
+                    
+                    await interaction.response.send_message(embed=factembed, ephemeral=ephemeral)
         
             except:
                 factembed.add_field(name="Error:", value="Failed to parse response as JSON.")
