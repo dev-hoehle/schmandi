@@ -7,6 +7,7 @@ import aiohttp
 import discord
 from discord import app_commands
 from discord.ext import commands
+from helpers.general import (print_failure_message)
 
 sys.dont_write_bytecode = True
 
@@ -143,11 +144,7 @@ class moderationCog(commands.Cog):
 
 
         except Exception as e:
-            print(e)
-
-
-
-
+            print_failure_message(e)
 
 
     @app_commands.command(name="say", description="Let the bot say something (Use '\\\\' as linebrake)")
