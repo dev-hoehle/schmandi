@@ -195,6 +195,7 @@ class Util(commands.Cog):
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="short", description="Short a url")
+    @app_commands.describe(url="Which url do you want to shortn?")
     @app_commands.describe(shortner="Which shortner service do you want to use?")
     async def short(self, interaction: discord.Interaction, url: str, shortner: Literal["anditv.it", "tinyurl", "is.gd", "urlz (only ascii)"] = "tinyurl",):
         # Dictionary that maps shortener names to their corresponding API endpoints
