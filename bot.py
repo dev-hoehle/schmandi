@@ -3,6 +3,7 @@ import os
 import platform
 import sys
 from datetime import datetime
+from urllib.parse import quote
 
 import discord
 from colorama import Fore
