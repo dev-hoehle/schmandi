@@ -3,11 +3,12 @@ import os
 import platform
 import sys
 from datetime import datetime
+from urllib.parse import quote
 
 import discord
 from colorama import Fore
 from discord.ext import commands, tasks
-from urllib.parse import quote
+
 from helpers.config import check_config, get_config_value
 from helpers.general import (clear_console, print_failure_message,
                              print_success_message)
