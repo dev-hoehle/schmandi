@@ -112,19 +112,18 @@ class Util(commands.Cog):
             except:
                 return await interaction.response.send_message("Unable to shorten download link", ephemeral=True)
 
+            short_url = short_url.decode('utf-8')  # Decode the byte string to regular string
+
             embed = discord.Embed(
                 title=video_title,
                 color=0xFF0000
             ).set_thumbnail(
                 url=thumbnail_url
             ).add_field(
-                name="Download ",
+                name="Download",
                 value=f"[Click here]({short_url})"
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
-        else:
-            await interaction.response.send_message("Invalid URL detected", ephemeral=True)
-
 
 
 
