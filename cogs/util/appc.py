@@ -61,7 +61,7 @@ class util_apps(commands.Cog):
             icon_url=member.avatar
         ).add_field(
             name="Tag",
-            value=f"```{member.name}#{member.discriminator}```",
+            value=f"```{member.name}```",
             inline=False
         ).add_field(
             name="ID",

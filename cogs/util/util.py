@@ -146,7 +146,7 @@ class Util(commands.Cog):
             icon_url=member.avatar
         ).add_field(
             name="Tag",
-            value=f"```{member.name}#{member.discriminator}```",
+            value=f"```{member.name}```",
             inline=False
         ).add_field(
             name="ID",
@@ -194,51 +194,6 @@ class Util(commands.Cog):
 
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="short", description="Short a url")
-    @app_commands.describe(url="Which url do you want to shortn?")
-    @app_commands.describe(shortner="Which shortner service do you want to use?")
-    async def short(self, interaction: discord.Interaction, url: str, shortner: Literal["anditv.it", "tinyurl", "is.gd", "urlz (only ascii)"] = "tinyurl",):
-        # Dictionary that maps shortener names to their corresponding API endpoints
-        shortener_urls = {
-            "anditv.it": "https://anditv.it/short/api/",
-            "tinyurl": "http://tinyurl.com/api-create.php",
-            "is.gd": "http://is.gd/api.php",
-            "urlz": "https://urlz.fr/api_new.php",
-        }
-
-        # Parse the URL to check if it's valid
-        parsed_url = urlparse(url)
-        if not parsed_url.scheme or not parsed_url.netloc:
-            return await interaction.response.send_message("Invalid URL detected. Please enter a valid URL.")
-
-        try:
-            # Get the API endpoint for the selected shortener
-            shortener_url = shortener_urls[shortner]
-
-            payload = {"url": url}
-
-            async with aiohttp.ClientSession() as session:
-                response = await session.post(url=shortener_url, data=payload)
-
-                if response.status == 400:
-                    raise ValueError("Invalid URL")
-                elif response.status == 401:
-                    raise ValueError("Unauthorized")
-                elif response.status != 200:
-                    raise ValueError(
-                        f"Unexpected HTTP status code: {response.status_code}")
-
-        except Exception as e:
-            print_failure_message("Error while shortening URL: %s", e)
-            embed = discord.Embed(
-                title="An unexpected error occurred",
-                imestamp=datetime.now(),
-                color=discord.Color.dark_red()
-            ).set_footer(
-                text=interaction.guild.name,
-                icon_url=interaction.guild.icon.url
-            )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
     @app_commands.command(name="botinfo", description="Shows information about the bot.")

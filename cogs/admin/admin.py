@@ -82,7 +82,7 @@ class Admin(commands.Cog):
 
             # Ban the member and provide the reason and the user who banned them
             try:
-                await member.ban(reason=f"{reason} | Banned by: {interaction.user}")
+                await member.ban(reason=f"{reason} | Banned by: {interaction.user.name}")
             except Exception as e:
                 print_failure_message(f"Failed to ban {member}: {e}")
         except Exception as e:
@@ -120,7 +120,7 @@ class Admin(commands.Cog):
             await member.send(embed=embed)
 
             # Kick the member and provide the reason
-            await member.kick(reason=f"{reason} | Kicked by: {interaction.user}")
+            await member.kick(reason=f"{reason} | Kicked by: {interaction.user.name}")
 
             # Send a success message to the user
             embed = discord.Embed(
