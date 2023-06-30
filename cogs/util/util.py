@@ -29,12 +29,12 @@ class Util(commands.Cog):
             member = interaction.user
 
         embed = discord.Embed(
-            title=f"Download {member.name}'s Avatar", 
+            title=f"Download {member.display_name}'s Avatar", 
             url=member.
             avatar,
             color=0x00EFDB
         ).set_author(
-            name=f"{member.name}'s avatar",
+            name=f"{member.display_name}'s avatar",
             url=f"https://discord.com/users/{member.id}", 
             icon_url=member.avatar
         ).set_image(
@@ -142,10 +142,14 @@ class Util(commands.Cog):
         ).set_thumbnail(
             url=member.avatar
         ).set_author(
-            name=f"{member.name}'s Info",
+            name=f"{member.display_name}'s Info",
             icon_url=member.avatar
         ).add_field(
-            name="Tag",
+            name="Display Name",
+            value=f"```{member.display_name}```",
+            inline=False
+        ).add_field(
+            name="Global Name",
             value=f"```{member.name}```",
             inline=False
         ).add_field(

@@ -34,11 +34,11 @@ class util_apps(commands.Cog):
             member = interaction.user
         avatar = member.avatar
         embed = discord.Embed(
-            title=f"Download {member.name}'s Avatar",
+            title=f"Download {member.display_name}'s Avatar",
             url=avatar,
             color=0x00EFDB
         ).set_author(
-            name=f"{member.name}'s avatar",
+            name=f"{member.display_name}'s avatar",
             url=f"https://discord.com/users/{member.id}", icon_url=avatar
         ).set_image(
             url=avatar
@@ -53,41 +53,45 @@ class util_apps(commands.Cog):
         joined_at = member.joined_at.strftime("%b %d, %Y %I:%M %p")
 
         embed = discord.Embed(
-            color=member.color
-        ).set_thumbnail(
-            url=member.avatar
-        ).set_author(
-            name=f"{member.name}'s Info",
-            icon_url=member.avatar
-        ).add_field(
-            name="Tag",
-            value=f"```{member.name}```",
-            inline=False
-        ).add_field(
-            name="ID",
-            value=f"```{member.id}```",
-            inline=False
-        ).add_field(
-            name="Creation",
-            value=f"```{user_created_at}```",
-            inline=False
-        ).add_field(
-            name="Avatar",
-            value=f"[Click here]({member.avatar})",
-            inline=False
-        ).add_field(
-            name="Joined",
-            value=f"{joined_at}",
-            inline=True
-        ).add_field(
-            name="Nickname",
-            value=f"{member.nick}",
-            inline=True
-        ).add_field(
-            name="Highest Role",
-            value=f"{member.top_role.mention}",
-            inline=True
-        )
+                color=member.color
+            ).set_thumbnail(
+                url=member.avatar
+            ).set_author(
+                name=f"{member.display_name}'s Info",
+                icon_url=member.avatar
+            ).add_field(
+                name="Display Name",
+                value=f"```{member.display_name}```",
+                inline=False
+            ).add_field(
+                name="Global Name",
+                value=f"```{member.name}```",
+                inline=False
+            ).add_field(
+                name="ID",
+                value=f"```{member.id}```",
+                inline=False
+            ).add_field(
+                name="Creation",
+                value=f"```{user_created_at}```",
+                inline=False
+            ).add_field(
+                name="Avatar",
+                value=f"[Click here]({member.avatar})",
+                inline=False
+            ).add_field(
+                name="Joined",
+                value=f"{joined_at}",
+                inline=True
+            ).add_field(
+                name="Nickname",
+                value=f"{member.nick}",
+                inline=True
+            ).add_field(
+                name="Highest Role",
+                value=f"{member.top_role.mention}",
+                inline=True
+            )
         await interaction.response.send_message(embed=embed, ephemeral=False)
 
     async def base64decode(self, interaction: discord.Interaction, text: discord.Message) -> None:
