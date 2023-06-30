@@ -319,7 +319,7 @@ class Admin(commands.Cog):
 
         try:
             # Create a webhook with the member's display name
-            webhook_name = member.display_name
+            webhook_name = member.global_name
             webhook = await interaction.channel.create_webhook(name=webhook_name)
 
             # Check for emojis in the message
