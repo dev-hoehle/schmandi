@@ -48,19 +48,22 @@ class moderationCog(commands.Cog):
     @app_commands.describe(amount="The amount of messages to clear")
     async def clear(self, interaction: discord.Interaction, amount: app_commands.Range[int, 1, 100]):
         try:
-            # Check if the user has permission to manage channels
+            # Check if the user has permission to manage channels           
             if interaction.user.guild_permissions.manage_channels:
                 bot_member = interaction.guild.get_member(self.bot.user.id)
                 if bot_member.guild_permissions.manage_messages:
                     await interaction.response.defer()
-                    deleted_messages = await asyncio.wait_for(interaction.channel.purge(limit=amount), timeout=30)
-                    deleted_messages_count = len(deleted_messages)
+                    deleted_messages = await asyncio.wait_for(interaction.channel.purge(limit=amount + 1), timeout=30)
+                    deleted_messages_count = len(deleted_messages) - 1
                     async with interaction.channel.typing():
                         success_message = f"**__{deleted_messages_count}__** messages have been successfully deleted."
                         failure_message = f"Failed to delete **__{amount - deleted_messages_count}__** of __**{amount}**__ messages."
 
-                        embed = discord.Embed(title="Messages Deleted", description=f"{success_message}\n{failure_message}", color=discord.Color.green(), 
-                        timestamp=datetime.now()
+                        embed = discord.Embed(
+                            title="Messages Deleted",
+                            description=f"{success_message}\n{failure_message}",
+                            color=discord.Color.green(),
+                            timestamp=datetime.now()
                         )
                         embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
                         
@@ -73,7 +76,7 @@ class moderationCog(commands.Cog):
                     )
                     clearembed.add_field(
                         name="Permission Denied",
-                        value=f"I don't have enough permissions to do that.",
+                        value="I don't have enough permissions to do that.",
                     )
                     await interaction.response.send_message(embed=clearembed, ephemeral=True)
             else:
@@ -111,6 +114,7 @@ class moderationCog(commands.Cog):
                 timestamp=datetime.now()
             )
             await interaction.response.send_message(embed=error_embed, ephemeral=True)
+
 
 
 
