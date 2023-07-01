@@ -92,7 +92,7 @@ async def bg_task():
             (discord.Status.dnd, discord.Activity(
                 type=discord.ActivityType.watching, name="github.com/anditv21")),
             (discord.Status.dnd, discord.Activity(
-                type=discord.ActivityType.watching, name="anditv.it")),
+                type=discord.ActivityType.watching, name="anditv.dev")),
             (discord.Status.dnd, discord.Activity(
                 type=discord.ActivityType.watching, name=f"{member_count} users")),
             (discord.Status.dnd, discord.Activity(
