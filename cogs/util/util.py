@@ -145,12 +145,16 @@ class Util(commands.Cog):
             name=f"{member.display_name}'s Info",
             icon_url=member.avatar
         ).add_field(
+            name="Name",
+            value=f"```{member.name}```",
+            inline=False
+        )   .add_field(
             name="Display Name",
             value=f"```{member.display_name}```",
             inline=False
         ).add_field(
             name="Global Name",
-            value=f"```{member.name}```",
+            value=f"```{member.global_name}```",
             inline=False
         ).add_field(
             name="ID",
