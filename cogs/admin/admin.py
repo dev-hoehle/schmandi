@@ -306,8 +306,6 @@ class Admin(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
-
-
     @app_commands.command(name="fakemessage", description="Fake a message from another member")
     @discord.app_commands.describe(member="The member you want to impersonate in the message.")
     @discord.app_commands.describe(message="The text you want to say")
@@ -316,6 +314,9 @@ class Admin(commands.Cog):
         if not interaction.user.guild_permissions.manage_webhooks:
             await interaction.response.send_message("You do not have permission to use this command.", ephemeral=True)
             return
+
+        webhook = None
+        cloned_emojis = []
 
         try:
             # Create a webhook with the member's display name
@@ -326,7 +327,6 @@ class Admin(commands.Cog):
             emojis = re.findall(r"<(a)?:\w+:(\d+)>", message)
 
             # Clone emojis to the server if they are not already present
-            cloned_emojis = []
             for animated, emoji_id in emojis:
                 emoji = discord.utils.get(interaction.guild.emojis, id=int(emoji_id))
                 if not emoji:
@@ -348,12 +348,12 @@ class Admin(commands.Cog):
                 message = re.sub(r"<(a)?:\w+:(\d+)>", str(emoji), message)
 
             # Send the fake message using the webhook
-            await webhook.send(content=message, username=member.display_name, avatar_url=member.avatar)
+            await webhook.send(content=message, username=member.display_name, avatar_url=member.display_avatar)
 
             await interaction.response.send_message(f"Successfully sent fake message for {member.mention}", ephemeral=True)
 
         except discord.errors.Forbidden:
-            await interaction.response.send_message(f"I cannot create a webhook in this channel.", ephemeral=True)
+            await interaction.response.send_message("I cannot create a webhook in this channel.", ephemeral=True)
         except discord.errors.HTTPException as e:
             await interaction.response.send_message(f"Failed to send fake message: {e}", ephemeral=True)
         finally:
