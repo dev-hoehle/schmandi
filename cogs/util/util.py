@@ -140,7 +140,7 @@ class Util(commands.Cog):
         embed = discord.Embed(
             color=member.color
         ).set_thumbnail(
-            url=member.avatar
+            url=member.display_avatar
         ).set_author(
             name=f"{member.display_name}'s Info",
             icon_url=member.avatar
