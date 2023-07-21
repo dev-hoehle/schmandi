@@ -37,7 +37,7 @@ class mod_apps(commands.Cog):
                 description="I don't have enough permissions to manage channels.",
                 color=discord.Color.red()
             )
-            embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
+            embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.display_avatar)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
         # Check if the user has permission to manage channels
@@ -48,7 +48,7 @@ class mod_apps(commands.Cog):
                 color=discord.Color.red()
             ).set_footer(
                 text=f"Requested by {interaction.user.name}",
-                icon_url=interaction.user.avatar
+                icon_url=interaction.user.display_avatar
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
@@ -70,7 +70,7 @@ class mod_apps(commands.Cog):
                 url="https://media.discordapp.net/attachments/811143476522909718/819507596302090261/boom.gif"
             ).set_footer(
                 text=f"Requested by {interaction.user.name}",
-                icon_url=interaction.user.avatar
+                icon_url=interaction.user.display_avatar
             )
             await new.send(embed=embed)
         except discord.HTTPException:
@@ -80,7 +80,7 @@ class mod_apps(commands.Cog):
                 color=discord.Color.red()
             ).set_footer(
                 text=f"Requested by {interaction.user.name}",
-                icon_url=interaction.user.avatar
+                icon_url=interaction.user.display_avatar
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
 

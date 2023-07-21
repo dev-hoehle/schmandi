@@ -35,7 +35,7 @@ class moderationCog(commands.Cog):
                 return await interaction.response.send_message(embed=embed, ephemeral=True)
 
             embed = discord.Embed(title="Nickname changed", color=0x00D9FF)
-            embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.avatar.url)
+            embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
             embed.add_field(name="Member", value=member.mention, inline=False)
             embed.add_field(name="New Nickname", value=nickname or member.name, inline=False)
             await interaction.response.send_message(embed=embed)
@@ -65,7 +65,7 @@ class moderationCog(commands.Cog):
                             color=discord.Color.green(),
                             timestamp=datetime.now()
                         )
-                        embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
+                        embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.display_avatar)
                         
                         await interaction.channel.send(embed=embed)
                 else:
@@ -267,7 +267,7 @@ class moderationCog(commands.Cog):
                 description=f"{interaction.user.mention}, you don't have enough permissions to use this command.",
                 color=discord.Color.red()
             )
-            embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.avatar)
+            embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.display_avatar)
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
         try:

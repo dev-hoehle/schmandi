@@ -225,7 +225,7 @@ class Util(commands.Cog):
             inline=False
         ).set_footer(
             text=f"Requested by {interaction.user.name}",
-            icon_url=interaction.user.avatar
+            icon_url=interaction.user.display_avatar
         )
         await interaction.response.send_message(embed=embed)
 
