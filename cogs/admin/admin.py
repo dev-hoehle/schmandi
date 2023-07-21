@@ -309,11 +309,15 @@ class Admin(commands.Cog):
     @app_commands.command(name="fakemessage", description="Fake a message from another member")
     @discord.app_commands.describe(member="The member you want to impersonate in the message.")
     @discord.app_commands.describe(message="The text you want to say")
-    async def fakemessage(self, interaction: discord.Interaction, member: discord.Member, message: str):
+    @discord.app_commands.describe(channel="The channel where the fake message should be sent. (Optional)")
+    async def fakemessage(self, interaction: discord.Interaction, member: discord.Member, message: str, channel: discord.TextChannel = None):
         # Check if the user has the manage webhooks permission
         if not interaction.user.guild_permissions.manage_webhooks:
             await interaction.response.send_message("You do not have permission to use this command.", ephemeral=True)
             return
+
+        # If channel argument is not provided, use the interaction's channel
+        channel = channel or interaction.channel
 
         webhook = None
         cloned_emojis = []
@@ -321,7 +325,7 @@ class Admin(commands.Cog):
         try:
             # Create a webhook with the member's display name
             webhook_name = member.display_name
-            webhook = await interaction.channel.create_webhook(name=webhook_name)
+            webhook = await channel.create_webhook(name=webhook_name)
 
             # Check for emojis in the message
             emojis = re.findall(r"<(a)?:\w+:(\d+)>", message)
@@ -350,7 +354,7 @@ class Admin(commands.Cog):
             # Send the fake message using the webhook
             await webhook.send(content=message, username=member.display_name, avatar_url=member.display_avatar)
 
-            await interaction.response.send_message(f"Successfully sent fake message for {member.mention}", ephemeral=True)
+            await interaction.response.send_message(f"Successfully sent fake message for {member.mention} in {channel.mention}", ephemeral=True)
 
         except discord.errors.Forbidden:
             await interaction.response.send_message("I cannot create a webhook in this channel.", ephemeral=True)
