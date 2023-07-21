@@ -50,8 +50,14 @@ class util_apps(commands.Cog):
             member = interaction.user
 
         user_created_at = member.created_at.strftime("%b %d, %Y %I:%M %p")
-        joined_at = member.joined_at.strftime("%b %d, %Y %I:%M %p")
+        joined_at = ""  # Initialize the variable here to avoid NameError
+        nickname = ""  # Initialize nickname variable
+        top_role = ""  # Initialize top_role variable
 
+        if interaction.guild:
+            joined_at = member.joined_at.strftime("%b %d, %Y %I:%M %p")
+            nickname = member.nick if member.nick else "None"  # Set nickname or 'None' if no nickname
+            top_role = member.top_role.mention  # Mention the highest role
 
         embed = discord.Embed(
             color=member.color
@@ -64,7 +70,7 @@ class util_apps(commands.Cog):
             name="Name",
             value=f"```{member.name}```",
             inline=False
-        )   .add_field(
+        ).add_field(
             name="Display Name",
             value=f"```{member.display_name}```",
             inline=False
@@ -84,20 +90,25 @@ class util_apps(commands.Cog):
             name="Avatar",
             value=f"[Click here]({member.avatar})",
             inline=False
-        ).add_field(
-            name="Joined",
-            value=f"{joined_at}",
-            inline=True
-        ).add_field(
-            name="Nickname",
-            value=f"{member.nick}",
-            inline=True
-        ).add_field(
-            name="Highest Role",
-            value=f"{member.top_role.mention}",
-            inline=True
         )
-        await interaction.response.send_message(embed=embed, ephemeral=False)
+
+        if interaction.guild:  # Add server-specific fields only if the command is used in a guild
+            embed.add_field(
+                name="Joined",
+                value=f"{joined_at}",
+                inline=True
+            ).add_field(
+                name="Nickname",
+                value=f"{nickname}",
+                inline=True
+            ).add_field(
+                name="Highest Role",
+                value=f"{top_role}",
+                inline=True
+            )
+
+        await interaction.response.send_message(embed=embed)
+
 
     async def base64decode(self, interaction: discord.Interaction, text: discord.Message) -> None:
         try:
@@ -112,7 +123,7 @@ class util_apps(commands.Cog):
             string_bytes = text.encode("ascii")
             base64_bytes = base64.b64encode(string_bytes)
             base64_string = base64_bytes.decode("ascii")
-            await interaction.response.send_message(content=f"||{base64_string}||", ephemeral=False)
+            await interaction.response.send_message(content=f"||{base64_string}||", ephemeral=True)
         except Exception as e:
             await interaction.response.send_message(content=f"Error: {e}", ephemeral=True)
 

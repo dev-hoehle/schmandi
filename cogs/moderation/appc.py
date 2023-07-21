@@ -1,5 +1,4 @@
 import sys
-
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -22,6 +21,15 @@ class mod_apps(commands.Cog):
             self.bot.tree.add_command(menu)
 
     async def nuke_channel(self, interaction: discord.Interaction, message: discord.Message) -> None:
+        # Check if the interaction is in a guild (server) context
+        if interaction.guild is None:
+            embed = discord.Embed(
+                title="Command Not Available",
+                description="This command cannot be used in direct messages (DMs). Please use it in a server context.",
+                color=discord.Color.red()
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+
         # Check if the bot has permission to manage channels
         if not interaction.guild.me.guild_permissions.manage_channels:
             embed = discord.Embed(
