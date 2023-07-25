@@ -5,6 +5,8 @@ from typing import Literal
 
 import aiohttp
 import discord
+import re
+import asyncio
 from discord import app_commands
 from discord.ext import commands
 
@@ -334,6 +336,7 @@ class Admin(commands.Cog):
             for animated, emoji_id in emojis:
                 emoji = discord.utils.get(interaction.guild.emojis, id=int(emoji_id))
                 if not emoji:
+                    # Use the clone_emote logic to clone the emoji
                     emoji_url = f"https://cdn.discordapp.com/emojis/{emoji_id}.{'gif' if animated else 'png'}"
                     async with aiohttp.ClientSession() as session:
                         get_bytes = await session.get(url=emoji_url)
@@ -362,10 +365,12 @@ class Admin(commands.Cog):
             await interaction.response.send_message(f"Failed to send fake message: {e}", ephemeral=True)
         finally:
             # Delete the webhook after the fake message is sent
+            await asyncio.sleep(10)
             if webhook:
                 await webhook.delete()
             for emoji in cloned_emojis:
                 await emoji.delete()
+
 
 
 
