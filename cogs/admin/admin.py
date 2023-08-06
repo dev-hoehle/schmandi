@@ -372,8 +372,72 @@ class Admin(commands.Cog):
                 await emoji.delete()
 
 
+    @app_commands.command(name="edit_message", description="Edit a message in the current or specified channel")
+    @discord.app_commands.describe(
+        channel="The channel where the message is located (optional, defaults to the current channel)",
+        message_id="The ID of the message you want to edit",
+        content="The new content for the message"
+    )
+    async def edit_message(self, interaction: discord.Interaction, channel: discord.TextChannel = None, message_id: str = None, content: str = None):
+        channel = channel or interaction.channel
 
+        if message_id is None:
+            return await interaction.response.send_message("Please provide the ID of the message you want to edit.", ephemeral=True)
 
+        try:
+            # Fetch the message using the provided message ID
+            message = await channel.fetch_message(message_id)
+        except discord.NotFound:
+            return await interaction.response.send_message("The specified message was not found.", ephemeral=True)
 
+        # Check if the bot has permission to manage messages
+        bot_member = interaction.guild.get_member(self.bot.user.id)
+        if not bot_member.guild_permissions.manage_messages:
+            return await interaction.response.send_message("I do not have the permission to manage messages.", ephemeral=True)
+
+        # Check if the user has permission to manage messages
+        if not interaction.user.guild_permissions.manage_messages:
+            embed = discord.Embed(
+                title="Permission Error",
+                description=f"{interaction.user.mention}, you don't have enough permissions to use this command.",
+                color=discord.Color.red()
+            ).set_footer(
+                text=f"Requested by {interaction.user.name}",
+                icon_url=interaction.user.avatar
+            )
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
+
+        try:
+            await message.edit(content=content)
+            embed = discord.Embed(
+                title="Message Edit Successful",
+                description=f"The message has been edited successfully.",
+                color=discord.Color.green()
+            ).set_footer(
+                text=f"Edited by {interaction.user.name}",
+                icon_url=interaction.user.avatar
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+        except discord.Forbidden:
+            embed = discord.Embed(
+                title="Error",
+                description=f"I don't have enough permissions to edit the message.",
+                color=discord.Color.red()
+            ).set_footer(
+                text=f"Requested by {interaction.user.name}",
+                icon_url=interaction.user.avatar
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+        except discord.HTTPException:
+            embed = discord.Embed(
+                title="Error",
+                description=f"An error occurred while editing the message. Please try again later.",
+                color=discord.Color.red()
+            ).set_footer(
+                text=f"Requested by {interaction.user.name}",
+                icon_url=interaction.user.avatar
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            
 async def setup(bot):
     await bot.add_cog(Admin(bot))
