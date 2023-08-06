@@ -1,3 +1,4 @@
+import asyncio
 import re
 import sys
 from datetime import datetime
@@ -5,8 +6,6 @@ from typing import Literal
 
 import aiohttp
 import discord
-import re
-import asyncio
 from discord import app_commands
 from discord.ext import commands
 

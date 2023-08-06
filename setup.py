@@ -1,6 +1,7 @@
 import json
 import webbrowser
 
+
 def get_user_input(prompt):
     return input(prompt + " ")
 
