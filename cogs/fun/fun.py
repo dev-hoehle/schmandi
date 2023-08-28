@@ -52,7 +52,6 @@ class Fun(commands.Cog):
         
         if not api_key:
             return await interaction.response.send_message("Tenor API key is missing from config.json. Please follow the setup instructions from the README file.", ephemeral=True)
-        # construct the Tenor API URL
         url = f"https://tenor.googleapis.com/v2/search?q={query}&client_key={api_name}&key={api_key}&limit=50"
         
         # send a request to the Tenor API and get the response in JSON format
@@ -75,27 +74,29 @@ class Fun(commands.Cog):
         )
         await interaction.response.send_message(embed=embed)
 
-
     @app_commands.command(name='bombastic_side_eye', description='Bombastic side eye')
     async def bombastic_side_eye(self, interaction: discord.Interaction):
-        
         if not api_key:
             await interaction.response.send_message("Tenor API key is missing from config.json. Please follow the setup instructions from the README file.", ephemeral=True)
             return
-        # construct the Tenor API URL
-        url = f"https://tenor.googleapis.com/v2/search?q=side eye cat&client_key={api_name}&key={api_key}&limit=50"
+
+        cat_url = f"https://tenor.googleapis.com/v2/search?q=side+eye+cat&client_key={api_name}&key={api_key}&limit=50"
+        dog_url = f"https://tenor.googleapis.com/v2/search?q=side+eye+dog&client_key={api_name}&key={api_key}&limit=50"
         
-        # send a request to the Tenor API and get the response in JSON format
         async with aiohttp.ClientSession() as session:
-            response = await session.get(url=url)
-            response = await response.json()
+            cat_response = await session.get(url=cat_url)
+            cat_response = await cat_response.json()
+
+            dog_response = await session.get(url=dog_url)
+            dog_response = await dog_response.json()
+
+        combined_results = cat_response["results"] + dog_response["results"]
         
-        # choose a random gif from the list of gifs returned by the API
-        gif_url = random.choice(response["results"])["media_formats"]["tinygif"]["url"]
-        
+        # Access the GIF URL from the "tinygif" format
+        gif_url = random.choice(combined_results)["media_formats"]["tinygif"]["url"]
 
         embed = discord.Embed(
-            title=f"Bombastic side eye",
+            title="Bombastic side eye",
             color=0x00EFDB
         ).set_image(
             url=gif_url
@@ -104,6 +105,9 @@ class Fun(commands.Cog):
             icon_url=interaction.user.avatar
         )
         await interaction.response.send_message(embed=embed)
+
+
+
 
 
     @app_commands.command(name="fact", description="Shows you a useless fact")
