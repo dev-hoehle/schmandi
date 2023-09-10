@@ -9,7 +9,7 @@ module.exports = {
         .addUserOption(option =>
             option.setName("member")
                 .setDescription("About which member do you want to get information?")),
-
+                
     /**
      * @param {ChatInputCommandInteraction} interaction
      * @param {SchmandiClient} client
