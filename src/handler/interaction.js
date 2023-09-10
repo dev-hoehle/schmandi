@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require("discord.js");
-const { MentermaClient } = require("../../index");
+const { SchmandiClient } = require("../../index");
 const { REST } = require("@discordjs/rest");
 const { readdirSync } = require("fs");
 const { join } = require("path");
@@ -9,7 +9,7 @@ const { Routes } = require("discord-api-types/v9");
 
 
 /**
- * @param {MentermaClient} botClient
+ * @param {SchmandiClient} botClient
  * @returns {Promise<void>}
  */
 

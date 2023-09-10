@@ -12,7 +12,7 @@ require("dotenv").config(
 
 
 
-class MentermaClient extends Client {
+class SchmandiClient extends Client {
     eventsSynced = 0;
 
 
@@ -40,25 +40,27 @@ if (!process.env.token) {
     process.exit(1);
 }
 
-const client = new MentermaClient();
+const client = new SchmandiClient();
 
 
 
 client.on("ready", async () => {
+    console.clear();
     if (!client?.user || !client || !client.application) {
-        console.log("Somthin wrent wrong");
+        console.log("Something went wrong");
         process.exit(1);
     }
 
-    console.log(`${sortTime()} [${colorama.green}INFO${colorama.reset}] [${colorama.blue}LOGIN${colorama.reset}] ⇛ Menterma | ${client.user.tag}`);
+    const { version: discordVersion } = require("discord.js");
+
+    console.log(`${sortTime()} [${colorama.green}INFO${colorama.reset}] [${colorama.blue}LOGIN${colorama.reset}] ⇛ connected to discord via Discord.js@${discordVersion} | ${client.user.tag}`);
     client.user.setStatus("dnd");
 
     await registerCommands(client);
     await registerEvents(client);
 });
-
 client.login(process.env.token);
 module.exports = {
     client,
-    MentermaClient
+    SchmandiClient
 };

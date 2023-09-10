@@ -2,12 +2,12 @@ const fs = require("fs");
 const path = require("path");
 const { sortTime} = require("../lib/util");
 const colorama = require("../lib/colorama");
-const { MentermaClient } = require("../..");
+const { SchmandiClient } = require("../../index");
 
 
 
 /**
- * @param {MentermaClient} botClient
+ * @param {SchmandiClient} botClient
  * @returns {Promise<void>}
  */
 
