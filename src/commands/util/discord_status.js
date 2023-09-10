@@ -1,5 +1,5 @@
 const SchmandiClient = require("../../../index");
-const { ChatInputCommandInteraction, InteractionResponse, SlashCommandBuilder } = require("discord.js");
+const { ChatInputCommandInteraction, InteractionResponse, SlashCommandBuilder , contextMenuBuilder} = require("discord.js");
 const axios = require('axios');
 const { DateTime } = require('luxon');
 
@@ -52,5 +52,25 @@ module.exports = {
             };
             await interaction.reply({ embeds: [errorEmbed] });
         }
+    },
+};
+
+module.exports = {
+    data: new SlashCommandBuilder()
+        .setName('getmessageid')
+        .setDescription('Get the ID of a message'),
+
+    async execute(interaction) {
+        const message = interaction.options.getMessage('message');
+        await interaction.reply(`Message ID: ${message.id}`);
+    },
+};
+
+// Create a context menu for "Get Message ID"
+module.exports.contextMenu = {
+    name: 'Get Message ID',
+    type: 'MESSAGE',
+    execute: async (interaction) => {
+        await module.exports.execute(interaction);
     },
 };
