@@ -48,9 +48,6 @@ module.exports = {
                 const embed = {
                     title: "Messages Deleted",
                     color: 0x00EFDB,
-                    author: {
-                        name: "Messages Deleted",
-                    },
                     description: `${successMessage}\n${failureMessage}`,
                     footer: {
                         text: `Requested by ${interaction.user.username}`,

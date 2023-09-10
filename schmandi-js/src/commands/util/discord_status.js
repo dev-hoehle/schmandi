@@ -54,23 +54,3 @@ module.exports = {
         }
     },
 };
-
-module.exports = {
-    data: new SlashCommandBuilder()
-        .setName('getmessageid')
-        .setDescription('Get the ID of a message'),
-
-    async execute(interaction) {
-        const message = interaction.options.getMessage('message');
-        await interaction.reply(`Message ID: ${message.id}`);
-    },
-};
-
-// Create a context menu for "Get Message ID"
-module.exports.contextMenu = {
-    name: 'Get Message ID',
-    type: 'MESSAGE',
-    execute: async (interaction) => {
-        await module.exports.execute(interaction);
-    },
-};
