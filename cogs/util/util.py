@@ -30,13 +30,13 @@ class Util(commands.Cog):
             member = interaction.user
 
         embed = discord.Embed(
-            title=f"Download {member.display_name}'s Avatar", 
+            title=f"Download {member.display_name}'s Avatar",
             url=member.
             avatar,
             color=0x00EFDB
         ).set_author(
             name=f"{member.display_name}'s avatar",
-            url=f"https://discord.com/users/{member.id}", 
+            url=f"https://discord.com/users/{member.id}",
             icon_url=member.avatar
         ).set_image(
             url=member.avatar
@@ -224,7 +224,7 @@ class Util(commands.Cog):
     async def botinfo(self, interaction: discord.Interaction):
         name = self.bot.user
         id = self.bot.user.id
-        
+
         # Get information about the Python version, OS, CPU, and RAM usage
         python_version = platform.python_version()
         os_version = platform.system()
