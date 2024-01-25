@@ -13,6 +13,7 @@ import psutil
 from bs4 import BeautifulSoup
 from discord import app_commands
 from discord.ext import commands
+from discord.ui import Button, View
 
 from helpers.general import print_failure_message
 
@@ -75,56 +76,71 @@ class Util(commands.Cog):
     @app_commands.command(name="yt", description="Download a YouTube video by providing its URL")
     @app_commands.describe(url="Enter the URL of the YouTube video you want to download")
     async def yt(self, interaction: discord.Interaction, url: str):
-        # Parse the URL
-        parsed_url = urlparse(url)
+        try:
+            # Parse the URL
+            parsed_url = urlparse(url)
 
-        # Check if the URL is valid
-        if parsed_url.scheme and parsed_url.netloc:
-            # If the URL is a shortened youtu.be link, replace it with the full link
-            if parsed_url.netloc == "youtu.be":
-                url = "https://www.youtube.com/watch?v=" + parsed_url.path.lstrip("/")
+            # Check if the URL is valid
+            if parsed_url.scheme and parsed_url.netloc:
 
-            # Create the video download link and scrape the download page
-            vgm_url = "https://10downloader.com/download?v=" + url
-            try:
-                async with aiohttp.ClientSession() as session:
-                    html_text = await session.get(url=vgm_url)
-                    html_text = await html_text.read()
-            except:
-                return await interaction.response.send_message("Unable to retrieve download link", ephemeral=True)
-                
-            
-            soup = BeautifulSoup(html_text.decode('utf-8'), "html.parser")
-            download = soup.find("tbody").find("a", href=True, text="Download")
-            if not download:
-                return await interaction.response.send_message("Unable to retrieve download link", ephemeral=True)
-            
-            download_url = download["href"]
-            thumbnail_url = soup.find("div", {"class": "info"}).find("img")["src"]
-            video_title = soup.find("div", {"class": "info"}).find("span", {"class": "title"}).text.strip()
+                # If the URL is a shortened youtu.be link, replace it with the full link
+                if parsed_url.netloc == "youtu.be":
+                    url = "https://www.youtube.com/watch?v=" + parsed_url.path.lstrip("/")
 
-            # Shorten the download link using the TinyURL API
-            link = "http://tinyurl.com/api-create.php?url=" + download_url
-            try:
-                async with aiohttp.ClientSession() as session:
-                    short_url = await session.get(url=link)
-                    short_url = await short_url.read()
-            except:
-                return await interaction.response.send_message("Unable to shorten download link", ephemeral=True)
+                # If the URL is a YouTube music link, replace it with the video link
+                if parsed_url.netloc == "music.youtube.com":
+                    url = "https://www.youtube.com/watch?v=" + parsed_url.path.lstrip("/")
 
-            short_url = short_url.decode('utf-8')  # Decode the byte string to regular string
+                # Create the video download link and scrape the download page
+                download_page_url = "https://10downloader.com/download?v=" + url
 
-            embed = discord.Embed(
-                title=video_title,
-                color=0xFF0000
-            ).set_thumbnail(
-                url=thumbnail_url
-            ).add_field(
-                name="Download",
-                value=f"[Click here]({short_url})"
-            )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+                try:
+                    async with aiohttp.ClientSession() as session:
+                        html_text = await session.get(url=download_page_url)
+                        html_text = await html_text.read()
+                except:
+                    return await interaction.response.send_message("Unable to retrieve download link", ephemeral=True)
 
+                soup = BeautifulSoup(html_text.decode('utf-8'), "html.parser")
+                download = soup.find("tbody").find("a", href=True, text="Download")
+                if not download:
+                    return await interaction.response.send_message("Unable to retrieve download link", ephemeral=True)
+
+                download_url = download["href"]
+                thumbnail_url = soup.find("div", {"class": "info"}).find("img")["src"]
+                video_title = soup.find("div", {"class": "info"}).find("span", {"class": "title"}).text.strip()
+
+                # Shorten the download link using the TinyURL API
+                tinyurl_api_url = "http://tinyurl.com/api-create.php?url=" + download_url  # Renamed link to tinyurl_api_url
+                try:
+                    async with aiohttp.ClientSession() as session:
+                        short_url = await session.get(url=tinyurl_api_url)
+                        short_url = await short_url.read()
+                except:
+                    return await interaction.response.send_message("Unable to shorten download link.", ephemeral=True)
+
+                short_url = short_url.decode('utf-8')  # Decode the byte string to a regular string
+
+                # Create a button
+                button = Button(style=discord.ButtonStyle.link, label="Download", url=short_url)
+
+                # Create a view and add the button
+                view = View()
+                view.add_item(button)
+
+                embed = discord.Embed(
+                    title=video_title,
+                    color=0xFF0000
+                ).set_thumbnail(
+                    url=thumbnail_url
+                )
+                await interaction.response.send_message(embed=embed, ephemeral=True, view=view)
+            else:
+                return await interaction.response.send_message("The provided url is invalid.", ephemeral=True)
+
+        except Exception as e:
+            error_message = f"An unexpected error occurred: {str(e)}"
+            return await interaction.response.send_message(error_message, ephemeral=True)
 
 
 
