@@ -30,21 +30,25 @@ class Util(commands.Cog):
             member = interaction.user
 
         embed = discord.Embed(
-            title=f"Download {member.display_name}'s Avatar",
-            url=member.
-            avatar,
             color=0x00EFDB
         ).set_author(
             name=f"{member.display_name}'s avatar",
             url=f"https://discord.com/users/{member.id}",
-            icon_url=member.avatar
+            icon_url=str(member.avatar)
         ).set_image(
-            url=member.avatar
+            url=str(member.avatar)
         ).set_footer(
             text=f"Requested by {interaction.user.name}",
-            icon_url=interaction.user.avatar
+            icon_url=str(interaction.user.avatar)
         )
-        await interaction.response.send_message(embed=embed)
+
+        button = Button(style=discord.ButtonStyle.link, label=f"Download {member.display_name}'s Avatar", url=str(member.avatar))
+        view = View()
+        view.add_item(button)
+
+        await interaction.response.send_message(embed=embed, view=view)
+
+
 
 
     @app_commands.command(name="base64decode", description="Decodes a Base64 string")
@@ -181,10 +185,6 @@ class Util(commands.Cog):
             value=f"```{user_created_at}```",
             inline=False
         ).add_field(
-            name="Avatar",
-            value=f"[Click here]({member.avatar})",
-            inline=False
-        ).add_field(
             name="Joined",
             value=f"{joined_at}",
             inline=True
@@ -197,7 +197,15 @@ class Util(commands.Cog):
             value=f"{member.top_role.mention}",
             inline=True
         )
-        await interaction.response.send_message(embed=embed, ephemeral=False)
+
+        button = Button(style=discord.ButtonStyle.link, label=f"Download {member.display_name}'s Avatar", url=str(member.avatar))
+        button2 = Button(style=discord.ButtonStyle.link, label=f"Download {member.display_name}'s guild Avatar", url=str(member.display_avatar))
+        view = View()
+        view.add_item(button)
+        view.add_item(button2)
+
+
+        await interaction.response.send_message(embed=embed, view=view)
 
     @app_commands.command(name="ping", description="Pong")
     async def ping(self, interaction: discord.Interaction):
