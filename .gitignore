@@ -155,5 +155,4 @@ cython_debug/
 config.json
 tempCodeRunnerFile.py
 
-*.js
-
+schmandi-js/
