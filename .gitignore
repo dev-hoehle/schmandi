@@ -154,3 +154,6 @@ cython_debug/
 #other
 config.json
 tempCodeRunnerFile.py
+
+*.js
+
