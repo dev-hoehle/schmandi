@@ -40,7 +40,7 @@ class SchmandiClient extends Client {
 if (!process.env.token) {
     console.log("Failed to get env");
     process.exit(1);
-}
+};
 
 const client = new SchmandiClient();
 
