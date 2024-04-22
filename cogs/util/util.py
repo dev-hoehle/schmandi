@@ -77,7 +77,7 @@ class Util(commands.Cog):
 
 
     # i was bored
-    @app_commands.command(name="yt", description="Download a YouTube video by providing its URL")
+    @app_commands.command(name="yt", description="(Use cmd twice...) Download a YouTube video by providing its URL") 
     @app_commands.describe(url="Enter the URL of the YouTube video you want to download")
     async def yt(self, interaction: discord.Interaction, url: str):
         try:

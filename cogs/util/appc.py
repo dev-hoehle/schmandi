@@ -4,6 +4,7 @@ from helpers.util import check_member
 import discord
 from discord import app_commands
 from discord.ext import commands
+from discord.ui import Button, View
 
 sys.dont_write_bytecode = True
 
@@ -48,14 +49,14 @@ class util_apps(commands.Cog):
         target_member = check_member(interaction=interaction, member=member)
 
         user_created_at = target_member.created_at.strftime("%b %d, %Y %I:%M %p")
-        joined_at = ""  # Initialize the variable here to avoid NameError
-        nickname = ""  # Initialize nickname variable
-        top_role = ""  # Initialize top_role variable
+        joined_at = ""  
+        nickname = ""  
+        top_role = "" 
 
         if interaction.guild:
             joined_at = target_member.joined_at.strftime("%b %d, %Y %I:%M %p")
             nickname = target_member.nick if target_member.nick else "None"  # Set nickname or 'None' if no nickname
-            top_role = target_member.top_role.mention  # Mention the highest role
+            top_role = target_member.top_role.mention
 
         embed = discord.Embed(
             color=target_member.color
@@ -84,13 +85,9 @@ class util_apps(commands.Cog):
             name="Creation",
             value=f"```{user_created_at}```",
             inline=False
-        ).add_field(
-            name="Avatar",
-            value=f"[Click here]({target_member.avatar})",
-            inline=False
         )
 
-        if interaction.guild:  # Add server-specific fields only if the command is used in a guild
+        if interaction.guild:
             embed.add_field(
                 name="Joined",
                 value=f"{joined_at}",
@@ -104,8 +101,14 @@ class util_apps(commands.Cog):
                 value=f"{top_role}",
                 inline=True
             )
+            
+        button = Button(style=discord.ButtonStyle.link, label=f"Download {target_member.display_name}'s Avatar", url=str(target_member.avatar))
+        button2 = Button(style=discord.ButtonStyle.link, label=f"Download {target_member.display_name}'s guild Avatar", url=str(target_member.display_avatar))
+        view = View()
+        view.add_item(button)
+        view.add_item(button2)
 
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=embed, view=view)
 
 
     async def base64decode(self, interaction: discord.Interaction, text: discord.Message) -> None:
