@@ -1,6 +1,6 @@
 import base64
 import sys
-from helpers.utilFunctions import checkMember
+from helpers.util import check_member
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -30,55 +30,55 @@ class util_apps(commands.Cog):
         await interaction.response.send_message(message.id, ephemeral=True)
 
     async def getavatar(self, interaction: discord.Interaction, member: discord.Member = None) -> None:
-        checkedMember = checkedMember(interaction=interaction, member=member)
-        avatar = checkedMember.avatar
+        target_member = check_member(interaction=interaction, member=member)
+        avatar = target_member.avatar
         embed = discord.Embed(
-            title=f"Download {checkedMember.display_name}'s Avatar",
+            title=f"Download {target_member.display_name}'s Avatar",
             url=avatar,
             color=0x00EFDB
         ).set_author(
-            name=f"{checkedMember.display_name}'s avatar",
-            url=f"https://discord.com/users/{checkedMember.id}", icon_url=avatar
+            name=f"{target_member.display_name}'s avatar",
+            url=f"https://discord.com/users/{target_member.id}", icon_url=avatar
         ).set_image(
             url=avatar
         )
         await interaction.response.send_message(embed=embed)
 
     async def userinfo(self, interaction: discord.Interaction, member: discord.Member = None) -> None:
-        checkedMember = checkedMember(interaction=interaction, member=member)
+        target_member = check_member(interaction=interaction, member=member)
 
-        user_created_at = checkedMember.created_at.strftime("%b %d, %Y %I:%M %p")
+        user_created_at = target_member.created_at.strftime("%b %d, %Y %I:%M %p")
         joined_at = ""  # Initialize the variable here to avoid NameError
         nickname = ""  # Initialize nickname variable
         top_role = ""  # Initialize top_role variable
 
         if interaction.guild:
-            joined_at = checkedMember.joined_at.strftime("%b %d, %Y %I:%M %p")
-            nickname = checkedMember.nick if checkedMember.nick else "None"  # Set nickname or 'None' if no nickname
-            top_role = checkedMember.top_role.mention  # Mention the highest role
+            joined_at = target_member.joined_at.strftime("%b %d, %Y %I:%M %p")
+            nickname = target_member.nick if target_member.nick else "None"  # Set nickname or 'None' if no nickname
+            top_role = target_member.top_role.mention  # Mention the highest role
 
         embed = discord.Embed(
-            color=checkedMember.color
+            color=target_member.color
         ).set_thumbnail(
-            url=checkedMember.display_avatar
+            url=target_member.display_avatar
         ).set_author(
-            name=f"{checkedMember.display_name}'s Info",
-            icon_url=checkedMember.avatar
+            name=f"{target_member.display_name}'s Info",
+            icon_url=target_member.avatar
         ).add_field(
             name="Name",
-            value=f"```{checkedMember.name}```",
+            value=f"```{target_member.name}```",
             inline=False
         ).add_field(
             name="Display Name",
-            value=f"```{checkedMember.display_name}```",
+            value=f"```{target_member.display_name}```",
             inline=False
         ).add_field(
             name="Global Name",
-            value=f"```{checkedMember.global_name}```",
+            value=f"```{target_member.global_name}```",
             inline=False
         ).add_field(
             name="ID",
-            value=f"```{checkedMember.id}```",
+            value=f"```{target_member.id}```",
             inline=False
         ).add_field(
             name="Creation",
@@ -86,7 +86,7 @@ class util_apps(commands.Cog):
             inline=False
         ).add_field(
             name="Avatar",
-            value=f"[Click here]({checkedMember.avatar})",
+            value=f"[Click here]({target_member.avatar})",
             inline=False
         )
 

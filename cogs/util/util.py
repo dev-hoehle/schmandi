@@ -2,7 +2,7 @@ import base64
 import json
 import platform
 import sys
-from helpers.utilFunctions import checkMember
+from helpers.util import check_member
 from datetime import datetime
 from typing import Literal
 from urllib.parse import urlparse
@@ -27,22 +27,22 @@ class Util(commands.Cog):
     @app_commands.command(name="avatar", description="Shows the avatar of a user")
     @app_commands.describe(member="The member whose avatar you want to view")
     async def avatar(self, interaction: discord.Interaction, member: discord.Member = None):
-        checkedMember = checkMember(interaction=interaction, member=member)
+        target_member = check_member(interaction=interaction, member=member)
 
         embed = discord.Embed(
             color=0x00EFDB
         ).set_author(
-            name=f"{checkedMember.display_name}'s avatar",
-            url=f"https://discord.com/users/{checkedMember.id}",
-            icon_url=str(checkedMember.avatar)
+            name=f"{target_member.display_name}'s avatar",
+            url=f"https://discord.com/users/{target_member.id}",
+            icon_url=str(target_member.avatar)
         ).set_image(
-            url=str(checkedMember.avatar)
+            url=str(target_member.avatar)
         ).set_footer(
             text=f"Requested by {interaction.user.name}",
             icon_url=str(interaction.user.avatar)
         )
 
-        button = Button(style=discord.ButtonStyle.link, label=f"Download {checkedMember.display_name}'s Avatar", url=str(checkedMember.avatar))
+        button = Button(style=discord.ButtonStyle.link, label=f"Download {target_member.display_name}'s Avatar", url=str(target_member.avatar))
         view = View()
         view.add_item(button)
 
@@ -151,33 +151,33 @@ class Util(commands.Cog):
     @app_commands.command(name="userinfo", description="Shows information about a user")
     @app_commands.describe(member="About which member do you want to get infos?")
     async def userinfo(self, interaction: discord.Interaction, member: discord.Member = None):
-        checkedMember = checkMember(interaction=interaction, member=member)
+        target_member = check_member(interaction=interaction, member=member)
 
-        user_created_at = checkedMember.created_at.strftime("%b %d, %Y %I:%M %p")
-        joined_at = checkedMember.joined_at.strftime("%b %d, %Y %I:%M %p")
+        user_created_at = target_member.created_at.strftime("%b %d, %Y %I:%M %p")
+        joined_at = target_member.joined_at.strftime("%b %d, %Y %I:%M %p")
 
         embed = discord.Embed(
-            color=checkedMember.color
+            color=target_member.color
         ).set_thumbnail(
-            url=checkedMember.display_avatar
+            url=target_member.display_avatar
         ).set_author(
-            name=f"{checkedMember.display_name}'s Info",
-            icon_url=checkedMember.avatar
+            name=f"{target_member.display_name}'s Info",
+            icon_url=target_member.avatar
         ).add_field(
             name="Name",
-            value=f"```{checkedMember.name}```",
+            value=f"```{target_member.name}```",
             inline=False
         )   .add_field(
             name="Display Name",
-            value=f"```{checkedMember.display_name}```",
+            value=f"```{target_member.display_name}```",
             inline=False
         ).add_field(
             name="Global Name",
-            value=f"```{checkedMember.global_name}```",
+            value=f"```{target_member.global_name}```",
             inline=False
         ).add_field(
             name="ID",
-            value=f"```{checkedMember.id}```",
+            value=f"```{target_member.id}```",
             inline=False
         ).add_field(
             name="Creation",
@@ -188,17 +188,13 @@ class Util(commands.Cog):
             value=f"{joined_at}",
             inline=True
         ).add_field(
-            name="Nickname",
-            value=f"{checkedMember.nick}",
-            inline=True
-        ).add_field(
             name="Highest Role",
-            value=f"{checkedMember.top_role.mention}",
+            value=f"{target_member.top_role.mention}",
             inline=True
         )
 
-        button = Button(style=discord.ButtonStyle.link, label=f"Download {checkedMember.display_name}'s Avatar", url=str(checkedMember.avatar))
-        button2 = Button(style=discord.ButtonStyle.link, label=f"Download {checkedMember.display_name}'s guild Avatar", url=str(checkedMember.display_avatar))
+        button = Button(style=discord.ButtonStyle.link, label=f"Download {target_member.display_name}'s Avatar", url=str(target_member.avatar))
+        button2 = Button(style=discord.ButtonStyle.link, label=f"Download {target_member.display_name}'s guild Avatar", url=str(target_member.display_avatar))
         view = View()
         view.add_item(button)
         view.add_item(button2)
