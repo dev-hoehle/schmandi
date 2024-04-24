@@ -80,6 +80,7 @@ class Util(commands.Cog):
     @app_commands.command(name="yt", description="(Use cmd twice...) Download a YouTube video by providing its URL") 
     @app_commands.describe(url="Enter the URL of the YouTube video you want to download")
     async def yt(self, interaction: discord.Interaction, url: str):
+        await interaction.response.defer(ephemeral=True, thinking=True)
         try:
             # Parse the URL
             parsed_url = urlparse(url)
@@ -138,9 +139,11 @@ class Util(commands.Cog):
                 ).set_thumbnail(
                     url=thumbnail_url
                 )
-                await interaction.response.send_message(embed=embed, ephemeral=True, view=view)
+                #await interaction.response.send_message(embed=embed, ephemeral=True, view=view)
+                await interaction.followup.send(embed=embed, ephemeral=True, view=view)
             else:
-                return await interaction.response.send_message("The provided url is invalid.", ephemeral=True)
+                #return await interaction.response.send_message("The provided url is invalid.", ephemeral=True)
+                return await interaction.followup.send("The provided url is invalid.", ephemeral=True)
 
         except Exception as e:
             error_message = f"An unexpected error occurred: {str(e)}"
