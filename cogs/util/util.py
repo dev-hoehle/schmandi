@@ -76,8 +76,7 @@ class Util(commands.Cog):
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
-    # i was bored
-    @app_commands.command(name="yt", description="(Use cmd twice...) Download a YouTube video by providing its URL") 
+    @app_commands.command(name="yt", description="Download a YouTube video by providing its URL") 
     @app_commands.describe(url="Enter the URL of the YouTube video you want to download")
     async def yt(self, interaction: discord.Interaction, url: str):
         await interaction.response.defer(ephemeral=True, thinking=True)
@@ -88,15 +87,11 @@ class Util(commands.Cog):
             # Check if the URL is valid
             if parsed_url.scheme and parsed_url.netloc:
 
-                # If the URL is a shortened youtu.be link, replace it with the full link
+                # If the URL is a shortened youtu.be or music link, replace it with the full video link   
                 if parsed_url.netloc == "youtu.be":
                     url = "https://www.youtube.com/watch?v=" + parsed_url.path.lstrip("/")
-
-                # If the URL is a YouTube music link, replace it with the video link
                 if parsed_url.netloc == "music.youtube.com":
                     url = "https://www.youtube.com/watch?v=" + parsed_url.path.lstrip("/")
-
-                # Create the video download link and scrape the download page
                 download_page_url = "https://10downloader.com/download?v=" + url
 
                 try:
@@ -116,7 +111,7 @@ class Util(commands.Cog):
                 video_title = soup.find("div", {"class": "info"}).find("span", {"class": "title"}).text.strip()
 
                 # Shorten the download link using the TinyURL API
-                tinyurl_api_url = "http://tinyurl.com/api-create.php?url=" + download_url  # Renamed link to tinyurl_api_url
+                tinyurl_api_url = "http://tinyurl.com/api-create.php?url=" + download_url
                 try:
                     async with aiohttp.ClientSession() as session:
                         short_url = await session.get(url=tinyurl_api_url)
