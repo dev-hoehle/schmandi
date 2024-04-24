@@ -44,7 +44,7 @@ class moderationCog(commands.Cog):
 
 
 
-    @app_commands.checks.cooldown(1, 5.0, key=None)
+    #@app_commands.checks.cooldown(1, 15.0, key=None)
     @app_commands.command(name="clear", description="Deletes a certain number of messages")
     @app_commands.describe(amount="The amount of messages to clear")
     async def clear(self, interaction: discord.Interaction, amount: app_commands.Range[int, 1, 100]):
@@ -114,13 +114,7 @@ class moderationCog(commands.Cog):
                 color=discord.Color.red(),
                 timestamp=datetime.now()
             )
-            await interaction.response.send_message(embed=error_embed, ephemeral=True)
-
-
-    @clear.error
-    async def on_test_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
-        if isinstance(error, app_commands.CommandOnCooldown):
-            await interaction.response.send_message(str(error), ephemeral=True) #Error message bitte ändern - Bin zu unkreativ xD
+            await interaction.response.send_message(embed=error_embed)
 
 
     @app_commands.command(name="poll", description="Creates a simple poll")
