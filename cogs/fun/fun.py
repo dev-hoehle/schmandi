@@ -106,7 +106,33 @@ class Fun(commands.Cog):
         )
         await interaction.response.send_message(embed=embed)
 
+    @app_commands.command(name='cat', description='Sends a random cat gif.')
+    async def cat(self, interaction: discord.Interaction):
+        if not api_key:
+            await interaction.response.send_message("Tenor API key is missing from config.json. Please follow the setup instructions from the README file.", ephemeral=True)
+            return
 
+        cat_url = f"https://tenor.googleapis.com/v2/search?q=cat&client_key={api_name}&key={api_key}&limit=50"
+
+        async with aiohttp.ClientSession() as session:
+            cat_response = await session.get(url=cat_url)
+            cat_response = await cat_response.json()
+
+        combined_results = cat_response["results"]
+
+        # Access the GIF URL from the "tinygif" format
+        gif_url = random.choice(combined_results)["media_formats"]["tinygif"]["url"]
+
+        embed = discord.Embed(
+            title="Here is your random cat:",
+            color=0x00EFDB
+        ).set_image(
+            url=gif_url
+        ).set_footer(
+            text=f"Requested by {interaction.user.name}",
+            icon_url=interaction.user.avatar
+        )
+        await interaction.response.send_message(embed=embed)
 
 
 
