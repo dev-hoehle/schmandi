@@ -89,7 +89,7 @@ class Admin(commands.Cog):
         except Exception as e:
             print_failure_message(f"An error occurred while executing the ban command: {e}")
 
-            
+
     @app_commands.command(name="kick", description="Kick someone")
     @discord.app_commands.describe(member="The member you want to kick")
     @discord.app_commands.describe(reason="Why do you want to kick this member?")
@@ -138,7 +138,7 @@ class Admin(commands.Cog):
                 value=reason
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
-                
+
         except discord.Forbidden as e:
             embed = discord.Embed(
                 title="Error",
@@ -241,13 +241,13 @@ class Admin(commands.Cog):
 
     @app_commands.command(name="nuke", description="Nuke a channel")
     @discord.app_commands.describe(channel="The channel you want to nuke")
-    async def nuke(self, interaction: discord.Interaction, channel: discord.TextChannel = None): 
+    async def nuke(self, interaction: discord.Interaction, channel: discord.TextChannel = None):
         # Check if the bot has permission to manage channels
         bot_member = interaction.guild.get_member(self.bot.user.id)
         if not bot_member.guild_permissions.manage_channels:
             return await interaction.response.send_message("I do not have the permission to manage channels.", ephemeral=True)
-            
-        
+
+
         # Check if the user has permission to manage channels
         if not interaction.user.guild_permissions.manage_channels:
             embed = discord.Embed(
@@ -259,7 +259,7 @@ class Admin(commands.Cog):
                 icon_url=interaction.user.avatar
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-            
+
 
         # Check if the bot has permission to manage channels
         if not interaction.guild.me.guild_permissions.manage_channels:
@@ -272,7 +272,7 @@ class Admin(commands.Cog):
                 icon_url=interaction.user.avatar
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-            
+
 
         channel = channel or interaction.channel
         try:
@@ -437,6 +437,6 @@ class Admin(commands.Cog):
                 icon_url=interaction.user.avatar
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
-            
+
 async def setup(bot):
     await bot.add_cog(Admin(bot))

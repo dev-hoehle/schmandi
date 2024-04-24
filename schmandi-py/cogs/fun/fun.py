@@ -34,7 +34,7 @@ class Fun(commands.Cog):
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         roll = random.randint(1, sides)
-        
+
         embed=discord.Embed(
             color=0x00fffa
         ).add_field(
@@ -43,25 +43,25 @@ class Fun(commands.Cog):
             inline=False
         )
         await interaction.response.send_message(embed=embed)
-        
-        
+
+
 
     @app_commands.command(name='gifsearch', description='Shows you a random gif for your query')
     @app_commands.describe(query="Search query?")
     async def gifsearch(self, interaction: discord.Interaction, *, query: str):
-        
+
         if not api_key:
             return await interaction.response.send_message("Tenor API key is missing from config.json. Please follow the setup instructions from the README file.", ephemeral=True)
         url = f"https://tenor.googleapis.com/v2/search?q={query}&client_key={api_name}&key={api_key}&limit=50"
-        
+
         # send a request to the Tenor API and get the response in JSON format
         async with aiohttp.ClientSession() as session:
             response = await session.get(url=url)
             response = await response.json()
-        
+
         # choose a random gif from the list of gifs returned by the API
         gif_url = random.choice(response["results"])["media_formats"]["tinygif"]["url"]
-        
+
 
         embed = discord.Embed(
             title=f"Gif for {query}",
@@ -82,7 +82,7 @@ class Fun(commands.Cog):
 
         cat_url = f"https://tenor.googleapis.com/v2/search?q=side+eye+cat&client_key={api_name}&key={api_key}&limit=50"
         dog_url = f"https://tenor.googleapis.com/v2/search?q=side+eye+dog&client_key={api_name}&key={api_key}&limit=50"
-        
+
         async with aiohttp.ClientSession() as session:
             cat_response = await session.get(url=cat_url)
             cat_response = await cat_response.json()
@@ -91,7 +91,7 @@ class Fun(commands.Cog):
             dog_response = await dog_response.json()
 
         combined_results = cat_response["results"] + dog_response["results"]
-        
+
         # Access the GIF URL from the "tinygif" format
         gif_url = random.choice(combined_results)["media_formats"]["tinygif"]["url"]
 
@@ -106,7 +106,33 @@ class Fun(commands.Cog):
         )
         await interaction.response.send_message(embed=embed)
 
+    @app_commands.command(name='cat', description='Sends a random cat gif.')
+    async def cat(self, interaction: discord.Interaction):
+        if not api_key:
+            await interaction.response.send_message("Tenor API key is missing from config.json. Please follow the setup instructions from the README file.", ephemeral=True)
+            return
 
+        cat_url = f"https://tenor.googleapis.com/v2/search?q=cat&client_key={api_name}&key={api_key}&limit=50"
+
+        async with aiohttp.ClientSession() as session:
+            cat_response = await session.get(url=cat_url)
+            cat_response = await cat_response.json()
+
+        combined_results = cat_response["results"]
+
+        # Access the GIF URL from the "tinygif" format
+        gif_url = random.choice(combined_results)["media_formats"]["tinygif"]["url"]
+
+        embed = discord.Embed(
+            title="Here is your random cat:",
+            color=0x00EFDB
+        ).set_image(
+            url=gif_url
+        ).set_footer(
+            text=f"Requested by {interaction.user.name}",
+            icon_url=interaction.user.avatar
+        )
+        await interaction.response.send_message(embed=embed)
 
 
 
@@ -117,14 +143,14 @@ class Fun(commands.Cog):
         try:
             # Mapping of languages to codes for the API
             language_codes = {"English": "en", "German": "de"}
-            
+
             visibility = {"true": True, "false": False}.get(visibility, False)
-            
+
             code = language_codes.get(language)
             if not code:
                 code = "en"
 
-            
+
             url = f"https://uselessfacts.jsph.pl/random.json?language={code}"
             factembed = discord.Embed(
                 timestamp=datetime.now(),
@@ -138,18 +164,18 @@ class Fun(commands.Cog):
                 # Make a GET request to the API and check the response status code
                 async with aiohttp.ClientSession() as session:
                     response = await session.get(url=url)
-                    
+
                     response.raise_for_status()  # Raise an exception for non-200 status codes
-                
+
                     # Parse the JSON response and get the useless fact
                     data = await response.json()
                     fact = data["text"]
                     factembed.add_field(name="Useless Fact:", value=fact)
-                    
+
                     ephemeral = visibility == False  # Set ephemeral to True only if visibility is "false"
-                    
+
                     await interaction.response.send_message(embed=factembed, ephemeral=ephemeral)
-        
+
             except:
                 factembed.add_field(name="Error:", value="Failed to parse response as JSON.")
                 await interaction.response.send_message(embed=factembed, ephemeral=True)
@@ -157,6 +183,6 @@ class Fun(commands.Cog):
             print_failure_message(e)
 
 
-            
+
 async def setup(bot):
     await bot.add_cog(Fun(bot))

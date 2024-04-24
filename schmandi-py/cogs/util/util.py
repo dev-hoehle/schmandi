@@ -2,6 +2,7 @@ import base64
 import json
 import platform
 import sys
+from helpers.util import check_member
 from datetime import datetime
 from typing import Literal
 from urllib.parse import urlparse
@@ -13,6 +14,7 @@ import psutil
 from bs4 import BeautifulSoup
 from discord import app_commands
 from discord.ext import commands
+from discord.ui import Button, View
 
 from helpers.general import print_failure_message
 
@@ -25,25 +27,28 @@ class Util(commands.Cog):
     @app_commands.command(name="avatar", description="Shows the avatar of a user")
     @app_commands.describe(member="The member whose avatar you want to view")
     async def avatar(self, interaction: discord.Interaction, member: discord.Member = None):
-        if member is None:
-            member = interaction.user
+        target_member = check_member(interaction=interaction, member=member)
 
         embed = discord.Embed(
-            title=f"Download {member.display_name}'s Avatar", 
-            url=member.
-            avatar,
             color=0x00EFDB
         ).set_author(
-            name=f"{member.display_name}'s avatar",
-            url=f"https://discord.com/users/{member.id}", 
-            icon_url=member.avatar
+            name=f"{target_member.display_name}'s avatar",
+            url=f"https://discord.com/users/{target_member.id}",
+            icon_url=str(target_member.avatar)
         ).set_image(
-            url=member.avatar
+            url=str(target_member.avatar)
         ).set_footer(
             text=f"Requested by {interaction.user.name}",
-            icon_url=interaction.user.avatar
+            icon_url=str(interaction.user.avatar)
         )
-        await interaction.response.send_message(embed=embed)
+
+        button = Button(style=discord.ButtonStyle.link, label=f"Download {target_member.display_name}'s Avatar", url=str(target_member.avatar))
+        view = View()
+        view.add_item(button)
+
+        await interaction.response.send_message(embed=embed, view=view)
+
+
 
 
     @app_commands.command(name="base64decode", description="Decodes a Base64 string")
@@ -71,117 +76,129 @@ class Util(commands.Cog):
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
-    # i was bored
-    @app_commands.command(name="yt", description="Download a YouTube video by providing its URL")
+    @app_commands.command(name="yt", description="Download a YouTube video by providing its URL") 
     @app_commands.describe(url="Enter the URL of the YouTube video you want to download")
     async def yt(self, interaction: discord.Interaction, url: str):
-        # Parse the URL
-        parsed_url = urlparse(url)
+        await interaction.response.defer(ephemeral=True, thinking=True)
+        try:
+            # Parse the URL
+            parsed_url = urlparse(url)
 
-        # Check if the URL is valid
-        if parsed_url.scheme and parsed_url.netloc:
-            # If the URL is a shortened youtu.be link, replace it with the full link
-            if parsed_url.netloc == "youtu.be":
-                url = "https://www.youtube.com/watch?v=" + parsed_url.path.lstrip("/")
+            # Check if the URL is valid
+            if parsed_url.scheme and parsed_url.netloc:
 
-            # Create the video download link and scrape the download page
-            vgm_url = "https://10downloader.com/download?v=" + url
-            try:
-                async with aiohttp.ClientSession() as session:
-                    html_text = await session.get(url=vgm_url)
-                    html_text = await html_text.read()
-            except:
-                return await interaction.response.send_message("Unable to retrieve download link", ephemeral=True)
-                
-            
-            soup = BeautifulSoup(html_text.decode('utf-8'), "html.parser")
-            download = soup.find("tbody").find("a", href=True, text="Download")
-            if not download:
-                return await interaction.response.send_message("Unable to retrieve download link", ephemeral=True)
-            
-            download_url = download["href"]
-            thumbnail_url = soup.find("div", {"class": "info"}).find("img")["src"]
-            video_title = soup.find("div", {"class": "info"}).find("span", {"class": "title"}).text.strip()
+                # If the URL is a shortened youtu.be or music link, replace it with the full video link   
+                if parsed_url.netloc == "youtu.be":
+                    url = "https://www.youtube.com/watch?v=" + parsed_url.path.lstrip("/")
+                if parsed_url.netloc == "music.youtube.com":
+                    url = "https://www.youtube.com/watch?v=" + parsed_url.path.lstrip("/")
+                download_page_url = "https://10downloader.com/download?v=" + url
 
-            # Shorten the download link using the TinyURL API
-            link = "http://tinyurl.com/api-create.php?url=" + download_url
-            try:
-                async with aiohttp.ClientSession() as session:
-                    short_url = await session.get(url=link)
-                    short_url = await short_url.read()
-            except:
-                return await interaction.response.send_message("Unable to shorten download link", ephemeral=True)
+                try:
+                    async with aiohttp.ClientSession() as session:
+                        html_text = await session.get(url=download_page_url)
+                        html_text = await html_text.read()
+                except:
+                    return await interaction.response.send_message("Unable to retrieve download link", ephemeral=True)
 
-            short_url = short_url.decode('utf-8')  # Decode the byte string to regular string
+                soup = BeautifulSoup(html_text.decode('utf-8'), "html.parser")
+                download = soup.find("tbody").find("a", href=True, text="Download")
+                if not download:
+                    return await interaction.response.send_message("Unable to retrieve download link", ephemeral=True)
 
-            embed = discord.Embed(
-                title=video_title,
-                color=0xFF0000
-            ).set_thumbnail(
-                url=thumbnail_url
-            ).add_field(
-                name="Download",
-                value=f"[Click here]({short_url})"
-            )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+                download_url = download["href"]
+                thumbnail_url = soup.find("div", {"class": "info"}).find("img")["src"]
+                video_title = soup.find("div", {"class": "info"}).find("span", {"class": "title"}).text.strip()
 
+                # Shorten the download link using the TinyURL API
+                tinyurl_api_url = "http://tinyurl.com/api-create.php?url=" + download_url
+                try:
+                    async with aiohttp.ClientSession() as session:
+                        short_url = await session.get(url=tinyurl_api_url)
+                        short_url = await short_url.read()
+                except:
+                    return await interaction.response.send_message("Unable to shorten download link.", ephemeral=True)
+
+                short_url = short_url.decode('utf-8')  # Decode the byte string to a regular string
+
+                # Create a button
+                button = Button(style=discord.ButtonStyle.link, label="Download", url=short_url)
+
+                # Create a view and add the button
+                view = View()
+                view.add_item(button)
+
+                embed = discord.Embed(
+                    title=video_title,
+                    color=0xFF0000
+                ).set_thumbnail(
+                    url=thumbnail_url
+                )
+                #await interaction.response.send_message(embed=embed, ephemeral=True, view=view)
+                await interaction.followup.send(embed=embed, ephemeral=True, view=view)
+            else:
+                #return await interaction.response.send_message("The provided url is invalid.", ephemeral=True)
+                return await interaction.followup.send("The provided url is invalid.", ephemeral=True)
+
+        except Exception as e:
+            error_message = f"An unexpected error occurred: {str(e)}"
+            return await interaction.response.send_message(error_message, ephemeral=True)
 
 
 
     @app_commands.command(name="userinfo", description="Shows information about a user")
     @app_commands.describe(member="About which member do you want to get infos?")
     async def userinfo(self, interaction: discord.Interaction, member: discord.Member = None):
-        if member is None:
-            member = interaction.user
+        target_member = check_member(interaction=interaction, member=member)
 
-        user_created_at = member.created_at.strftime("%b %d, %Y %I:%M %p")
-        joined_at = member.joined_at.strftime("%b %d, %Y %I:%M %p")
+        user_created_at = target_member.created_at.strftime("%b %d, %Y %I:%M %p")
+        joined_at = target_member.joined_at.strftime("%b %d, %Y %I:%M %p")
 
         embed = discord.Embed(
-            color=member.color
+            color=target_member.color
         ).set_thumbnail(
-            url=member.display_avatar
+            url=target_member.display_avatar
         ).set_author(
-            name=f"{member.display_name}'s Info",
-            icon_url=member.avatar
+            name=f"{target_member.display_name}'s Info",
+            icon_url=target_member.avatar
         ).add_field(
             name="Name",
-            value=f"```{member.name}```",
+            value=f"```{target_member.name}```",
             inline=False
         )   .add_field(
             name="Display Name",
-            value=f"```{member.display_name}```",
+            value=f"```{target_member.display_name}```",
             inline=False
         ).add_field(
             name="Global Name",
-            value=f"```{member.global_name}```",
+            value=f"```{target_member.global_name}```",
             inline=False
         ).add_field(
             name="ID",
-            value=f"```{member.id}```",
+            value=f"```{target_member.id}```",
             inline=False
         ).add_field(
             name="Creation",
             value=f"```{user_created_at}```",
             inline=False
         ).add_field(
-            name="Avatar",
-            value=f"[Click here]({member.avatar})",
-            inline=False
-        ).add_field(
             name="Joined",
             value=f"{joined_at}",
             inline=True
         ).add_field(
-            name="Nickname",
-            value=f"{member.nick}",
-            inline=True
-        ).add_field(
             name="Highest Role",
-            value=f"{member.top_role.mention}",
+            value=f"{target_member.top_role.mention}",
             inline=True
         )
-        await interaction.response.send_message(embed=embed, ephemeral=False)
+
+        button = Button(style=discord.ButtonStyle.link, label=f"Download {target_member.display_name}'s Avatar", url=str(target_member.avatar))
+        button2 = Button(style=discord.ButtonStyle.link, label=f"Download {target_member.display_name}'s guild Avatar", url=str(target_member.display_avatar))
+        view = View()
+        view.add_item(button)
+        view.add_item(button2)
+
+
+        await interaction.response.send_message(embed=embed, view=view)
 
     @app_commands.command(name="ping", description="Pong")
     async def ping(self, interaction: discord.Interaction):
@@ -208,7 +225,7 @@ class Util(commands.Cog):
     async def botinfo(self, interaction: discord.Interaction):
         name = self.bot.user
         id = self.bot.user.id
-        
+
         # Get information about the Python version, OS, CPU, and RAM usage
         python_version = platform.python_version()
         os_version = platform.system()

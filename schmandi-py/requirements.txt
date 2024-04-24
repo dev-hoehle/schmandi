@@ -1,6 +1,6 @@
-aiohttp==3.8.5
-beautifulsoup4==4.12.2
+aiohttp==3.9.5
+beautifulsoup4==4.12.3
 colorama==0.4.6
 discord.py==2.3.2
-psutil==5.9.5
+psutil==5.9.8
 py_cpuinfo==9.0.0

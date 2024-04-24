@@ -44,11 +44,12 @@ class moderationCog(commands.Cog):
 
 
 
+    #@app_commands.checks.cooldown(1, 15.0, key=None)
     @app_commands.command(name="clear", description="Deletes a certain number of messages")
     @app_commands.describe(amount="The amount of messages to clear")
     async def clear(self, interaction: discord.Interaction, amount: app_commands.Range[int, 1, 100]):
         try:
-            # Check if the user has permission to manage channels           
+            # Check if the user has permission to manage channels
             if interaction.user.guild_permissions.manage_channels:
                 bot_member = interaction.guild.get_member(self.bot.user.id)
                 if bot_member.guild_permissions.manage_messages:
@@ -66,7 +67,7 @@ class moderationCog(commands.Cog):
                             timestamp=datetime.now()
                         )
                         embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.display_avatar)
-                        
+
                         await interaction.channel.send(embed=embed)
                 else:
                     clearembed = discord.Embed(
@@ -113,9 +114,7 @@ class moderationCog(commands.Cog):
                 color=discord.Color.red(),
                 timestamp=datetime.now()
             )
-            await interaction.response.send_message(embed=error_embed, ephemeral=True)
-
-
+            await interaction.response.send_message(embed=error_embed)
 
 
     @app_commands.command(name="poll", description="Creates a simple poll")
@@ -134,9 +133,9 @@ class moderationCog(commands.Cog):
             channel = interaction.channel
 
             # Show typing status while creating the poll
-            async with interaction.channel.typing():          
+            async with interaction.channel.typing():
 
-                
+
                 embed = discord.Embed(title=text, color=0x00D9FF)
                 message = await channel.send(embed=embed, content=None)
                 #poll_message = await message.edit(embed=embed, content=None)
@@ -145,7 +144,7 @@ class moderationCog(commands.Cog):
                 await message.add_reaction("✅")
                 await message.add_reaction("❌")
                 response = await interaction.followup.send("Done")
-                await response.delete()     
+                await response.delete()
 
 
         except Exception as e:
@@ -164,7 +163,7 @@ class moderationCog(commands.Cog):
                 timestamp=datetime.now(),
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
-            
+
         if channel is None:
             channel = interaction.channel
 
@@ -284,8 +283,8 @@ class moderationCog(commands.Cog):
                         icon_url = interaction.guild.icon.url,
                         text = interaction.guild.name
                     )
-                    return await interaction.response.send_message(embed=invalid_embed, ephemeral=True) 
-                
+                    return await interaction.response.send_message(embed=invalid_embed, ephemeral=True)
+
                 emoji_bytes = bytes(await get_bytes.read())
 
             emoji_name = new_name if new_name else emoji.name

@@ -6,17 +6,17 @@ Original: https://github.com/EinWortspiel/Discord.py-cog-generator/
 """
 
 def createCog(name:str, cmdName:str, cmdDesc:str) -> str:
-    exampleCog = f"""import discord 
+    exampleCog = f"""import discord
 from discord.ext import commands
 from discord import app_commands
 class {name}(commands.Cog):
     def __init__(self, bot) -> None:
         self.bot = bot
-    
+
     @app_commands.command(name="{cmdName}", description="{cmdDesc}")
     async def {cmdName}(self, interaction: discord.Interaction):
         await interaction.response.send_message("Hello there!")
-    
+
 async def setup(bot):
     await bot.add_cog({name})"""
     return exampleCog
@@ -34,5 +34,5 @@ def main() -> None:
         print("File already there!")
     else:
         print("Finished!")
-        
+
 main()
