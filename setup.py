@@ -14,6 +14,7 @@ def main():
     # Open Discord Developer Portal link in browser
     open_link_in_browser("https://discord.com/developers/applications")
     token = get_user_input("Enter your Discord bot token from the above link:")
+    bot_id = get_user_input("Enter your bot ID:")
 
     # Open Tenor API quickstart guide link in browser
     open_link_in_browser("https://developers.google.com/tenor/guides/quickstart")
@@ -24,6 +25,7 @@ def main():
 
     config_data = {
         "token": token,
+        "bot_id": bot_id,
         "tenor_key": tenor_key,
         "tenor_name": tenor_name,
         "greetmembers": greetmembers
