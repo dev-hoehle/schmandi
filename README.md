@@ -7,7 +7,7 @@
 <ul>
 <h1>Run in cmd: <code>python setup.py</code></h1>
 <p>or</p>
-   <li>Insert your Discord bot token from <a href="https://discord.com/developers/applications">Discord Developer Portal</a> in the file called <code>config.example.json</code> and rename it to <code>config.json</code>.</li>
+   <li>Insert your Discord bot token and id from <a href="https://discord.com/developers/applications">Discord Developer Portal</a> in the file called <code>config.example.json</code> and rename it to <code>config.json</code>.</li>
    <li>Insert your <a href="https://developers.google.com/tenor/guides/quickstart">Tenor API key</a> in the <code>tenor_key</code> field and 
    your Tenor App Name in <code>tenor_name</code> field of the <code>config.json</code> file. Otherwise the gifsearch command cannot be used.</li>
    <li>If you want the bot to greet new members, set the <code>greetmembers</code> field to <code>true</code> in the <code>config.json</code> file.<br>
