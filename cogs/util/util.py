@@ -2,7 +2,6 @@ import base64
 import json
 import platform
 import sys
-from helpers.util import check_member
 from datetime import datetime
 from typing import Literal
 from urllib.parse import urlparse
@@ -17,6 +16,7 @@ from discord.ext import commands
 from discord.ui import Button, View
 
 from helpers.general import print_failure_message
+from helpers.util import check_member
 
 sys.dont_write_bytecode = True
 

@@ -1,10 +1,12 @@
 import base64
 import sys
-from helpers.util import check_member
+
 import discord
 from discord import app_commands
 from discord.ext import commands
 from discord.ui import Button, View
+
+from helpers.util import check_member
 
 sys.dont_write_bytecode = True
 

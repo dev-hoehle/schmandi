@@ -9,7 +9,9 @@ from discord import app_commands
 from discord.ext import commands
 
 from helpers.general import print_failure_message
-from helpers.util import check_bot_perms, check_user_perms, check_member, check_channel
+from helpers.util import (check_bot_perms, check_channel, check_member,
+                          check_user_perms)
+
 sys.dont_write_bytecode = True
 
 class moderationCog(commands.Cog):

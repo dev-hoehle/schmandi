@@ -1,4 +1,5 @@
 import sys
+
 sys.dont_write_bytecode = True
 import asyncio
 import os
@@ -13,7 +14,6 @@ from discord.ext import commands, tasks
 from helpers.config import check_config, get_config_value
 from helpers.general import (clear_console, print_failure_message,
                              print_success_message)
-
 
 check_config()
 
