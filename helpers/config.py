@@ -21,10 +21,20 @@ def check_config():
             sys.exit()
     else:
         token = get_config_value("token")
-        if not token:
+        bot_id = get_config_value("bot_id")
+        if not token and not bot_id:
+            print_failure_message("Token and BOT ID are missing from config.json. Please follow the setup instructions from the README file.")
+            os.system(f"start {url}")
+            sys.exit()
+        elif not token:
             print_failure_message("Token is missing from config.json. Please follow the setup instructions from the README file.")
             os.system(f"start {url}")
             sys.exit()
+        elif not bot_id:
+            print_failure_message("BOT ID is missing from config.json. Please follow the setup instructions from the README file.")
+            os.system(f"start {url}")
+            sys.exit()
+
 
 def get_config_value(key: str) -> str:
     with open("config.json", "r", encoding="UTF-8") as configfile:

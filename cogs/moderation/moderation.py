@@ -9,7 +9,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from helpers.general import print_failure_message
-
+from helpers.util import check_bot_perms, check_user_perms, check_member, check_channel
 sys.dont_write_bytecode = True
 
 class moderationCog(commands.Cog):
@@ -20,27 +20,25 @@ class moderationCog(commands.Cog):
     @app_commands.describe(member="The member whose nickname you want to change (optional)")
     @app_commands.describe(nickname="The nickname you want the bot or user to have")
     async def nickname(self, interaction: discord.Interaction, member: discord.Member = None, nickname: str = None):
-        if interaction.user.guild_permissions.manage_nicknames:
-            if member is None:
-                member = interaction.user
+        bot_perms = await check_bot_perms(interaction, "manage_members")
+        user_perms = await check_user_perms(interaction, "manage_members")
+        if not bot_perms or not user_perms:
+            return
+        
+        target_member = check_member(interaction=interaction, member=member)
+        try:
+            await target_member.edit(nick=nickname or member.name)
 
-            try:
-                await member.edit(nick=nickname or member.name)
-            except discord.Forbidden:
-                embed = discord.Embed(title="Error", description="I don't have the permission to change this member's nickname.", color=0xFF0000)
-                return await interaction.response.send_message(embed=embed, ephemeral=True)
+        except Exception as e:
+            embed = discord.Embed(title="Error", description=f"An error occurred while changing the nickname: {e}", color=0xFF0000)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
 
-            except Exception as e:
-                embed = discord.Embed(title="Error", description=f"An error occurred while changing the nickname: {e}", color=0xFF0000)
-                return await interaction.response.send_message(embed=embed, ephemeral=True)
+        embed = discord.Embed(title="Nickname changed", color=0x00D9FF)
+        embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
+        embed.add_field(name="Member", value=target_member.mention, inline=False)
+        embed.add_field(name="New Nickname", value=nickname or target_member.name, inline=False)
+        await interaction.response.send_message(embed=embed)
 
-            embed = discord.Embed(title="Nickname changed", color=0x00D9FF)
-            embed.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
-            embed.add_field(name="Member", value=member.mention, inline=False)
-            embed.add_field(name="New Nickname", value=nickname or member.name, inline=False)
-            await interaction.response.send_message(embed=embed)
-        else:
-            await interaction.response.send_message("You don't have the permission to change nicknames.", ephemeral=True)
 
 
 
@@ -49,64 +47,28 @@ class moderationCog(commands.Cog):
     @app_commands.describe(amount="The amount of messages to clear")
     async def clear(self, interaction: discord.Interaction, amount: app_commands.Range[int, 1, 100]):
         try:
-            # Check if the user has permission to manage channels
-            if interaction.user.guild_permissions.manage_channels:
-                bot_member = interaction.guild.get_member(self.bot.user.id)
-                if bot_member.guild_permissions.manage_messages:
-                    await interaction.response.defer()
-                    deleted_messages = await asyncio.wait_for(interaction.channel.purge(limit=amount + 1), timeout=30)
-                    deleted_messages_count = len(deleted_messages) - 1
-                    async with interaction.channel.typing():
-                        success_message = f"**__{deleted_messages_count}__** messages have been successfully deleted."
-                        failure_message = f"Failed to delete **__{amount - deleted_messages_count}__** of __**{amount}**__ messages."
+                bot_perms = await check_bot_perms(interaction, "manage_channels")
+                user_perms = await check_user_perms(interaction, "manage_channels")
+                if not bot_perms or not user_perms:
+                    return
 
-                        embed = discord.Embed(
-                            title="Messages Deleted",
-                            description=f"{success_message}\n{failure_message}",
-                            color=discord.Color.green(),
-                            timestamp=datetime.now()
-                        )
-                        embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.display_avatar)
+                await interaction.response.defer()
+                deleted_messages = await asyncio.wait_for(interaction.channel.purge(limit=amount + 1), timeout=30)
+                deleted_messages_count = len(deleted_messages) - 1
+                async with interaction.channel.typing():
+                    success_message = f"**__{deleted_messages_count}__** messages have been successfully deleted."
+                    failure_message = f"Failed to delete **__{amount - deleted_messages_count}__** of __**{amount}**__ messages."
 
-                        await interaction.channel.send(embed=embed)
-                else:
-                    clearembed = discord.Embed(
-                        title="Error",
-                        color=discord.Color.dark_red(),
+                    embed = discord.Embed(
+                        title="Messages Deleted",
+                        description=f"{success_message}\n{failure_message}",
+                        color=discord.Color.green(),
                         timestamp=datetime.now()
                     )
-                    clearembed.add_field(
-                        name="Permission Denied",
-                        value="I don't have enough permissions to do that.",
-                    )
-                    await interaction.response.send_message(embed=clearembed, ephemeral=True)
-            else:
-                clearembed = discord.Embed(
-                    title="Error",
-                    color=discord.Color.dark_red(),
-                    timestamp=datetime.now()
-                )
-                clearembed.add_field(
-                    name="Permission Denied",
-                    value=f"<@{interaction.user.id}> you don't have enough permissions to do that.",
-                )
-                await interaction.response.send_message(embed=clearembed, ephemeral=True)
-        except asyncio.TimeoutError:
-            error_embed = discord.Embed(
-                title="Error",
-                description="The `purge()` method call timed out. Please try again later.",
-                color=discord.Color.red(),
-                timestamp=datetime.now()
-            )
-            await interaction.response.send_message(embed=error_embed, ephemeral=True)
-        except discord.Forbidden:
-            error_embed = discord.Embed(
-                title="Error",
-                description="I do not have permission to perform this action. Please make sure I have the `Manage Messages` permission.",
-                color=discord.Color.red(),
-                timestamp=datetime.now()
-            )
-            await interaction.response.send_message(embed=error_embed, ephemeral=True)
+                    embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.display_avatar)
+
+                    await interaction.channel.send(embed=embed)
+                    
         except discord.HTTPException as e:
             error_embed = discord.Embed(
                 title="Error",
@@ -158,14 +120,12 @@ class moderationCog(commands.Cog):
         if "\\" in message:
             message = message.replace("\\", "\n")
 
-        if not interaction.user.guild_permissions.manage_messages:
-            embed = discord.Embed(title="Error", description=f"<@{interaction.user.id}> you don't have enough permissions to do that.", color=discord.Color.dark_red(),
-                timestamp=datetime.now(),
-            )
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
+            bot_perms = await check_bot_perms(interaction, "manage_webhooks")
+            user_perms = await check_user_perms(interaction, "manage_webhooks")
+            if not bot_perms or not user_perms:
+                return
 
-        if channel is None:
-            channel = interaction.channel
+        check_channel(interaction, channel)
 
         try:
             await channel.send(message)
@@ -189,11 +149,10 @@ class moderationCog(commands.Cog):
     @discord.app_commands.describe(member="Who do you want to timeout?")
     async def timeout(self, interaction: discord.Interaction, member: discord.Member, time: Literal["15s", "30s", "1min", "5min", "15min", "30min", "1h"], *, reason: str = None):
 
-        # Check if the user has the moderate_members permission to execute the command
-        if not interaction.user.guild_permissions.moderate_members:
-            embed = discord.Embed(title="Timeout failed", color=0xff0000)
-            embed.add_field(name="Error", value="You do not have permission to use this command.", inline=True,)
-            return await interaction.response.send_message( embed=embed, ephemeral=True)
+        bot_perms = await check_bot_perms(interaction, "moderate_members")
+        user_perms = await check_user_perms(interaction, "moderate_members")
+        if not bot_perms or not user_perms:
+            return
 
         # Map the timeout durations to seconds
         timemap = {
@@ -224,10 +183,6 @@ class moderationCog(commands.Cog):
 
         try:
             timeout_result = await member.timeout(timeout_duration)
-        except discord.errors.Forbidden:
-            embed = discord.Embed(title="Timeout failed", color=0xff0000)
-            embed.add_field(name="Error", value="You do not have permission to use this command.", inline=True,)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
         except Exception as e:
             embed = discord.Embed(title="Timeout failed", color=0xff0000)
             embed.add_field(name="Error", value=f"{e}", inline=True)
@@ -254,20 +209,10 @@ class moderationCog(commands.Cog):
     @discord.app_commands.describe(emoji='The emote you want to clone')
     async def clone_emote(self, interaction: discord.Interaction, emoji: str, new_name: str = None):
 
-        # Check if the bot has permission to manage emojis
-        bot_member = interaction.guild.get_member(self.bot.user.id)
-        if not bot_member.guild_permissions.manage_emojis:
-            return await interaction.response.send_message("I do not have the permission to manage channels.", ephemeral=True)
-
-        # Check if the user has permission to manage emojis
-        if not interaction.user.guild_permissions.manage_emojis:
-            embed = discord.Embed(
-                title="Permission Error",
-                description=f"{interaction.user.mention}, you don't have enough permissions to use this command.",
-                color=discord.Color.red()
-            )
-            embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.display_avatar)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        bot_perms = await check_bot_perms(interaction, "manage_emojis")
+        user_perms = await check_user_perms(interaction, "manage_emojis")
+        if not bot_perms or not user_perms:
+            return
 
         try:
             emoji = discord.PartialEmoji.from_str(emoji)

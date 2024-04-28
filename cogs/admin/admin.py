@@ -10,6 +10,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from helpers.general import print_failure_message
+from helpers.util import check_bot_perms, check_user_perms, check_channel
 
 sys.dont_write_bytecode = True
 
@@ -22,29 +23,10 @@ class Admin(commands.Cog):
     @discord.app_commands.describe(reason="Why do you want to ban this member?")
     async def ban(self, interaction: discord.Interaction, member: discord.Member, *, reason: str = None):
         try:
-            # Check if the bot has the permission to ban members
-            if not interaction.guild.me.guild_permissions.ban_members:
-                embed = discord.Embed(
-                    title="Permission Denied",
-                    color=0xff0000
-                ).add_field(
-                    name="Error",
-                    value="I do not have permission to ban members.",
-                    inline=True
-                )
-                return await interaction.response.send_message(embed=embed, ephemeral=True)
-
-            # Check if the user has the permission to ban members
-            if not interaction.user.guild_permissions.ban_members:
-                embed = discord.Embed(
-                    title="Permission Denied",
-                    color=0xff0000
-                ).add_field(
-                    name="Error",
-                    value="You do not have permission to use this command.",
-                    inline=True
-                )
-                return await interaction.response.send_message(embed=embed, ephemeral=True)
+            bot_perms = await check_bot_perms(interaction, "ban_members")
+            user_perms = await check_user_perms(interaction, "ban_members")
+            if not bot_perms or not user_perms:
+                return
 
             if reason is None:
                 reason = "No reason provided"
@@ -94,28 +76,10 @@ class Admin(commands.Cog):
     @discord.app_commands.describe(reason="Why do you want to softban this member?")
     async def softban(self, interaction: discord.Interaction, member: discord.Member, *, reason: str = None):
         try:
-
-            if not interaction.guild.me.guild_permissions.ban_members:
-                embed = discord.Embed(
-                    title="Permission Denied",
-                    color=0xff0000
-                ).add_field(
-                    name="Error",
-                    value="I do not have permission to ban members.",
-                    inline=True
-                )
-                return await interaction.response.send_message(embed=embed, ephemeral=True)
-
-            if not interaction.user.guild_permissions.ban_members:
-                embed = discord.Embed(
-                    title="Permission Denied",
-                    color=0xff0000
-                ).add_field(
-                    name="Error",
-                    value="You do not have permission to use this command.",
-                    inline=True
-                )
-                return await interaction.response.send_message(embed=embed, ephemeral=True)
+            bot_perms = await check_bot_perms(interaction, "ban_members")
+            user_perms = await check_user_perms(interaction, "ban_members")
+            if not bot_perms or not user_perms:
+                return
 
             if reason is None:
                 reason = "No reason provided"
@@ -171,13 +135,10 @@ class Admin(commands.Cog):
     @discord.app_commands.describe(reason="Why do you want to kick this member?")
     async def kick(self, interaction: discord.Interaction, member: discord.Member, *, reason: str = None):
         try:
-            # Check if the bot has permission to kick members
-            if not interaction.guild.me.guild_permissions.kick_members:
-                raise discord.Forbidden("I do not have the permission to kick members.")
-
-            # Check if the user has permission to kick members
-            if not interaction.user.guild_permissions.kick_members:
-                raise discord.Forbidden("You do not have the permission to kick members.")
+            bot_perms = await check_bot_perms(interaction, "kick_members")
+            user_perms = await check_user_perms(interaction, "kick_members")
+            if not bot_perms or not user_perms:
+                return
 
             # Set a default reason if none is provided
             if reason is None:
@@ -247,19 +208,13 @@ class Admin(commands.Cog):
     @discord.app_commands.describe(visibility="'visible' or 'invisible'")
     async def toggle_channel_lock(self, interaction, channel: discord.TextChannel = None, action: Literal["lock", "unlock"] = "lock",
                             visibility: Literal["visible", "invisible"] = "visible"):
-        # Check if the bot has permission to manage channels
-        bot_member = interaction.guild.get_member(self.bot.user.id)
-        if not bot_member.guild_permissions.manage_channels:
-            await interaction.response.send_message("I do not have the permission to manage channels.", ephemeral=True)
-            return
 
-        # Check if the user has permission to manage channels
-        if not interaction.user.guild_permissions.manage_channels:
-            await interaction.response.send_message("You do not have the permission to lock or unlock channels.", ephemeral=True)
+        bot_perms = await check_bot_perms(interaction, "manage_channels")
+        user_perms = await check_user_perms(interaction, "manage_channels")
+        if not bot_perms or not user_perms:
             return
-
-        # If no channel is specified, lock or unlock the current channel
-        channel = channel or interaction.channel
+            
+        check_channel(interaction, channel)
 
         # Get the permissions for the @everyone role for the channel
         default_role = interaction.guild.default_role
@@ -318,39 +273,12 @@ class Admin(commands.Cog):
     @app_commands.command(name="nuke", description="Nuke a channel")
     @discord.app_commands.describe(channel="The channel you want to nuke")
     async def nuke(self, interaction: discord.Interaction, channel: discord.TextChannel = None):
-        # Check if the bot has permission to manage channels
-        bot_member = interaction.guild.get_member(self.bot.user.id)
-        if not bot_member.guild_permissions.manage_channels:
-            return await interaction.response.send_message("I do not have the permission to manage channels.", ephemeral=True)
+        bot_perms = await check_bot_perms(interaction, "manage_channels")
+        user_perms = await check_user_perms(interaction, "manage_channels")
+        if not bot_perms or not user_perms:
+            return
 
-
-        # Check if the user has permission to manage channels
-        if not interaction.user.guild_permissions.manage_channels:
-            embed = discord.Embed(
-                title="Permission Error",
-                description=f"{interaction.user.mention}, you don't have enough permissions to use this command.",
-                color=discord.Color.red()
-            ).set_footer(
-                text=f"Requested by {interaction.user.name}",
-                icon_url=interaction.user.avatar
-            )
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-
-
-        # Check if the bot has permission to manage channels
-        if not interaction.guild.me.guild_permissions.manage_channels:
-            embed = discord.Embed(
-                title="Permission Error",
-                description=f"I don't have enough permissions to nuke this channel.",
-                color=discord.Color.red()
-            ).set_footer(
-                text=f"Requested by {interaction.user.name}",
-                icon_url=interaction.user.avatar
-            )
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-
-
-        channel = channel or interaction.channel
+        check_channel(interaction, channel)
         try:
             await interaction.response.send_message("Channel will be nuked shortly.", ephemeral=True)
 
@@ -388,13 +316,14 @@ class Admin(commands.Cog):
     @discord.app_commands.describe(message="The text you want to say")
     @discord.app_commands.describe(channel="The channel where the fake message should be sent. (Optional)")
     async def fakemessage(self, interaction: discord.Interaction, member: discord.Member, message: str, channel: discord.TextChannel = None):
-        # Check if the user has the manage webhooks permission
-        if not interaction.user.guild_permissions.manage_webhooks:
-            await interaction.response.send_message("You do not have permission to use this command.", ephemeral=True)
-            return
 
-        # If channel argument is not provided, use the interaction's channel
-        channel = channel or interaction.channel
+        bot_perms = await check_bot_perms(interaction, "manage_webhooks")
+        user_perms = await check_user_perms(interaction, "manage_webhooks")
+        if not bot_perms or not user_perms:
+            return
+            
+
+        check_channel(interaction, channel)
 
         webhook = None
         cloned_emojis = []
@@ -454,7 +383,7 @@ class Admin(commands.Cog):
         content="The new content for the message"
     )
     async def edit_message(self, interaction: discord.Interaction, channel: discord.TextChannel = None, message_id: str = None, content: str = None):
-        channel = channel or interaction.channel
+        check_channel(interaction, channel)
 
         if message_id is None:
             return await interaction.response.send_message("Please provide the ID of the message you want to edit.", ephemeral=True)
@@ -465,22 +394,11 @@ class Admin(commands.Cog):
         except discord.NotFound:
             return await interaction.response.send_message("The specified message was not found.", ephemeral=True)
 
-        # Check if the bot has permission to manage messages
-        bot_member = interaction.guild.get_member(self.bot.user.id)
-        if not bot_member.guild_permissions.manage_messages:
-            return await interaction.response.send_message("I do not have the permission to manage messages.", ephemeral=True)
 
-        # Check if the user has permission to manage messages
-        if not interaction.user.guild_permissions.manage_messages:
-            embed = discord.Embed(
-                title="Permission Error",
-                description=f"{interaction.user.mention}, you don't have enough permissions to use this command.",
-                color=discord.Color.red()
-            ).set_footer(
-                text=f"Requested by {interaction.user.name}",
-                icon_url=interaction.user.avatar
-            )
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        bot_perms = await check_bot_perms(interaction, "manage_messages")
+        user_perms = await check_user_perms(interaction, "manage_messages")
+        if not bot_perms or not user_perms:
+            return
 
         try:
             await message.edit(content=content)

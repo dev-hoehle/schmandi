@@ -3,6 +3,7 @@ import sys
 import discord
 from discord import app_commands
 from discord.ext import commands
+from helpers.util import check_bot_perms, check_user_perms
 
 sys.dont_write_bytecode = True
 
@@ -31,27 +32,10 @@ class mod_apps(commands.Cog):
             )
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
-        # Check if the bot has permission to manage channels
-        if not interaction.guild.me.guild_permissions.manage_channels:
-            embed = discord.Embed(
-                title="Bot Permissions Error",
-                description="I don't have enough permissions to manage channels.",
-                color=discord.Color.red()
-            )
-            embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.display_avatar)
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
-
-        # Check if the user has permission to manage channels
-        if not interaction.user.guild_permissions.manage_channels:
-            embed = discord.Embed(
-                title="Permissions Error",
-                description=f"{interaction.user.mention}, you don't have enough permissions to use this command.",
-                color=discord.Color.red()
-            ).set_footer(
-                text=f"Requested by {interaction.user.name}",
-                icon_url=interaction.user.display_avatar
-            )
-            return await interaction.response.send_message(embed=embed, ephemeral=True)
+        bot_perms = await check_bot_perms(interaction, "manage_channels")
+        user_perms = await check_user_perms(interaction, "manage_messages")
+        if not bot_perms or not user_perms:
+            return
 
         channel = discord.utils.get(interaction.guild.channels, name=interaction.channel.name)
         try:
