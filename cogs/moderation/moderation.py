@@ -78,41 +78,6 @@ class moderationCog(commands.Cog):
             )
             await interaction.response.send_message(embed=error_embed)
 
-
-    @app_commands.command(name="poll", description="Creates a simple poll")
-    @app_commands.describe(text="Your yes/no question")
-    async def poll(self, interaction: discord.Interaction, text: str):
-        try:
-            # Defer the interaction response
-            await interaction.response.defer(ephemeral=True)
-
-            # Check if the user has permission to manage channels
-            if not interaction.user.guild_permissions.manage_channels:
-                poolembed = discord.Embed(title="Error", color=discord.Color.dark_red(), timestamp=datetime.now())
-                poolembed.add_field(name="Permission Denied", value=f"<@{interaction.user.id}> you don't have enough permissions to do that.")
-                return await interaction.followup.send(embed=poolembed, ephemeral=True)
-
-            channel = interaction.channel
-
-            # Show typing status while creating the poll
-            async with interaction.channel.typing():
-
-
-                embed = discord.Embed(title=text, color=0x00D9FF)
-                message = await channel.send(embed=embed, content=None)
-                #poll_message = await message.edit(embed=embed, content=None)
-                #await poll_message.add_reaction("✅")
-                #await poll_message.add_reaction("❌")
-                await message.add_reaction("✅")
-                await message.add_reaction("❌")
-                response = await interaction.followup.send("Done")
-                await response.delete()
-
-
-        except Exception as e:
-            print_failure_message(e)
-
-
     @app_commands.command(name="say", description="Let the bot say something (Use '\\\\' as linebrake)")
     @app_commands.describe(message="The text you want the bot to say")
     @app_commands.describe(channel="The channel where the message will be sent (optional)")

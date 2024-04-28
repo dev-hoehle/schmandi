@@ -247,48 +247,5 @@ class Util(commands.Cog):
         await interaction.response.send_message(embed=embed)
 
 
-    @app_commands.command(name='discordstatus', description="Shows you the discord server status")
-    async def discordstatus(self, interaction: discord.Interaction):
-        try:
-            # Get the server status from the Discord status API
-            async with aiohttp.ClientSession() as session:
-                response = await session.get(url="https://discordstatus.com/api/v2/summary.json")
-                data = json.loads(await response.text())
-
-                if response.status != 200:
-                    raise ValueError(f"Unexpected HTTP status code: {response.status}")
-
-            # Extract the component information from the API response
-            components = [
-                {
-                    "name": component["name"],
-                    "value": component["status"].capitalize(),
-                    "inline": True
-                } for component in data["components"]
-            ]
-
-            embed = discord.Embed(
-                title=data["status"]["description"],
-                description=f"[Discord Status](https://discordstatus.com/)\n **Current Incident:**\n {data['status']['indicator']}",
-                color=0x00D9FF,
-                timestamp=datetime.now()
-            ).set_thumbnail(
-                url="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png"
-            )
-            for component in components:
-                embed.add_field(name=component["name"], value=component["value"], inline=component["inline"])
-            await interaction.response.send_message(embed=embed)
-        except ValueError as e:
-            embed = discord.Embed(
-                title="Error while retrieving discord status",
-                description=str(e),
-                color=discord.Color.dark_red(),
-            )
-            await interaction.response.send_message(embed=embed)
-        except Exception as e:
-            await interaction.response.send_message("Error: " + str(e))
-
-
-
 async def setup(bot):
     await bot.add_cog(Util(bot))
