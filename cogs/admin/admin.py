@@ -89,6 +89,82 @@ class Admin(commands.Cog):
         except Exception as e:
             print_failure_message(f"An error occurred while executing the ban command: {e}")
 
+    @app_commands.command(name="softban", description="Basically a kick. But also deletes a useres message from the past week.")
+    @discord.app_commands.describe(member="The member you want to softban")
+    @discord.app_commands.describe(reason="Why do you want to softban this member?")
+    async def softban(self, interaction: discord.Interaction, member: discord.Member, *, reason: str = None):
+        try:
+
+            if not interaction.guild.me.guild_permissions.ban_members:
+                embed = discord.Embed(
+                    title="Permission Denied",
+                    color=0xff0000
+                ).add_field(
+                    name="Error",
+                    value="I do not have permission to ban members.",
+                    inline=True
+                )
+                return await interaction.response.send_message(embed=embed, ephemeral=True)
+
+            if not interaction.user.guild_permissions.ban_members:
+                embed = discord.Embed(
+                    title="Permission Denied",
+                    color=0xff0000
+                ).add_field(
+                    name="Error",
+                    value="You do not have permission to use this command.",
+                    inline=True
+                )
+                return await interaction.response.send_message(embed=embed, ephemeral=True)
+
+            if reason is None:
+                reason = "No reason provided"
+
+            try:
+                embed = discord.Embed(
+                    title=f"You have been softbanned from **{interaction.guild.name}**!",
+                    color=0x00D9FF
+                ).add_field(
+                    name="Softbanned by",
+                    value=interaction.user.mention
+                ).add_field(
+                    name="Reason",
+                    value=reason
+                )
+                await member.send(embed=embed)
+            except Exception as e:
+                print_failure_message(f"Failed to DM {member}: {e}")
+
+
+            try:                
+                await member.ban(reason=f"{reason} | Softbanned by: {interaction.user.name}", delete_message_days=7)
+            except Exception as e:
+                print_failure_message(f"Failed to softban {member}: {e}")
+
+           
+            try:
+                await interaction.guild.unban(member, reason="Softban lift")
+            except Exception as e:
+                print_failure_message(f"Failed to unban {member} after softban: {e}")
+
+            embed = discord.Embed(
+                title="Member has been softbanned",
+                color=0x00D9FF
+            ).add_field(
+                name="Softbanned User",
+                value=member.mention
+            ).add_field(
+                name="Softbanned by",
+                value=interaction.user.mention
+            ).add_field(
+                name="Reason",
+                value=reason
+            )
+            await interaction.response.send_message(embed=embed)
+        except Exception as e:
+            print_failure_message(f"An error occurred while executing the softban command: {e}")
+
+
 
     @app_commands.command(name="kick", description="Kick someone")
     @discord.app_commands.describe(member="The member you want to kick")
