@@ -92,12 +92,14 @@ class moderationCog(commands.Cog):
             if not bot_perms or not user_perms:
                 return
 
-        if channel == None:
-            channel = interaction.channel
+        # if channel == None:
+        #     channel = interaction.channel
+
+        channelToUse = check_channel(interaction=interaction, channel=channel)
 
         try:
-            await channel.send(message)
-            await interaction.response.send_message(f"Sent message to {channel.mention}", ephemeral=True)
+            await channelToUse.send(message)
+            await interaction.response.send_message(f"Sent message to {channelToUse.mention}", ephemeral=True)
         except discord.Forbidden:
             embed = discord.Embed(title="Error", description="I don't have enough permissions to send messages in that channel.", color=discord.Color.dark_red(),
                 timestamp=datetime.now(),
