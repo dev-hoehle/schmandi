@@ -214,7 +214,8 @@ class Admin(commands.Cog):
         if not bot_perms or not user_perms:
             return
             
-        check_channel(interaction, channel)
+        if channel == None:
+            channel = interaction.channel
 
         # Get the permissions for the @everyone role for the channel
         default_role = interaction.guild.default_role
@@ -323,7 +324,8 @@ class Admin(commands.Cog):
             return
             
 
-        check_channel(interaction, channel)
+        if channel == None:
+            channel = interaction.channel
 
         webhook = None
         cloned_emojis = []
@@ -383,7 +385,8 @@ class Admin(commands.Cog):
         content="The new content for the message"
     )
     async def edit_message(self, interaction: discord.Interaction, channel: discord.TextChannel = None, message_id: str = None, content: str = None):
-        check_channel(interaction, channel)
+        if channel == None:
+            channel = interaction.channel
 
         if message_id is None:
             return await interaction.response.send_message("Please provide the ID of the message you want to edit.", ephemeral=True)

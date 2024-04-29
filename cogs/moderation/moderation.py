@@ -92,7 +92,8 @@ class moderationCog(commands.Cog):
             if not bot_perms or not user_perms:
                 return
 
-        check_channel(interaction, channel)
+        if channel == None:
+            channel = interaction.channel
 
         try:
             await channel.send(message)
