@@ -214,12 +214,11 @@ class Admin(commands.Cog):
         if not bot_perms or not user_perms:
             return
             
-        if channel == None:
-            channel = interaction.channel
+        channelToUse = check_channel(interaction=interaction, channel=channel)
 
         # Get the permissions for the @everyone role for the channel
         default_role = interaction.guild.default_role
-        current_overwrite = channel.overwrites_for(default_role)
+        current_overwrite = channelToUse.overwrites_for(default_role)
 
         # Determine the new permission overwrite for the @everyone role
         if action == "unlock" and current_overwrite.send_messages == False:
@@ -232,10 +231,10 @@ class Admin(commands.Cog):
 
         # Set the new permissions for the @everyone role
         try:
-            await channel.set_permissions(default_role, overwrite=overwrite)
+            await channelToUse.set_permissions(default_role, overwrite=overwrite)
         except discord.Forbidden:
             await interaction.response.send_message(
-                f"I do not have the permission to manage permissions for <#{channel.id}>.",
+                f"I do not have the permission to manage permissions for <#{channelToUse.id}>.",
                 ephemeral=True
             )
             return
@@ -243,17 +242,17 @@ class Admin(commands.Cog):
         # If the channel is being made invisible, temporarily turn off permission syncing
         if visibility == "invisible":
             try:
-                await channel.edit(sync_permissions=False)
+                await channelToUse.edit(sync_permissions=False)
             except discord.Forbidden:
-                await interaction.response.send_message(f"I do not have the permission to edit the channel <#{channel.id}>.", ephemeral=True)
+                await interaction.response.send_message(f"I do not have the permission to edit the channel <#{channelToUse.id}>.", ephemeral=True)
                 return
 
         # If the channel is being made visible, turn permission syncing back on
         if visibility == "visible":
             try:
-                await channel.edit(sync_permissions=True)
+                await channelToUse.edit(sync_permissions=True)
             except discord.Forbidden:
-                return await interaction.response.send_message(f"I do not have the permission to edit the channel <#{channel.id}>.", ephemeral=True)
+                return await interaction.response.send_message(f"I do not have the permission to edit the channel <#{channelToUse.id}>.", ephemeral=True)
 
         # Update the lock/unlock status in the embed title
         action_title = "Locked" if action == "lock" else "Unlocked"
@@ -264,7 +263,7 @@ class Admin(commands.Cog):
             timestamp=datetime.now()
         ).add_field(
             name=f"The following channel has been {action}:",
-            value=f"<#{channel.id}>"
+            value=f"<#{channelToUse.id}>"
         )
         await interaction.response.send_message(embed=lockembed)
 
@@ -324,8 +323,7 @@ class Admin(commands.Cog):
             return
             
 
-        if channel == None:
-            channel = interaction.channel
+        channelToUse = check_channel(interaction=interaction, channel=channel)
 
         webhook = None
         cloned_emojis = []
@@ -333,7 +331,7 @@ class Admin(commands.Cog):
         try:
             # Create a webhook with the member's display name
             webhook_name = member.display_name
-            webhook = await channel.create_webhook(name=webhook_name)
+            webhook = await channelToUse.create_webhook(name=webhook_name)
 
             # Check for emojis in the message
             emojis = re.findall(r"<(a)?:\w+:(\d+)>", message)
@@ -363,7 +361,7 @@ class Admin(commands.Cog):
             # Send the fake message using the webhook
             await webhook.send(content=message, username=member.display_name, avatar_url=member.display_avatar)
 
-            await interaction.response.send_message(f"Successfully sent fake message for {member.mention} in {channel.mention}", ephemeral=True)
+            await interaction.response.send_message(f"Successfully sent fake message for {member.mention} in {channelToUse.mention}", ephemeral=True)
 
         except discord.errors.Forbidden:
             await interaction.response.send_message("I cannot create a webhook in this channel.", ephemeral=True)
@@ -385,15 +383,14 @@ class Admin(commands.Cog):
         content="The new content for the message"
     )
     async def edit_message(self, interaction: discord.Interaction, channel: discord.TextChannel = None, message_id: str = None, content: str = None):
-        if channel == None:
-            channel = interaction.channel
+        channelToUse = check_channel(interaction=interaction, channel=channel)
 
         if message_id is None:
             return await interaction.response.send_message("Please provide the ID of the message you want to edit.", ephemeral=True)
 
         try:
             # Fetch the message using the provided message ID
-            message = await channel.fetch_message(message_id)
+            message = await channelToUse.fetch_message(message_id)
         except discord.NotFound:
             return await interaction.response.send_message("The specified message was not found.", ephemeral=True)
 

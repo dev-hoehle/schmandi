@@ -49,28 +49,24 @@ class moderationCog(commands.Cog):
     @app_commands.describe(amount="The amount of messages to clear")
     async def clear(self, interaction: discord.Interaction, amount: app_commands.Range[int, 1, 100]):
         try:
-                bot_perms = await check_bot_perms(interaction, "manage_channels")
-                user_perms = await check_user_perms(interaction, "manage_channels")
-                if not bot_perms or not user_perms:
-                    return
-
-                await interaction.response.defer()
-                deleted_messages = await asyncio.wait_for(interaction.channel.purge(limit=amount + 1), timeout=30)
-                deleted_messages_count = len(deleted_messages) - 1
-                async with interaction.channel.typing():
-                    success_message = f"**__{deleted_messages_count}__** messages have been successfully deleted."
-                    failure_message = f"Failed to delete **__{amount - deleted_messages_count}__** of __**{amount}**__ messages."
-
-                    embed = discord.Embed(
-                        title="Messages Deleted",
-                        description=f"{success_message}\n{failure_message}",
-                        color=discord.Color.green(),
-                        timestamp=datetime.now()
-                    )
-                    embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.display_avatar)
-
-                    await interaction.channel.send(embed=embed)
-                    
+            bot_perms = await check_bot_perms(interaction, "manage_channels")
+            user_perms = await check_user_perms(interaction, "manage_channels")
+            if not bot_perms or not user_perms:
+                return
+            await interaction.response.defer()
+            deleted_messages = await asyncio.wait_for(interaction.channel.purge(limit=amount + 1), timeout=30)
+            deleted_messages_count = len(deleted_messages) - 1
+            async with interaction.channel.typing():
+                success_message = f"**__{deleted_messages_count}__** messages have been successfully deleted."
+                failure_message = f"Failed to delete **__{amount - deleted_messages_count}__** of __**{amount}**__ messages."
+                embed = discord.Embed(
+                    title="Messages Deleted",
+                    description=f"{success_message}\n{failure_message}",
+                    color=discord.Color.green(),
+                    timestamp=datetime.now()
+                )
+                embed.set_footer(text=f"Requested by {interaction.user.name}", icon_url=interaction.user.display_avatar)
+                await interaction.channel.send(embed=embed)
         except discord.HTTPException as e:
             error_embed = discord.Embed(
                 title="Error",
@@ -91,9 +87,6 @@ class moderationCog(commands.Cog):
             user_perms = await check_user_perms(interaction, "manage_webhooks")
             if not bot_perms or not user_perms:
                 return
-
-        # if channel == None:
-        #     channel = interaction.channel
 
         channelToUse = check_channel(interaction=interaction, channel=channel)
 
