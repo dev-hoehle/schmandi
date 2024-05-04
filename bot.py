@@ -102,9 +102,9 @@ async def bg_task():
 
         if platform.system() == 'Windows':
             status_list[2] = (discord.Status.idle, discord.Activity(
-                type=discord.ActivityType.playing, name="development"))
+                type=discord.ActivityType.playing, name="development mode"))
             await bot.change_presence(status=discord.Status.idle, activity=discord.Activity(
-                type=discord.ActivityType.playing, name="development"))
+                type=discord.ActivityType.playing, name="development mode"))
             return False
 
         current_index = 0
