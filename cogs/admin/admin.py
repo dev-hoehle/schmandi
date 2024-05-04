@@ -278,7 +278,8 @@ class Admin(commands.Cog):
         if not bot_perms or not user_perms:
             return
 
-        check_channel(interaction, channel)
+        channel = check_channel(interaction, channel)
+
         try:
             await interaction.response.send_message("Channel will be nuked shortly.", ephemeral=True)
 
@@ -309,6 +310,7 @@ class Admin(commands.Cog):
                 icon_url=interaction.user.avatar
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
+
 
 
     @app_commands.command(name="fakemessage", description="Fake a message from another member")

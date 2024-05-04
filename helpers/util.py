@@ -10,10 +10,13 @@ def check_member(interaction: discord.Interaction, member: discord.Member = None
         return interaction.user
     return member
 
+
 def check_channel(interaction: discord.Interaction, channel: discord.TextChannel = None) -> discord.TextChannel:
-    if channel == None:
+    if channel is None:
         return interaction.channel
-    return channel
+    else:
+        return channel
+
 
 
 async def check_bot_perms(interaction: discord.Interaction, permission_name: str):
