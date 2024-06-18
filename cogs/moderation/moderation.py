@@ -26,7 +26,7 @@ class moderationCog(commands.Cog):
         user_perms = await check_user_perms(interaction, "manage_members")
         if not bot_perms or not user_perms:
             return
-        
+
         target_member = check_member(interaction=interaction, member=member)
         try:
             await target_member.edit(nick=nickname or member.name)

@@ -76,7 +76,7 @@ class Util(commands.Cog):
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
-    @app_commands.command(name="yt", description="Download a YouTube video by providing its URL") 
+    @app_commands.command(name="yt", description="Download a YouTube video by providing its URL")
     @app_commands.describe(url="Enter the URL of the YouTube video you want to download")
     async def yt(self, interaction: discord.Interaction, url: str):
         await interaction.response.defer(ephemeral=True, thinking=True)
@@ -87,7 +87,7 @@ class Util(commands.Cog):
             # Check if the URL is valid
             if parsed_url.scheme and parsed_url.netloc:
 
-                # If the URL is a shortened youtu.be or music link, replace it with the full video link   
+                # If the URL is a shortened youtu.be or music link, replace it with the full video link
                 if parsed_url.netloc == "youtu.be":
                     url = "https://www.youtube.com/watch?v=" + parsed_url.path.lstrip("/")
                 if parsed_url.netloc == "music.youtube.com":

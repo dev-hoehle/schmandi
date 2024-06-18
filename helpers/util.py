@@ -37,13 +37,13 @@ async def check_bot_perms(interaction: discord.Interaction, permission_name: str
         return False
     else:
         return True
-    
+
 async def check_user_perms(interaction: discord.Interaction, permission_name: str):
     user_member = interaction.guild.get_member(int(interaction.user.id))
 
     permissions = user_member.guild_permissions
     if not getattr(permissions, permission_name):
-        
+
         embed = discord.Embed(
             title="Permission Denied",
             color=0xff0000

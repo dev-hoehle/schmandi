@@ -100,12 +100,12 @@ class Admin(commands.Cog):
                 print_failure_message(f"Failed to DM {member}: {e}")
 
 
-            try:                
+            try:
                 await member.ban(reason=f"{reason} | Softbanned by: {interaction.user.name}", delete_message_days=7)
             except Exception as e:
                 print_failure_message(f"Failed to softban {member}: {e}")
 
-           
+
             try:
                 await interaction.guild.unban(member, reason="Softban lift")
             except Exception as e:
@@ -213,7 +213,7 @@ class Admin(commands.Cog):
         user_perms = await check_user_perms(interaction, "manage_channels")
         if not bot_perms or not user_perms:
             return
-            
+
         channelToUse = check_channel(interaction=interaction, channel=channel)
 
         # Get the permissions for the @everyone role for the channel
@@ -323,7 +323,7 @@ class Admin(commands.Cog):
         user_perms = await check_user_perms(interaction, "manage_webhooks")
         if not bot_perms or not user_perms:
             return
-            
+
 
         channelToUse = check_channel(interaction=interaction, channel=channel)
 

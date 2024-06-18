@@ -51,9 +51,9 @@ class util_apps(commands.Cog):
         target_member = check_member(interaction=interaction, member=member)
 
         user_created_at = target_member.created_at.strftime("%b %d, %Y %I:%M %p")
-        joined_at = ""  
-        nickname = ""  
-        top_role = "" 
+        joined_at = ""
+        nickname = ""
+        top_role = ""
 
         if interaction.guild:
             joined_at = target_member.joined_at.strftime("%b %d, %Y %I:%M %p")
@@ -103,7 +103,7 @@ class util_apps(commands.Cog):
                 value=f"{top_role}",
                 inline=True
             )
-            
+
         button = Button(style=discord.ButtonStyle.link, label=f"Download {target_member.display_name}'s Avatar", url=str(target_member.avatar))
         button2 = Button(style=discord.ButtonStyle.link, label=f"Download {target_member.display_name}'s guild Avatar", url=str(target_member.display_avatar))
         view = View()
