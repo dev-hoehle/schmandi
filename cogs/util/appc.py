@@ -6,7 +6,7 @@ from discord import app_commands
 from discord.ext import commands
 from discord.ui import Button, View
 
-from helpers.util import check_member
+from helpers.util import check_member, isDMChannel
 
 sys.dont_write_bytecode = True
 
@@ -47,33 +47,21 @@ class util_apps(commands.Cog):
         )
         await interaction.response.send_message(embed=embed)
 
-    async def userinfo(self, interaction: discord.Interaction, member: discord.Member = None) -> None:
+    async def userinfo(self, interaction: discord.Interaction, member: discord.User = None):
         target_member = check_member(interaction=interaction, member=member)
 
         user_created_at = target_member.created_at.strftime("%b %d, %Y %I:%M %p")
-        joined_at = ""
-        nickname = ""
-        top_role = ""
-
-        if interaction.guild:
-            joined_at = target_member.joined_at.strftime("%b %d, %Y %I:%M %p")
-            nickname = target_member.nick if target_member.nick else "None"  # Set nickname or 'None' if no nickname
-            top_role = target_member.top_role.mention
 
         embed = discord.Embed(
             color=target_member.color
         ).set_thumbnail(
-            url=target_member.display_avatar
+            url=target_member.display_avatar.url
         ).set_author(
             name=f"{target_member.display_name}'s Info",
-            icon_url=target_member.avatar
+            icon_url=target_member.avatar.url if target_member.avatar else ""
         ).add_field(
             name="Name",
             value=f"```{target_member.name}```",
-            inline=False
-        ).add_field(
-            name="Display Name",
-            value=f"```{target_member.display_name}```",
             inline=False
         ).add_field(
             name="Global Name",
@@ -89,26 +77,32 @@ class util_apps(commands.Cog):
             inline=False
         )
 
-        if interaction.guild:
+        view = View()
+
+        # Add server-specific fields if not in DM
+        if not isDMChannel(interaction):
+            joined_at = target_member.joined_at.strftime("%b %d, %Y %I:%M %p")
             embed.add_field(
+                name="Display Name",
+                value=f"```{target_member.display_name}```",
+                inline=False
+            ).add_field(
                 name="Joined",
                 value=f"{joined_at}",
                 inline=True
             ).add_field(
-                name="Nickname",
-                value=f"{nickname}",
-                inline=True
-            ).add_field(
                 name="Highest Role",
-                value=f"{top_role}",
+                value=f"{target_member.top_role.mention}",
                 inline=True
             )
 
-        button = Button(style=discord.ButtonStyle.link, label=f"Download {target_member.display_name}'s Avatar", url=str(target_member.avatar))
-        button2 = Button(style=discord.ButtonStyle.link, label=f"Download {target_member.display_name}'s guild Avatar", url=str(target_member.display_avatar))
-        view = View()
-        view.add_item(button)
-        view.add_item(button2)
+            if target_member.display_avatar:
+                button2 = Button(style=discord.ButtonStyle.link, label=f"Download {target_member.display_name}'s guild Avatar", url=str(target_member.display_avatar.url))
+                view.add_item(button2)
+
+        if target_member.avatar:
+            button = Button(style=discord.ButtonStyle.link, label=f"Download {target_member.display_name}'s Avatar", url=str(target_member.avatar.url))
+            view.add_item(button)
 
         await interaction.response.send_message(embed=embed, view=view)
 

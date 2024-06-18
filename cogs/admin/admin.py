@@ -19,8 +19,9 @@ class Admin(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="ban", description="Ban someone")
-    @discord.app_commands.describe(member="The member you want to ban")
-    @discord.app_commands.describe(reason="Why do you want to ban this member?")
+    @app_commands.describe(member="The member you want to ban")
+    @app_commands.describe(reason="Why do you want to ban this member?")
+    @app_commands.guild_only()
     async def ban(self, interaction: discord.Interaction, member: discord.Member, *, reason: str = None):
         try:
             bot_perms = await check_bot_perms(interaction, "ban_members")
@@ -72,8 +73,9 @@ class Admin(commands.Cog):
             print_failure_message(f"An error occurred while executing the ban command: {e}")
 
     @app_commands.command(name="softban", description="Basically a kick. But also deletes a useres message from the past week.")
-    @discord.app_commands.describe(member="The member you want to softban")
-    @discord.app_commands.describe(reason="Why do you want to softban this member?")
+    @app_commands.describe(member="The member you want to softban")
+    @app_commands.describe(reason="Why do you want to softban this member?")
+    @app_commands.guild_only()
     async def softban(self, interaction: discord.Interaction, member: discord.Member, *, reason: str = None):
         try:
             bot_perms = await check_bot_perms(interaction, "ban_members")
@@ -131,8 +133,9 @@ class Admin(commands.Cog):
 
 
     @app_commands.command(name="kick", description="Kick someone")
-    @discord.app_commands.describe(member="The member you want to kick")
-    @discord.app_commands.describe(reason="Why do you want to kick this member?")
+    @app_commands.describe(member="The member you want to kick")
+    @app_commands.describe(reason="Why do you want to kick this member?")
+    @app_commands.guild_only()
     async def kick(self, interaction: discord.Interaction, member: discord.Member, *, reason: str = None):
         try:
             bot_perms = await check_bot_perms(interaction, "kick_members")
@@ -203,9 +206,10 @@ class Admin(commands.Cog):
 
 
     @app_commands.command(name="toggle_channel_lock", description="Locks or unlocks a channel")
-    @discord.app_commands.describe(channel="The channel you want to lock or unlock")
-    @discord.app_commands.describe(action="'lock' or 'unlock'")
-    @discord.app_commands.describe(visibility="'visible' or 'invisible'")
+    @app_commands.describe(channel="The channel you want to lock or unlock")
+    @app_commands.describe(action="'lock' or 'unlock'")
+    @app_commands.describe(visibility="'visible' or 'invisible'")
+    @app_commands.guild_only()
     async def toggle_channel_lock(self, interaction, channel: discord.TextChannel = None, action: Literal["lock", "unlock"] = "lock",
                             visibility: Literal["visible", "invisible"] = "visible"):
 
@@ -271,7 +275,8 @@ class Admin(commands.Cog):
 
 
     @app_commands.command(name="nuke", description="Nuke a channel")
-    @discord.app_commands.describe(channel="The channel you want to nuke")
+    @app_commands.describe(channel="The channel you want to nuke")
+    @app_commands.guild_only()
     async def nuke(self, interaction: discord.Interaction, channel: discord.TextChannel = None):
         bot_perms = await check_bot_perms(interaction, "manage_channels")
         user_perms = await check_user_perms(interaction, "manage_channels")
@@ -314,9 +319,10 @@ class Admin(commands.Cog):
 
 
     @app_commands.command(name="fakemessage", description="Fake a message from another member")
-    @discord.app_commands.describe(member="The member you want to impersonate in the message.")
-    @discord.app_commands.describe(message="The text you want to say")
-    @discord.app_commands.describe(channel="The channel where the fake message should be sent. (Optional)")
+    @app_commands.describe(member="The member you want to impersonate in the message.")
+    @app_commands.describe(message="The text you want to say")
+    @app_commands.describe(channel="The channel where the fake message should be sent. (Optional)")
+    @app_commands.guild_only()
     async def fakemessage(self, interaction: discord.Interaction, member: discord.Member, message: str, channel: discord.TextChannel = None):
 
         bot_perms = await check_bot_perms(interaction, "manage_webhooks")
@@ -379,11 +385,12 @@ class Admin(commands.Cog):
 
 
     @app_commands.command(name="edit_message", description="Edit a message in the current or specified channel")
-    @discord.app_commands.describe(
+    @app_commands.describe(
         channel="The channel where the message is located (optional, defaults to the current channel)",
         message_id="The ID of the message you want to edit",
         content="The new content for the message"
     )
+    @app_commands.guild_only()
     async def edit_message(self, interaction: discord.Interaction, channel: discord.TextChannel = None, message_id: str = None, content: str = None):
         channelToUse = check_channel(interaction=interaction, channel=channel)
 

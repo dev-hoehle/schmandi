@@ -5,7 +5,7 @@ from helpers.config import get_config_value
 
 bot_id = get_config_value("bot_id")
 
-def check_member(interaction: discord.Interaction, member: discord.Member = None) -> discord.Member:
+def check_member(interaction: discord.Interaction, member: discord.User = None) -> discord.User:
     if member == None:
         return interaction.user
     return member
@@ -17,6 +17,10 @@ def check_channel(interaction: discord.Interaction, channel: discord.TextChannel
     else:
         return channel
 
+def isDMChannel(interaction: discord.Interaction) -> bool:
+  if isinstance(interaction.channel, discord.DMChannel):
+    return True
+  return False
 
 
 async def check_bot_perms(interaction: discord.Interaction, permission_name: str):

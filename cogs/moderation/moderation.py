@@ -21,6 +21,7 @@ class moderationCog(commands.Cog):
     @app_commands.command(name="nickname", description="Changes the bot's or a user's nickname")
     @app_commands.describe(member="The member whose nickname you want to change (optional)")
     @app_commands.describe(nickname="The nickname you want the bot or user to have")
+    @app_commands.guild_only()
     async def nickname(self, interaction: discord.Interaction, member: discord.Member = None, nickname: str = None):
         bot_perms = await check_bot_perms(interaction, "manage_members")
         user_perms = await check_user_perms(interaction, "manage_members")
@@ -47,6 +48,7 @@ class moderationCog(commands.Cog):
     #@app_commands.checks.cooldown(1, 15.0, key=None)
     @app_commands.command(name="clear", description="Deletes a certain number of messages")
     @app_commands.describe(amount="The amount of messages to clear")
+    @app_commands.guild_only()
     async def clear(self, interaction: discord.Interaction, amount: app_commands.Range[int, 1, 100]):
         try:
             bot_perms = await check_bot_perms(interaction, "manage_channels")
@@ -79,6 +81,7 @@ class moderationCog(commands.Cog):
     @app_commands.command(name="say", description="Let the bot say something (Use '\\\\' as linebrake)")
     @app_commands.describe(message="The text you want the bot to say")
     @app_commands.describe(channel="The channel where the message will be sent (optional)")
+    @app_commands.guild_only()
     async def say(self, interaction: discord.Interaction, message: str, channel: discord.TextChannel = None):
         if "\\" in message:
             message = message.replace("\\", "\n")
@@ -109,7 +112,8 @@ class moderationCog(commands.Cog):
 
 
     @app_commands.command(name="timeout", description="Timeout a Member.")
-    @discord.app_commands.describe(member="Who do you want to timeout?")
+    @app_commands.describe(member="Who do you want to timeout?")
+    @app_commands.guild_only()
     async def timeout(self, interaction: discord.Interaction, member: discord.Member, time: Literal["15s", "30s", "1min", "5min", "15min", "30min", "1h"], *, reason: str = None):
 
         bot_perms = await check_bot_perms(interaction, "moderate_members")
@@ -170,6 +174,7 @@ class moderationCog(commands.Cog):
 
     @discord.app_commands.command(name='clone_emote', description="Clone an emote from another server to your server")
     @discord.app_commands.describe(emoji='The emote you want to clone')
+    @app_commands.guild_only()
     async def clone_emote(self, interaction: discord.Interaction, emoji: str, new_name: str = None):
 
         bot_perms = await check_bot_perms(interaction, "manage_emojis")
