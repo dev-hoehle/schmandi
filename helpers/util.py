@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-
+from urllib.parse import urlparse, parse_qs
 from helpers.config import get_config_value
 
 bot_id = get_config_value("bot_id")
@@ -60,3 +60,26 @@ async def check_user_perms(interaction: discord.Interaction, permission_name: st
         return False
     else:
         return True
+
+
+
+def get_video_id(url):
+    parsed_url = urlparse(url)
+    video_id = None
+
+    # Handle standard YouTube URLs
+    if parsed_url.hostname in ["www.youtube.com", "youtube.com"]:
+        if parsed_url.path == "/watch":
+            video_id = parse_qs(parsed_url.query).get("v")
+            video_id = video_id[0] if video_id else None
+        elif parsed_url.path.startswith("/shorts/"):
+            video_id = parsed_url.path.split("/")[2] if len(parsed_url.path.split("/")) > 2 else None
+
+    # Handle shared YouTube URLs
+    elif parsed_url.hostname in ["youtu.be"]:
+        video_id = parsed_url.path[1:]
+
+    if not video_id:
+        return None
+
+    return video_id

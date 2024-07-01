@@ -10,13 +10,12 @@ import aiohttp
 import cpuinfo
 import discord
 import psutil
-from urllib.parse import urlparse, parse_qs
 from discord import app_commands
 from discord.ext import commands
 from discord.ui import Button, View
 
 from helpers.general import print_failure_message
-from helpers.util import check_member, isDMChannel
+from helpers.util import check_member, isDMChannel, get_video_id
 
 sys.dont_write_bytecode = True
 
@@ -82,12 +81,10 @@ class Util(commands.Cog):
     async def yt(self, interaction: discord.Interaction, url: str):
         await interaction.response.defer(ephemeral=True, thinking=True)
         try:
-            # Parse the URL to get the video ID
-            parsed_url = urlparse(url)
-            video_id = parse_qs(parsed_url.query).get("v")
+            video_id = get_video_id(url)
             if not video_id:
                 return await interaction.followup.send("The provided URL is invalid.", ephemeral=True)
-            video_id = video_id[0]
+
 
             # Prepare the request URL for the new API
             request_url = f'https://vidmatez.click/v2/json/videos/{video_id}'
