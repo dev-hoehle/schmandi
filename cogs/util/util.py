@@ -15,7 +15,7 @@ from discord.ext import commands
 from discord.ui import Button, View
 
 from helpers.general import print_failure_message
-from helpers.util import check_member, isDMChannel, get_video_id
+from helpers.util import check_member, get_video_id, isDMChannel
 
 sys.dont_write_bytecode = True
 

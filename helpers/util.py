@@ -1,6 +1,8 @@
+from urllib.parse import parse_qs, urlparse
+
 import discord
 from discord.ext import commands
-from urllib.parse import urlparse, parse_qs
+
 from helpers.config import get_config_value
 
 bot_id = get_config_value("bot_id")
