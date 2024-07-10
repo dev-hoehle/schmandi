@@ -48,8 +48,7 @@ class Bot(commands.Bot):
         await self.tree.sync()
 
 
-intents = discord.Intents.all()
-intents.presences = True
+intents = discord.Intents.default()
 intents.members = True
 bot = Bot(intents=intents)
 bot.remove_command("help")
