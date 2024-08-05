@@ -140,6 +140,8 @@ class Util(commands.Cog):
             error_message = f"An unexpected error occurred: {str(e)}"
             await interaction.followup.send(error_message, ephemeral=True)
 
+    @app_commands.command(name="userinfo", description="Gives you information about a user")
+    @app_commands.describe(member="Which user would you like to get information about?")
     async def userinfo(self, interaction: discord.Interaction, member: discord.User = None):
         target_member = check_member(interaction=interaction, member=member)
 
