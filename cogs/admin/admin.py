@@ -383,6 +383,69 @@ class Admin(commands.Cog):
             for emoji in cloned_emojis:
                 await emoji.delete()
 
+    @app_commands.command(name="fakepeople", description="Fake a message from another person")
+    @app_commands.describe(name="The name of the person you want to impersonate in the message.")
+    @app_commands.describe(message="The text you want to say")
+    @app_commands.describe(image_url="The image URL of the person's avatar")
+    @app_commands.describe(channel="The channel where the fake message should be sent. (Optional)")
+    @app_commands.guild_only()
+    async def fakepeople(self, interaction: discord.Interaction, name: str, message: str, image_url: str, channel: discord.TextChannel = None):
+
+        bot_perms = await check_bot_perms(interaction, "manage_webhooks")
+        user_perms = await check_user_perms(interaction, "manage_webhooks")
+        if not bot_perms or not user_perms:
+            return
+
+        channelToUse = check_channel(interaction=interaction, channel=channel)
+
+        webhook = None
+        cloned_emojis = []
+
+        try:
+            # Create a webhook with the specified name
+            webhook = await channelToUse.create_webhook(name=name)
+
+            # Check for emojis in the message
+            emojis = re.findall(r"<(a)?:\w+:(\d+)>", message)
+
+            # Clone emojis to the server if they are not already present
+            for animated, emoji_id in emojis:
+                emoji = discord.utils.get(interaction.guild.emojis, id=int(emoji_id))
+                if not emoji:
+                    # Use the clone_emote logic to clone the emoji
+                    emoji_url = f"https://cdn.discordapp.com/emojis/{emoji_id}.{'gif' if animated else 'png'}"
+                    async with aiohttp.ClientSession() as session:
+                        get_bytes = await session.get(url=emoji_url)
+                        if get_bytes.status != 200:
+                            await interaction.response.send_message("Failed to clone emote: Invalid emote.", ephemeral=True)
+                            return
+
+                        emoji_bytes = bytes(await get_bytes.read())
+
+                    emoji_name = f"fake_{emoji_id}"
+                    emoji = await interaction.guild.create_custom_emoji(name=emoji_name, image=emoji_bytes)
+                    cloned_emojis.append(emoji)
+
+            # Modify the message to include the cloned emojis
+            for emoji in cloned_emojis:
+                message = re.sub(r"<(a)?:\w+:(\d+)>", str(emoji), message)
+
+            # Send the fake message using the webhook with the specified name and avatar
+            await webhook.send(content=message, username=name, avatar_url=image_url)
+
+            await interaction.response.send_message(f"Successfully sent fake message as {name} in {channelToUse.mention}", ephemeral=True)
+
+        except discord.errors.Forbidden:
+            await interaction.response.send_message("I cannot create a webhook in this channel.", ephemeral=True)
+        except discord.errors.HTTPException as e:
+            await interaction.response.send_message(f"Failed to send fake message: {e}", ephemeral=True)
+        finally:
+            # Delete the webhook after the fake message is sent
+            await asyncio.sleep(10)
+            if webhook:
+                await webhook.delete()
+            for emoji in cloned_emojis:
+                await emoji.delete()
 
     @app_commands.command(name="edit_message", description="Edit a message in the current or specified channel")
     @app_commands.describe(
