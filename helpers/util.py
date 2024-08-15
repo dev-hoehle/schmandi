@@ -1,3 +1,4 @@
+import platform
 from urllib.parse import parse_qs, urlparse
 
 import discord
@@ -6,6 +7,8 @@ from discord.ext import commands
 from helpers.config import get_config_value
 
 bot_id = get_config_value("bot_id")
+developer_ids = get_config_value("developer_ids")
+
 
 def check_member(interaction: discord.Interaction, member: discord.User = None) -> discord.User:
     if member == None:
@@ -19,15 +22,15 @@ def check_channel(interaction: discord.Interaction, channel: discord.TextChannel
     else:
         return channel
 
+
 def isDMChannel(interaction: discord.Interaction) -> bool:
-  if isinstance(interaction.channel, discord.DMChannel):
-    return True
-  return False
+    if isinstance(interaction.channel, discord.DMChannel):
+        return True
+    return False
 
 
 async def check_bot_perms(interaction: discord.Interaction, permission_name: str):
     bot_member = interaction.guild.get_member(int(bot_id))
-
 
     permissions = bot_member.guild_permissions
     if not getattr(permissions, permission_name):
@@ -44,7 +47,12 @@ async def check_bot_perms(interaction: discord.Interaction, permission_name: str
     else:
         return True
 
+
 async def check_user_perms(interaction: discord.Interaction, permission_name: str):
+    if platform.system() == 'Windows':
+        if str(interaction.user.id) not in developer_ids:
+            await interaction.response.send_message("You can't execute this command because the bot is in development mode.", ephemeral=True)
+
     user_member = interaction.guild.get_member(int(interaction.user.id))
 
     permissions = user_member.guild_permissions
@@ -64,7 +72,6 @@ async def check_user_perms(interaction: discord.Interaction, permission_name: st
         return True
 
 
-
 def get_video_id(url):
     parsed_url = urlparse(url)
     video_id = None
@@ -75,7 +82,8 @@ def get_video_id(url):
             video_id = parse_qs(parsed_url.query).get("v")
             video_id = video_id[0] if video_id else None
         elif parsed_url.path.startswith("/shorts/"):
-            video_id = parsed_url.path.split("/")[2] if len(parsed_url.path.split("/")) > 2 else None
+            video_id = parsed_url.path.split(
+                "/")[2] if len(parsed_url.path.split("/")) > 2 else None
 
     # Handle shared YouTube URLs
     elif parsed_url.hostname in ["youtu.be"]:

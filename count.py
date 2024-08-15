@@ -1,5 +1,6 @@
 import os
 
+
 def count_lines_of_code(directory="."):
     total_lines = 0
 

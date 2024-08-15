@@ -2,5 +2,9 @@
     "token": "",
     "tenor_key": "",
     "tenor_name": "",
-    "greetmembers": true
+    "greetmembers": true,
+    "developer_ids": [
+        "",
+        ""
+      ]
 }

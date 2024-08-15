@@ -60,7 +60,7 @@ async def on_ready():
 
     print_success_message(f'Loaded [{loaded}/{allcogs}] cogs')
 
-    await bot.change_presence(status=discord.Status.idle, activity=discord.Activity(type=discord.ActivityType.watching, name="anditv.it"),)
+    await bot.change_presence(status=discord.Status.idle, activity=discord.Activity(type=discord.ActivityType.watching, name="anditv.dev"),)
     print_success_message(f'has connected as {bot.user} via discord.py {discord.__version__}')
 
     bg_task.start()
