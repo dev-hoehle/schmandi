@@ -1,4 +1,4 @@
-aiohttp==3.11.10
+aiohttp==3.11.12
 colorama==0.4.6
 discord.py==2.4.0
 psutil==6.1.1
