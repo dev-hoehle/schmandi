@@ -1,5 +1,5 @@
 aiohttp==3.11.13
 colorama==0.4.6
-discord.py==2.5.1
+discord.py==2.5.2
 psutil==7.0.0
 py_cpuinfo==9.0.0
